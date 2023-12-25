@@ -1,7 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 
-const Forms = ({title,handleForm }) => {
+interface FormProps{
+  title: string;
+  handleForm:(email:string, pass:string) => void;
+}
+const Forms:FC<FormProps> = ({title,handleForm }) => {
     const [email, useEmail] = useState('');
     const [pass, usePass] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +37,8 @@ const Forms = ({title,handleForm }) => {
       </button>
 
     <button
-    onClick={handleForm}>
+    onClick={()=>handleForm(email, pass)}
+    >
       {title}
     </button>
     </form>

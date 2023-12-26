@@ -2,24 +2,21 @@ import React from 'react';
 import './App.css';
 import Login from './Components/login';
 import { useAuth } from 'hooks/use-auth';
+import { Route, Router, } from 'react-router-dom';
+import {Loyaut} from 'Components/Loyaut';
+import {HomePage} from 'pages/homePage';
+import {LoginPage} from 'pages/loginPage';
+import {RegisterPage} from 'pages/registerPage';
 
 function App() {
-  const {isAuth, email} = useAuth();
-  const authtest = () => {
-    if(isAuth){
-      return(
-        <span>${email}</span>
-      )
-    }
-  }
   return (
-    <div className="App">
-      <header className="App-header">
-        1
-      </header>
-      <Login />
-      {authtest()}
-    </div>
+    <Router location={''} navigator={undefined}>
+      
+      <Route path="/" element={<Loyaut/>}>
+        <Route index element={<LoginPage/>}/>
+        <Route path="register" element={<RegisterPage/>}/>
+      </Route>
+    </Router>
   );
 }
 

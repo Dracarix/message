@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { FC, useState } from 'react';
+import { Form } from 'react-router-dom';
 
 interface FormProps{
   title: string;
@@ -15,8 +16,8 @@ const Forms:FC<FormProps> = ({title,handleForm }) => {
       e.preventDefault();
     };
   return (
-    <form>
-        <input 
+    <Form>
+              <input 
             type="email"
             placeholder='Email' 
             value={email}
@@ -41,7 +42,8 @@ const Forms:FC<FormProps> = ({title,handleForm }) => {
     >
       {title}
     </button>
-    </form>
+    </Form>
+
   );
 };
 

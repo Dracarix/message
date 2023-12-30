@@ -6,7 +6,7 @@ interface FormProps{
   title: string;
   handleForm:(email:string, pass:string) => void;
 }
-const Forms:FC<FormProps> = ({title,handleForm }) => {
+const FormLogin:FC<FormProps> = ({title,handleForm }) => {
     const [email, useEmail] = useState('');
     const [pass, usePass] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -47,4 +47,4 @@ const Forms:FC<FormProps> = ({title,handleForm }) => {
   );
 };
 
-export default Forms;
+export default FormLogin;

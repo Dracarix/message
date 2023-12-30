@@ -1,39 +1,46 @@
-import Forms from 'Components/UI/form/form';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { FormRegister } from 'Components/UI/form/formRegister';
+import { getAuth, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, updateProfile } from 'firebase/auth';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { useAppDispatch } from 'hooks/use-redux';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { setUser } from 'store/users/user.slice';
 
 const RegisterPage = () => {
   const dispatch = useAppDispatch();
-  
-  const handleReg = (email:string, password:string) => {
-    const auth = getAuth()
-    createUserWithEmailAndPassword(auth, email, password)
-    .then(({user}) => {
-      dispatch(setUser({
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const db = getFirestore();
+  const handleReg = async (email:string, password:string, name: string) => {
+
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      await setPersistence(auth, browserLocalPersistence);
+      await updateProfile(user, { displayName: name });
+      const userRef = doc(db, 'users', user.uid);
+      const userData = {
         email: user.email,
         token: user.refreshToken,
-        id: user.uid
-        
-      }))
-    })
-    .catch((error) => {
+        id: user.uid,
+        name: user.displayName,
+      };
+      await setDoc(userRef, userData);
+      dispatch(setUser(userData))
+
+
+      navigate('/messages');
+    } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.log(errorCode)
-      console.log(errorMessage)
-      // ..
-    });
-
-  }
+      console.error(errorCode);
+      console.error(errorMessage);
+    }
+  };
   return (
     <>
-      <Forms title="register" handleForm={handleReg}/>
+      <FormRegister title="register" handleForm={handleReg}/>
       <Link to='/'>login</Link>
     </>
-  );
+  );    
 };
 
 export {RegisterPage};

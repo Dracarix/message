@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react';
 import { Form } from 'react-router-dom';
+import './form.scss';
 
 interface FormProps{
     title: string;
@@ -17,35 +18,57 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
       e.preventDefault();
     };
   return (
-    <Form>
-        <input 
-        type='name' 
-        placeholder='Name' 
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        />
-        <input 
-            type="email"
-            placeholder='Email' 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-        />
-        <input 
-            type="password"
-            value={pass}
-            placeholder='Password' 
-            onChange={(e) => setPass(e.target.value)}
-        />
+    <Form
+    className="form">
+        <p className="title"> Registration </p>
+
+        <label>
+            <input 
+              type='name' 
+              value={name}
+              placeholder=''
+              required
+              className='input'
+              onChange={(e) => setName(e.target.value)}
+            />
+            <span>Name</span>
+        </label>
+
+        <label>
+          <input 
+              type="email"
+              value={email}
+              className='input'
+              placeholder=''
+              required
+              onChange={(e) => setEmail(e.target.value)}
+          />
+          <span>Email</span>
+        </label> 
+        <label>
+          <input 
+              type="password"
+              value={pass}
+              className='input'
+              placeholder=''
+              required
+              onChange={(e) => setPass(e.target.value)}
+          />
+          <span>Password</span>
+      </label>
+
         <button
         onClick={togglePasswordVisibility}
         style={{ cursor: "pointer" }}
         hidden
+        title='hide or not hide password'
       >
         <img src={showPassword ? "./svg/noeye.svg" : "./svg/eye.svg"} alt="" />
       </button>
 
     <button
-    onClick={()=>handleForm(email, pass, name)}
+      className="submit"
+      onClick={()=>handleForm(email, pass, name)}
     >
       {title}
     </button>

@@ -1,29 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { SearchUserState } from "types/user";
 
-interface searchUserData {
-    name: string;
-    photoURL: string;
-  }
 
-const initialState: { data: searchUserData | null } = {
-    data: null,
+
+export interface UserSearchDispatch {
+  users: SearchUserState[];
+  
 }
 
-const SearchUsers = createSlice({
+const initialState: UserSearchDispatch = {
+  users: [],
+};
+const SearchUsersSlice = createSlice({
     name: 'SearchUsers',
     initialState,
     reducers: {
         setSearchUserData: (state, action) => {
-            // Modify the state with the received data
-            return {
-                ...state,
-                userData: action.payload
-            };
-        }
-
-    }
-});
-export const { setSearchUserData } = SearchUsers.actions;
+        state.users = action.payload;
+      },
+    },
+  });
+export const { setSearchUserData } = SearchUsersSlice.actions;
 
 // Reducer
-export const searchUsersReducer = SearchUsers.reducer;
+export const searchUsersReducer = SearchUsersSlice.reducer;

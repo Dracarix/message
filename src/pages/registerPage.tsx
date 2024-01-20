@@ -22,7 +22,7 @@ const RegisterPage = () => {
   const { loading, error} = useSelector((state: RootState) => state.process)|| {};
   const [hasError, setHasError] = useState(false);
   const {isAuth} = useAuth();
-  const defaultPhoto = '../images/default__photo.jpg'
+  const defaultPhoto = 'https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/default__photo.jpg?alt=media&token=808ffaeb-5259-4554-b25a-782e7b38ce8b'
   useEffect(() => {
     if (error !== null) {
       setHasError(true);

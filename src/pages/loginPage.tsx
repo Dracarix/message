@@ -84,6 +84,7 @@ const LoginPage = () => {
         token: user.refreshToken,
         id: user.uid,
         name: user.displayName,
+        photoURL: user.photoURL,
       };
       dispatch(setUser(userData));
       dispatch(ProcessDataSuccess());

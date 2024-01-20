@@ -23,6 +23,7 @@ const DeleteAcc:FC = () => {
         if (user) {
           try {
             await deleteDoc(doc(db, 'users', uid.toString()));
+            await deleteDoc(doc(db, 'UserChat', uid.toString()));
             await deleteUser(user);
             await signOut(auth);
       

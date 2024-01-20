@@ -1,0 +1,25 @@
+
+.user-list{
+    position: absolute;
+    transform: translate(100%, 80%);
+    user-select: none;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+.user-item{
+    background-color: grey;
+    height: 30px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    margin: 10px 0;
+    color: red;
+    font-size: 12px;
+}
+.user-item img{
+    border-radius: 50%;
+    height: 100%;
+    width: 30px;
+}

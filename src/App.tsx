@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import './App.css';
+import './styles/style.scss'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, } from 'react-router-dom';
 import {Loyaut} from 'Components/Loyaut';
 import {HomePage} from 'pages/homePage';
@@ -14,6 +15,7 @@ import { removeUser, setUser } from 'store/users/user.slice';
 import ErrorBoundary from 'Components/errorBount';
 import PrivateAuth from 'Components/hoc/PrivateAuth';
 import { NotPages } from 'pages/NotPages';
+import { Chats } from 'pages/Chat';
 
 function App() {  
   const dispatch = useAppDispatch();
@@ -27,6 +29,7 @@ function App() {
         token: user.refreshToken,
         id: user.uid,
         name: user.displayName,
+        photoURL: user.photoURL,
       }));
 
       } else {
@@ -42,6 +45,7 @@ function App() {
           <Route path='profile' element={<HomePage />} />
           <Route index element={<Masseges />} />
           <Route path='error' element={<ErrorPage />} />
+          <Route path='chat' element={<Chats/>}/>
         </Route>
         <Route path='login' element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />

@@ -6,27 +6,34 @@ import { removeUser } from 'store/users/user.slice';
 import { DeleteAcc } from './deleteAcc';
 import { useAuth } from 'hooks/use-auth';
 import { SearchInput } from './UI/Input/SearchInput';
-import { collection, getDocs, getFirestore, query, where } from 'firebase/firestore';
+import { 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  getFirestore,
+  query, 
+  serverTimestamp, 
+  setDoc, 
+  updateDoc, 
+  where 
+} from 'firebase/firestore';
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { IsLoadingMini } from './UI/isLoading/isLoading';
 import { IsModal } from './UI/isModal/isModal';
+import { SearchUserState } from 'types/user';
 
-interface userSearchTypes {
-  setSearchUser : () => void,
-  searchUser: {name: string, photoURL : string}
-}
 
 const Loyaut:FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
-  const {isAuth} = useAuth();
+  const {isAuth, id, name, photoURL} = useAuth();
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const [searchValue, setSearchValue] = useState('');
-  const userSearchData = useAppSelector((state)=> state.setSearchUsers);
+  const userSearchData: SearchUserState[] = useAppSelector((state)=> state.setSearchUsers.users);
   const {loading, error} = useAppSelector((state)=> state.process);
-  const [searchUser, setSearchUser] = useState<userSearchTypes | null>(null);
   const {isOpen} = useAppSelector((state) => state.isModalReduser)
   const SearchUsers = async () => {
     const q = query(
@@ -39,12 +46,13 @@ const Loyaut:FC = () => {
       dispatch(ProcessDataStart());
       const querySnapshot = await getDocs(q);
       if(!querySnapshot.empty){
-        querySnapshot.forEach((doc) => {  
           dispatch(ProcessDataSuccess())
-          // setSearchUser(doc.data());
+          const usersData = querySnapshot.docs.map((doc) => {
+            const data = doc.data() as SearchUserState; // Уточняем тип данных
+            return data;
+          });
+          dispatch(setSearchUserData(usersData))
           console.log(userSearchData)
-          console.log(doc.data())
-        });
       }else{
         dispatch(ProcessDataFailure('нет таких пользователей'));
       console.log('нет таких пользователей')
@@ -72,6 +80,51 @@ const Loyaut:FC = () => {
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.code === "Enter" && SearchUsers();
   };
+  const generateChatId = (id1: string, id2: string) => {
+    const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
+    const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
+    return `${firstId}${secondId}`;
+  };
+  const handleSelect = async (user: SearchUserState) => {
+    const combinedId = generateChatId(id.toString(), user.id.toString());
+    try{
+      const res = await getDoc(doc(db, "chats",combinedId))
+      console.log('1')
+      if(!res.exists()){
+        await setDoc(doc(db, "chats", combinedId), { messages: [] });
+        console.log('2')
+        console.log(photoURL)
+        await updateDoc(doc(db,"UserChat", id.toString()), {
+          [combinedId + ".UserInfo"]: {
+            id: user.id,
+            name: user.name,
+            photoURL: user.photoURL,
+          },
+          [combinedId + ".date"]: serverTimestamp()
+        });
+        console.log('3')
+        console.log(id)
+        console.log(user.id)
+
+        await updateDoc(doc(db,"UserChat", user.id.toString()), {
+          [combinedId + ".UserInfo"]: {
+            id: id,
+            name: name,
+            photoURL: photoURL,
+          },
+          [combinedId + ".date"]: serverTimestamp()
+        })
+      }else{
+        console.log(res)
+      }
+      console.log('4')
+    }catch(err: any){
+      console.error('Ошибка выхода:', err)
+    }
+    dispatch(setSearchUserData([]));
+    setSearchValue('');
+  } 
+  
   return (
     <>
       <header className="App-header">
@@ -106,14 +159,28 @@ const Loyaut:FC = () => {
         onChange={(e) => setSearchValue(e.target.value)}
         onKeyDown={handleKey}
         />
-        {userSearchData && userSearchData.data && (
-            <div className="userChat">
-              <img src={userSearchData.data.photoURL} alt="" />
-              <div className="userChatInfo">
-                <span>{userSearchData.data.name}</span>
-              </div>
-            </div>
-      )}
+        {userSearchData.length >= 1 ? (
+          <ul className='user-list'>
+            {userSearchData.map((user) => (
+              user.id !== id && (
+                <li 
+                  style={{cursor: 'pointer'}}
+                  key={user.id} 
+                  className="user-item"
+                  onClick={() => handleSelect(user)}
+                >
+                  <img src={user.photoURL} alt={user.name} />
+                  <div>
+                    <p>UserName: {user.name}</p>
+                  </div>
+                </li>
+              )
+            ))}
+          </ul>
+        ) : (
+          ''
+        )}
+            
       {loading && <div style={{position: 'absolute', top: '10%'}}><IsLoadingMini/>
         </div>}
       {error && <div style={{position: 'absolute', top: '10%', backgroundColor: 'grey'}}><span>{error}</span>

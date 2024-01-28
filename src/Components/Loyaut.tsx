@@ -28,7 +28,7 @@ import { SearchUserState } from 'types/user';
 const Loyaut:FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
-  const {isAuth, id, name, photoURL} = useAuth();
+  const {isAuth, id, fullName, photoURL} = useAuth();
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const [searchValue, setSearchValue] = useState('');
@@ -38,8 +38,8 @@ const Loyaut:FC = () => {
   const SearchUsers = async () => {
     const q = query(
       collection(db, "users"),
-      where("name", ">=", searchValue),
-      where("name", "<=", searchValue + '\uf8ff')
+      where("fullName", ">=", searchValue),
+      where("fullName", "<=", searchValue + '\uf8ff')
     );
 
     try{
@@ -89,37 +89,32 @@ const Loyaut:FC = () => {
     const combinedId = generateChatId(id.toString(), user.id.toString());
     try{
       const res = await getDoc(doc(db, "chats",combinedId))
-      console.log('1')
+      
       if(!res.exists()){
         await setDoc(doc(db, "chats", combinedId), { messages: [] });
-        console.log('2')
-        console.log(photoURL)
+
         await updateDoc(doc(db,"UserChat", id.toString()), {
           [combinedId + ".UserInfo"]: {
             id: user.id,
-            name: user.name,
+            fullName: user.fullName,
             photoURL: user.photoURL,
           },
           [combinedId + ".date"]: serverTimestamp()
         });
-        console.log('3')
-        console.log(id)
-        console.log(user.id)
 
         await updateDoc(doc(db,"UserChat", user.id.toString()), {
           [combinedId + ".UserInfo"]: {
             id: id,
-            name: name,
+            fullName: fullName,
             photoURL: photoURL,
           },
           [combinedId + ".date"]: serverTimestamp()
         })
       }else{
-        console.log(res)
+        
       }
-      console.log('4')
     }catch(err: any){
-      console.error('Ошибка выхода:', err)
+      dispatch(ProcessDataFailure(err))
     }
     dispatch(setSearchUserData([]));
     setSearchValue('');
@@ -137,7 +132,8 @@ const Loyaut:FC = () => {
          color: 'inherit',
          display: 'flex', 
          justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          cursor: 'pointer'
         }}
         onClick={handleBack}
         > 
@@ -169,9 +165,9 @@ const Loyaut:FC = () => {
                   className="user-item"
                   onClick={() => handleSelect(user)}
                 >
-                  <img src={user.photoURL} alt={user.name} />
+                  <img src={user.photoURL} alt={user.fullName} />
                   <div>
-                    <p>UserName: {user.name}</p>
+                    <p>first name: {user.firstName}</p>
                   </div>
                 </li>
               )

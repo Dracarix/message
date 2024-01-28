@@ -16,21 +16,33 @@ import ErrorBoundary from 'Components/errorBount';
 import PrivateAuth from 'Components/hoc/PrivateAuth';
 import { NotPages } from 'pages/NotPages';
 import { Chats } from 'pages/Chat';
+import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
 
 function App() {  
   const dispatch = useAppDispatch();
+  const db = getFirestore();
   const auth = getAuth();
   const thisUser = useAppSelector((state) => state.user);
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        dispatch(setUser({
-        email: user.email,
-        token: user.refreshToken,
-        id: user.uid,
-        name: user.displayName,
-        photoURL: user.photoURL,
-      }));
+        const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+          const data = doc.data();
+          if(data){
+            dispatch(setUser({
+              email: user.email,
+              token: user.refreshToken,
+              id: user.uid,
+              fullName: user.displayName,
+              photoURL: user.photoURL,
+              firstName: data.firstName,
+              lastName :data.lastName,
+            }));
+          }
+        })
+        
+        
 
       } else {
         dispatch(removeUser());

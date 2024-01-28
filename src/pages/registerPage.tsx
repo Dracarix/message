@@ -1,6 +1,6 @@
 import { FormRegister } from 'Components/UI/form/formRegister';
 import { getAuth, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, updateProfile } from 'firebase/auth';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { useAppDispatch } from 'hooks/use-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { setUser } from 'store/users/user.slice';
@@ -45,25 +45,36 @@ const RegisterPage = () => {
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[isAuth])
-  const handleReg = async (email:string, password:string, name: string) => {
+  const handleReg = async (email:string, password:string, firstName: string, lastName: string) => {
     const auth = getAuth();
-
+    const fullName = firstName + ' ' + lastName;
     try {
-      dispatch(ProcessDataStart())
+      dispatch(ProcessDataStart());
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(user, { displayName: name, photoURL: defaultPhoto });
-      const userRef = doc(db, 'users', user.uid);
-      const userData = {
+      await updateProfile(user, { displayName: fullName, photoURL: defaultPhoto });
+      const userRef = doc(db, 'users', user.uid);     
+      await setDoc(userRef, {
         email: user.email,
         token: user.refreshToken,
         id: user.uid,
-        name: user.displayName,
+        fullName: user.displayName,
         photoURL: defaultPhoto,
-      };
-      await setDoc(userRef, userData);
+      });
+      await updateDoc(userRef,{
+        firstName: firstName,
+        lastName: lastName,
+      });
       await setPersistence(auth, browserLocalPersistence);
       await setDoc(doc(db, "UserChat" ,user.uid), {})
-      dispatch(setUser(userData))
+      dispatch(setUser({
+        email: user.email,
+        token: user.refreshToken,
+        id: user.uid,
+        fullName: user.displayName,
+        photoURL: defaultPhoto,
+        firstName: firstName,
+        lastName: lastName,
+      }))
       
       setTimeout(()=> {
         dispatch(ProcessDataSuccess())
@@ -91,9 +102,7 @@ const RegisterPage = () => {
         in={hasError}
         >
           <div style={{display: 'flex', flexDirection: 'column'}}>
-          {error ? error : (
-            ''
-          )}
+          {error && error }
           </div>
         </CSSTransition>
       )}

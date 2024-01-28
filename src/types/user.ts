@@ -3,18 +3,22 @@ import { Timestamp } from "firebase/firestore";
 export interface UserState{
     email: string,
     token:string,
-    id:number,
+    id:string,
     photoURL: string,
-    name: string,
+    fullName: string,
+    firstName: string,
+    lastName: string | null,
 }
 
-export interface SearchUserState{
-  email: string,
-  token:string,
-  id:number,
-  photoURL: string,
-  name: string,
-  [key: string]: string | number,
+export interface SearchUserState {
+  email: string;
+  token: string;
+  id: number;
+  photoURL: string;
+  fullName: string;
+  firstName: string;
+  lastName: string | null;
+  [key: string]: string |number| null;
 }
 
 export type CallbackType = () => Promise<void>;
@@ -40,8 +44,24 @@ export interface ProcessDataState {
     UserInfo: {
       id: string;
       photoURL: string;
-      name: string;
+      fullName: string;
     };
     date: Timestamp;
-
   }
+  export type OtherUserInfo = {
+    id: string;
+    photoURL: string;
+    fullName: string;
+    id2:string;
+  };
+
+  export interface MessagesType {
+    word:{
+
+      id: string;
+      text: string;
+      senderID:string;
+      date: string;
+      img: string;
+    }
+  } 

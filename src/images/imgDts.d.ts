@@ -1,0 +1,1 @@
+const Img: string = require("./img.png");

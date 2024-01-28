@@ -4,13 +4,14 @@ import './form.scss';
 
 interface FormProps{
     title: string;
-    handleForm:(email:string, pass:string, name: string) => void;
+    handleForm:(email:string, pass:string, firstName: string, lastName: string) => void;
   }
 
 const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -24,14 +25,25 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
 
         <label>
             <input 
-              type='name' 
-              value={name}
+              type='firstName' 
+              value={firstName}
               placeholder=''
               required
               className='input'
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setFirstName(e.target.value)}
             />
-            <span>Name</span>
+            <span>First Name</span>
+        </label>
+        <label>
+            <input 
+              type='lastName' 
+              value={lastName}
+              placeholder=''
+              required
+              className='input'
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <span>Last Name</span>
         </label>
 
         <label>
@@ -68,7 +80,7 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
 
     <button
       className="submit"
-      onClick={()=>handleForm(email, pass, name)}
+      onClick={()=>handleForm(email, pass, firstName, lastName)}
     >
       {title}
     </button>

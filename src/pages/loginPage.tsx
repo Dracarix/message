@@ -48,13 +48,6 @@ const LoginPage = () => {
   const handleLogin = async (email: string, password: string) => {
     try {
       dispatch(ProcessDataStart())
-      setPersistence(auth, browserLocalPersistence)
-      .then(async (data) => {
-
-      })
-      .catch((error) => {
-        dispatch(ProcessDataFailure(error.message ));
-      });
       await signInWithEmailAndPassword(auth, email, password)
       .then((data) => {
 
@@ -62,29 +55,24 @@ const LoginPage = () => {
       .catch((error) => {
         dispatch(ProcessDataFailure(error.message));
       })
-      // try{
-      //   const response = await axios.post('http://localhost:2000/api/login', { email, password });
-      //   if (response.status === 200) {    
-      //     const userData = response.data;
-      //     dispatch(setUser(userData));
-      //     dispatch(ProcessDataSuccess(userData));
-      //   } else {
-      //     console.log(response.data.code)
-      //     console.log(response.data.message)
-      //     const errorData = response.data;
-      //     dispatch(ProcessDataFailure({ code: errorData.code, message: errorData.message }));
-      //   }
-      // }catch(err: any){
-      //   console.log(err.response)
-      // }
+      setPersistence(auth, browserLocalPersistence)
+      .then(async (data) => {
+
+      })
+      .catch((error) => {
+        dispatch(ProcessDataFailure(error.message ));
+      });
+      
+
       const user = auth.currentUser;
       if(user){
         const userData = {
         email: user.email,
         token: user.refreshToken,
         id: user.uid,
-        name: user.displayName,
+        fullName: user.displayName,
         photoURL: user.photoURL,
+
       };
       dispatch(setUser(userData));
       dispatch(ProcessDataSuccess());
@@ -126,3 +114,19 @@ const LoginPage = () => {
 };
 
 export {LoginPage};
+
+      // try{
+      //   const response = await axios.post('http://localhost:2000/api/login', { email, password });
+      //   if (response.status === 200) {    
+      //     const userData = response.data;
+      //     dispatch(setUser(userData));
+      //     dispatch(ProcessDataSuccess(userData));
+      //   } else {
+      //     console.log(response.data.code)
+      //     console.log(response.data.message)
+      //     const errorData = response.data;
+      //     dispatch(ProcessDataFailure({ code: errorData.code, message: errorData.message }));
+      //   }
+      // }catch(err: any){
+      //   console.log(err.response)
+      // }

@@ -7,7 +7,8 @@ const errorReducer = createSlice({
     },
     reducers: {
       setGlobalError: (state, action) => {
-        return action.payload;
+        state.error = null;
+        state.error = action.payload;
       },
     },
   });

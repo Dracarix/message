@@ -3,8 +3,10 @@ const initialState = {
     email:'',
     token:'',
     id:0,
-    name:'',
+    fullName:'',
     photoURL: '',
+    firstName: '',
+    lastName: '',
 }; 
 const userSlise = createSlice ( {
     name: 'user',
@@ -14,15 +16,19 @@ const userSlise = createSlice ( {
             state.email = action.payload.email;
             state.token = action.payload.token;
             state.id = action.payload.id;
-            state.name = action.payload.name;
+            state.fullName = action.payload.fullName;
             state.photoURL = action.payload.photoURL;
+            state.firstName = action.payload.firstName;
+
         },
         removeUser(state){
             state.email = '';
             state.token = '';
             state.id = 0;
-            state.name = '';
+            state.fullName = '';
             state.photoURL = '';
+            state.firstName = '';
+            state.lastName = '';
         },
     }
 })

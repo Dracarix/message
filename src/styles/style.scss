@@ -1,4 +1,13 @@
-
+.rootBlock{
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+}
+body{
+    margin: 0;
+    padding: 0;
+}
 .user-list{
     position: absolute;
     transform: translate(100%, 80%);
@@ -22,4 +31,17 @@
     border-radius: 50%;
     height: 100%;
     width: 30px;
+}
+
+.ChatsOtherUser{
+    display: flex;
+    background-color: green;
+    cursor: pointer;
+}
+.ChatsOtherUser h3{
+    margin-left: 16px;
+}
+.ChatsOtherUser img{
+    width: 50px;
+    height: 50px;
 }

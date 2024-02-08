@@ -1,5 +1,22 @@
 .inputSearch{
     outline: none;
-    padding: 15px;
+
     
+}
+.inputSend{
+    display: flex;
+    position: fixed;
+    top: 100%;
+    width: 100%;
+    margin-top: 10px;
+
+}
+.inputSend input[type="text"]{
+    width: 100%;
+}
+.inputSend .send {
+    display: flex;
+} 
+.img_send{
+    width: 30px;
 }

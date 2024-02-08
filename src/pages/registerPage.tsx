@@ -45,6 +45,7 @@ const RegisterPage = () => {
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[isAuth])
+  
   const handleReg = async (email:string, password:string, firstName: string, lastName: string) => {
     const auth = getAuth();
     const fullName = firstName + ' ' + lastName;

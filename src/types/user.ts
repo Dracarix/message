@@ -60,8 +60,8 @@ export interface ProcessDataState {
 
       id: string;
       text: string;
-      senderID:string;
-      date: string;
-      img: string;
+      senderId:string;
+      date: Timestamp;
+      img: string | null;
     }
   } 

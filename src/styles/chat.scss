@@ -1,0 +1,66 @@
+.chat{
+    width: 100%;
+
+
+
+}
+.chat_section{
+    max-width: 80vw;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+.chatInfo{
+    display: flex;
+    background-color: darkblue;
+    justify-content: start;
+}
+.chatInfo .chatIcons img{
+    border-radius: 50%;
+    width: 30px;
+}
+.ChatsOtherUserColumn{
+    position: fixed;
+    left: 0;
+    top: 50%;
+    padding: 0;
+    transform: translate(0 , -50%);
+    width: auto;
+    background-color: red;
+}
+.leftColumn-enter {
+    transform: translateX(-100%);
+  }
+  
+  .leftColumn-enter-active {
+    transform: translateX(0);
+    transition: opacity 500ms ease-in, transform 500ms ease-in;
+  }
+  
+  .leftColumn-exit {
+    transform: translateX(0);
+  }
+  
+  .leftColumn-exit-active {
+    transform: translateX(-100%);
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
+  .ChatsIcon img{
+    width: 40px;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .ChatsIcon{
+    display: flex;
+    margin-bottom: 5px;
+    background-color: black;
+  }
+  .ChatsIcon h3{
+    position: absolute;
+    z-index: 1;
+
+    overflow-wrap: break-word;
+    max-width: 90px;
+    background-color: blue;
+
+  }

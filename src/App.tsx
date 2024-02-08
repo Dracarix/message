@@ -16,13 +16,15 @@ import ErrorBoundary from 'Components/errorBount';
 import PrivateAuth from 'Components/hoc/PrivateAuth';
 import { NotPages } from 'pages/NotPages';
 import { Chats } from 'pages/Chat';
-import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getFirestore, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { ref } from 'firebase/storage';
 
 function App() {  
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const auth = getAuth();
   const thisUser = useAppSelector((state) => state.user);
+  const {error} = useAppSelector((state) => state.process);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -42,15 +44,24 @@ function App() {
           }
         })
         
-        
 
+        
+        return () => {
+          unsub(); 
+          
+        };
       } else {
+
         dispatch(removeUser());
   
       }
     });
-  return () => unsubscribe();
+  
 }, [auth, dispatch, thisUser]);
+
+useEffect(() => {
+  console.log(error)
+},[error])
   const router = createBrowserRouter(createRoutesFromElements(
       <Route path="/" element={<Loyaut />}>
         <Route element={<PrivateAuth/>}>

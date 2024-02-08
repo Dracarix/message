@@ -8,11 +8,12 @@ const IsModal:FC = () => {
   const dispatch = useAppDispatch();
   const {needReAuth} = useAppSelector((state) => state.isModalReduser)
 
-  const handleOverlayClick = (e:React.MouseEvent<HTMLInputElement>) => {
+  const handleOverlayClick = (e:React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       dispatch(closeModal());
     }
   };
+
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">

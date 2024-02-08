@@ -1,12 +1,15 @@
 import { IsLoadingBig } from 'Components/UI/isLoading/isLoading';
+import { IsModal } from 'Components/UI/isModal/isModal';
 import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { openReAuth } from 'store/processes/isModal';
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { setChat } from 'store/users/chat.slice';
 import { ChatObject } from 'types/user';
+
 
 const Masseges = () => {
     const {firstName ,email , id} = useAuth();
@@ -60,6 +63,7 @@ const Masseges = () => {
           </li>
         ))}
       </ul>
+      
     </div>
   );
 };

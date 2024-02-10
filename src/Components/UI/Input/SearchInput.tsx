@@ -1,5 +1,5 @@
-import { Timestamp, arrayUnion, doc, getFirestore, serverTimestamp, updateDoc,  } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { Timestamp, arrayUnion, doc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, getMetadata, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import React, { FC, useState } from 'react';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuid } from "uuid";
 import { ProcessDataFailure } from 'store/processes/process';
 import { setGlobalError } from 'store/error';
+import CryptoJS from 'crypto-js';
 
 interface InputProps {
     value: string,
@@ -41,45 +42,87 @@ const InputSend = () => {
   const navigate = useNavigate();
   const {error} = useAppSelector((state) => state.process);
 
+  const calculateHash = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
+    const hash = CryptoJS.SHA256(wordArray);
+    return hash.toString(CryptoJS.enc.Hex);
+  };
+  
+  const getImageUrlFromStorage = async (hash: string): Promise<string | null> => {
+    try {
+      const imageRef = ref(storage, hash);
+        await getMetadata(imageRef);
+        const downloadURL = await getDownloadURL(imageRef);
+        return downloadURL;
+    } catch (error: any) {
+      if (error.code === 'storage/object-not-found') {
+        return null;
+      }
+      console.error('Ошибка при получении URL-адреса изображения:', error);
+      return null;
+    }
+  };
+
   const handleSend = async () => {
     if (img) {
-      const storageRef = ref(storage, uuid());
+      const hash = await calculateHash(img);
+      const imageUrl = await getImageUrlFromStorage(hash);
+      if (imageUrl) {
+        console.log('Изображение уже существует:', imageUrl);
+        await updateDoc(doc(db, "chats", chatID), {
+          messages: arrayUnion({
+            id: uuid(),
+            text,
+            senderId: user.id,
+            date: Timestamp.now(),
+            img: imageUrl, 
+          }),
+        });
+        setText('');
+        setImg(null);
+      } else {
+        console.log('Изображение не существует в Storage, загружаем новое...');
+        const storageRef = ref(storage, hash);
+        const uploadTask = uploadBytesResumable(storageRef, img);
 
-      const uploadTask = uploadBytesResumable(storageRef, img)
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          
-        },
-        (error) => {
-          if (typeof error === 'string') {
-            dispatch(setGlobalError(error));
-            navigate('/error')
-          } else {
-            console.error('Неожиданный тип ошибки:', error);
+        uploadTask.on(
+          'state_changed',
+          // Обработчик прогресса загрузки, если нужно
+          (snapshot) => {
+            // Добавьте обработчик прогресса загрузки, если требуется
+          },
+          (error: any) => {
+            if (typeof error === 'string') {
+              dispatch(setGlobalError(error));
+              navigate('/error');
+            } else {
+              console.error('Неожиданный тип ошибки:', error);
+            }
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(storageRef);
+              await updateDoc(doc(db, "chats", chatID), {
+                messages: arrayUnion({
+                  id: uuid(),
+                  text,
+                  senderId: user.id,
+                  date: Timestamp.now(),
+                  img: downloadURL,
+                }),
+              });
+              setText('');
+              setImg(null);
+            } catch (error) {
+              console.error('Ошибка при получении URL-адреса изображения:', error);
+            }
           }
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL: any) => {
-            await updateDoc(doc(db, "chats", chatID), {
-              messages: arrayUnion({
-                id: uuid(),
-                text,
-                senderId: user.id,
-                date: Timestamp.now(),
-                img: downloadURL,
-              }),
-            });
-            setText('');
-            setImg(null);
-          });
-        }
-      );
+        );
+      }
     } else {
-      
-      if(text !== ''){
-        
+      // Логика для отправки сообщения без изображения
+      if (text !== '') {
         const newMessage = {
           id: uuid(),
           text,
@@ -90,42 +133,50 @@ const InputSend = () => {
         await updateDoc(doc(db, "chats", chatID), {
           messages: arrayUnion(newMessage),
         }).catch((err) => {
-          dispatch(ProcessDataFailure(err))
-        })
-      
-      console.log('2')
-      await updateDoc(doc(db, "UserChat", user.id), {
-        [chatID + ".lastMessage"]: {
-          text,
-        },
-        [chatID + ".date"]: serverTimestamp(),
-      }).catch((err) => {
-        dispatch(ProcessDataFailure(err))
-      })
-      console.log('3')
-      await updateDoc(doc(db, "UserChat", id.toString()), {
-        [chatID + ".lastMessage"]: {
-          text,
-        },
-        [chatID + ".date"]: serverTimestamp(),
-      }).catch((err) => {
-        dispatch(ProcessDataFailure(err))
-      })
-      setText('');
-      setImg(null);
+          dispatch(ProcessDataFailure(err));
+        });
+
+        await updateDoc(doc(db, "UserChat", user.id), {
+          [chatID + ".lastMessage"]: {
+            text,
+          },
+          [chatID + ".date"]: serverTimestamp(),
+        }).catch((err) => {
+          dispatch(ProcessDataFailure(err));
+        });
+
+        await updateDoc(doc(db, "UserChat", id.toString()), {
+          [chatID + ".lastMessage"]: {
+            text,
+          },
+          [chatID + ".date"]: serverTimestamp(),
+        }).catch((err) => {
+          dispatch(ProcessDataFailure(err));
+        });
+
+        setText('');
+        setImg(null);
       }
     }
-      
   };
+
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && e.currentTarget === e.target) {
         handleSend();
     }
+  };
 
-}
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const file = e.target.files ? e.target.files[0] : null;
+    setImg(file);
+  };
 
   return (
     <div className="inputSend">
+      {img ? (
+        <div> ок</div>
+      ) :('')}
       <input
         type="text"
         placeholder="Type something..."
@@ -139,7 +190,7 @@ const InputSend = () => {
             accept="video/*,image/*"
           style={{display:'none'}}
           id="image"
-          onChange={(e) => setImg(e.target.files ? e.target.files[0] : null)}
+          onChange={handleFileChange}
           alt="Кнопка загрузки изображения"
         />
         <label htmlFor="image">
@@ -166,4 +217,3 @@ const InputSend = () => {
 };
 
 export {SearchInput, InputSend};
-

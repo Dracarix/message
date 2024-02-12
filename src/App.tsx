@@ -2,7 +2,7 @@
 import './App.css';
 import './styles/style.scss'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, } from 'react-router-dom';
-import {Layaut} from 'Components/Loyaut';
+import {Layout} from 'Components/Loyaut';
 import {HomePage} from 'pages/homePage';
 import {LoginPage} from 'pages/loginPage';
 import {RegisterPage} from 'pages/registerPage';
@@ -57,11 +57,12 @@ function App() {
         }
         
     });
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [dispatch, db]);
 
 
   const router = createBrowserRouter(createRoutesFromElements(
-      <Route element={<Layaut />}>
+      <Route element={<Layout />}>
         <Route element={<PrivateAuth/>}>
           <Route path='profile' element={<HomePage />} />
           <Route path='/' element={<Masseges />} />

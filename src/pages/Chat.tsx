@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { useEffect, useState } from 'react';
 import '../styles/chat.scss'
 import { LeftUsers } from 'Components/leftColumnUsers';
-import {  Navigate, useNavigate, useParams } from 'react-router-dom';
+import {  Navigate, useParams } from 'react-router-dom';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { setChat } from 'store/users/chat.slice';
 import { useAuth } from 'hooks/use-auth';
@@ -17,7 +17,6 @@ const Chats = () => {
   const {id} = useAuth();
   const dispatch = useAppDispatch();
   const db = getFirestore();
-  const navigate = useNavigate();
   const [huynya , setHuynya] = useState(false)
 
   const generateChatId = (id1: string , id2: string) => {
@@ -81,8 +80,9 @@ const Chats = () => {
     };
   
     fetchChat();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overUserID, id]);
-  // http://localhost:3000/chat/UKBdxjgJWwdCc2hsJCIe1U9Fog52
+
   
 if(huynya){
   return <Navigate to='/'/>

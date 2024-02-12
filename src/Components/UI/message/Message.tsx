@@ -8,8 +8,6 @@ import './message.scss'
 interface chatIDtype  {chatID: string};
 
 const Message:FC<chatIDtype> = ({chatID}) => {
-
-    const {id} = useAppSelector((state) => state.user);
     const [message, setMessage] = useState([]);
     const db = getFirestore();
     useEffect(() => {
@@ -25,6 +23,7 @@ const Message:FC<chatIDtype> = ({chatID}) => {
         })
 
         return () => unSub();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[chatID])
   return (
     <div className='soobsheniya'>

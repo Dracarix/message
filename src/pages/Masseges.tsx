@@ -4,6 +4,7 @@ import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { openReAuth } from 'store/processes/isModal';
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { setChat } from 'store/users/chat.slice';
 import { ChatObject } from 'types/user';
@@ -60,6 +61,7 @@ const Masseges = () => {
           </li>
         ))}
       </ul>
+
     </div>
   );
 };

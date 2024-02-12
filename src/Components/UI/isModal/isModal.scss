@@ -41,13 +41,15 @@
     border-radius: 50% ;
   }
   .modal-overlay-profile {
-    position: absolute;
-    right: 1%;
-    top: 150%;
-    width: 100%;
-    transform: translate(0, -50%);
-    height: 100%;
-    display: flex;
-    justify-content: end;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
 
+  }
+  .profileButton{
+    position: fixed;
+    display:flex;
+    flex-direction: column;
+    right: 1%;
+    top: 56px;
   }

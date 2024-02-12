@@ -1,35 +1,174 @@
-import { Timestamp, arrayUnion, doc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { Timestamp, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { getDownloadURL, getMetadata, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import './input.scss'
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from "uuid";
-import { ProcessDataFailure } from 'store/processes/process';
+import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { setGlobalError } from 'store/error';
 import CryptoJS from 'crypto-js';
+import { setSearchUserData } from 'store/searchUsers/searchUsers';
+import { SearchUserState } from 'types/user';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
-interface InputProps {
-    value: string,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
-    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void,
-}
 
-const SearchInput:FC<InputProps> = ({value, onChange, onKeyDown}) => {
+
+const SearchInput = () => {
  
+  const [searchValue, setSearchValue] = useState('');
+  const navigate = useNavigate();
+  const { id, fullName, photoURL} = useAuth();
+  const dispatch = useAppDispatch();
+  const db = getFirestore();
+  const {error} = useAppSelector((state)=> state.process);
+  const userSearchData: SearchUserState[] = useAppSelector((state)=> state.setSearchUsers.users);
+  const [boolSearchValue, setBoolSearchValue ] = useState(false);
 
+  useEffect(()=> {
+    if(searchValue !== ''){
+      setBoolSearchValue(true)
+    }else{
+      setBoolSearchValue(false)
+    }
+  }, [searchValue])
+  const generateChatId = (id1: string, id2: string) => {
+    const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
+    const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
+    return `${firstId}${secondId}`;
+  };
+  const handleSelect = async (user: SearchUserState) => {
+    const combinedId = generateChatId(id.toString(), user.id.toString());
+    try{
+      const res = await getDoc(doc(db, "chats",combinedId))
+      
+      if(!res.exists()){
+        await setDoc(doc(db, "chats", combinedId), { messages: [] });
+
+        await updateDoc(doc(db,"UserChat", id.toString()), {
+          [combinedId + ".UserInfo"]: {
+            id: user.id,
+            fullName: user.fullName,
+            photoURL: user.photoURL,
+          },
+          [combinedId + ".date"]: serverTimestamp()
+        });
+
+        await updateDoc(doc(db,"UserChat", user.id.toString()), {
+          [combinedId + ".UserInfo"]: {
+            id: id,
+            fullName: fullName,
+            photoURL: photoURL,
+          },
+          [combinedId + ".date"]: serverTimestamp()
+        })
+        navigate(`/chat/${user.id}`);
+      }else{
+        
+      }
+    }catch(err: any){
+      dispatch(ProcessDataFailure(err))
+      dispatch(setSearchUserData([]))
+    }
+    dispatch(setSearchUserData([]));
+    setSearchValue('');
+  } 
+  
+  const SearchUsers = async () => {
+    const q = query(
+      collection(db, "users"),
+      where("fullName", ">=", searchValue),
+      where("fullName", "<=", searchValue + '\uf8ff')
+    );
+
+    try{
+      dispatch(ProcessDataStart());
+      const querySnapshot = await getDocs(q);
+      if(!querySnapshot.empty){
+          dispatch(ProcessDataSuccess())
+          const usersData = querySnapshot.docs.map((doc) => {
+            const data = doc.data() as SearchUserState; // Уточняем тип данных
+            return data;
+          });
+          dispatch(setSearchUserData(usersData))
+
+      }else{
+        dispatch(ProcessDataFailure('нет таких пользователей'));
+        dispatch(setSearchUserData([]))
+      console.log('нет таких пользователей')
+
+      }
+      
+    }catch(err: any){
+      dispatch(ProcessDataFailure(err.message));
+      console.error(err.message)
+    };
+  }
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.code === "Enter" && SearchUsers();
+  };
+  const handleClose = () => {
+    setSearchValue('')
+  }
   return (
-    <input 
+    <div style={{width: '50%' , position: 'relative', display: 'flex', justifyContent: 'center'}}>
+      <img className='lupa' src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/images-norm.png?alt=media&token=9a602fcd-c85e-4bab-bb8e-cad0e9e12ed1' alt=''/>
+      <input 
         type="text"
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
+        value={searchValue} 
+        onChange={(e) => setSearchValue(e.target.value)}
+        onKeyDown={handleKey}
+        placeholder='Поиск'
+
         className='inputSearch'
-     />
+        />
+                {userSearchData.length >= 1 ? (
+            <ul className='user-list'>
+            {userSearchData.map((user) => (
+              user.id !== id && (
+                  <li 
+                  style={{cursor: 'pointer'}}
+                  key={user.id} 
+                  className="user-item"
+                  onClick={() => handleSelect(user)}
+                  >
+                  <img src={user.photoURL} alt={user.fullName} />
+                  <div>
+                    <p>first name: {user.firstName}</p>
+                  </div>
+                </li>
+              )
+              ))}
+          </ul>
+        ) : (
+            ''
+            )}
+            {error && <div style={{position: 'absolute', top: '10%', backgroundColor: 'grey'}}><span>{error}</span>
+        </div>}
+        <TransitionGroup>
+          {boolSearchValue ?( 
+              <CSSTransition 
+              timeout={500} 
+              classNames="close" unmountOnExit 
+              in={boolSearchValue}
+              >
+
+          
+              <svg onClick={handleClose} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 16 16" className='closebtn'>
+                <path fill="currentColor" d="M9 9v4a1 1 0 1 1-2 0V9H3a1 1 0 1 1 0-2h4V3a1 1 0 1 1 2 0v4h4a1 1 0 1 1 0 2H9Z"></path>
+              </svg>
+              </CSSTransition>
+            )
+          : '' }
+          </TransitionGroup>
+    </div>
   );
 };
 
+const inputSearchHaveUsers = () => {
+
+}
 
 const InputSend = () => {
   const storage = getStorage();
@@ -231,4 +370,4 @@ const InputSend = () => {
   );
 };
 
-export {SearchInput, InputSend};
+export {SearchInput, InputSend, inputSearchHaveUsers};

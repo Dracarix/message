@@ -2,11 +2,11 @@
 import './App.css';
 import './styles/style.scss'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, } from 'react-router-dom';
-import {Loyaut} from 'Components/Loyaut';
+import {Layaut} from 'Components/Loyaut';
 import {HomePage} from 'pages/homePage';
 import {LoginPage} from 'pages/loginPage';
 import {RegisterPage} from 'pages/registerPage';
-import Masseges from 'pages/Masseges';
+import Masseges from 'pages/Messages';
 import { ErrorPage } from 'pages/errorPage';
 import { useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -25,50 +25,49 @@ function App() {
   const auth = getAuth();
   const thisUser = useAppSelector((state) => state.user);
   const {error} = useAppSelector((state) => state.process);
-  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
-          const data = doc.data();
-          if(data){
-            dispatch(setUser({
-              email: user.email,
-              token: user.refreshToken,
-              id: user.uid,
-              fullName: user.displayName,
-              photoURL: user.photoURL,
-              firstName: data.firstName,
-              lastName :data.lastName,
-            }));
-          }
-        })
-        
 
-        
-        return () => {
-          unsub(); 
-          
-        };
-      } else {
+        if (user) {
+            const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+                const data = doc.data();
+                if(data){
+                    dispatch(setUser({
+                        email: user.email,
+                        token: user.refreshToken,
+                        id: user.uid,
+                        fullName: user.displayName,
+                        photoURL: user.photoURL,
+                        firstName: data.firstName,
+                        lastName :data.lastName,
+                    }));
+                }
+            });
 
-        dispatch(removeUser());
-  
-      }
+                return () => {
+                    unsub(); 
+                };
+
+            
+        } else {
+
+                dispatch(removeUser());
+
+
+        }
+        
     });
-  
-}, [auth, dispatch, thisUser]);
+}, [dispatch, db]);
 
-useEffect(() => {
-  console.log(error)
-},[error])
+
   const router = createBrowserRouter(createRoutesFromElements(
-      <Route path="/" element={<Loyaut />}>
+      <Route element={<Layaut />}>
         <Route element={<PrivateAuth/>}>
           <Route path='profile' element={<HomePage />} />
-          <Route index element={<Masseges />} />
+          <Route path='/' element={<Masseges />} />
           <Route path='error' element={<ErrorPage />} />
-          <Route path='chat' element={<Chats/>}/>
+          {/* <Route path='chat' element={<Chats/>}/> */}
+          <Route path='chat/:overUserID' element={<Chats />} />
         </Route>
         <Route path='login' element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />

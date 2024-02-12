@@ -25,7 +25,7 @@ import { IsModal } from './UI/isModal/isModal';
 import { SearchUserState } from 'types/user';
 
 
-const Loyaut:FC = () => {
+const Layaut:FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const {isAuth, id, fullName, photoURL} = useAuth();
@@ -70,7 +70,7 @@ const Loyaut:FC = () => {
   const singOutUser =  async () => {
     signOut(auth).then(() => {
       dispatch(removeUser());
-      navigate('login')
+      navigate('/login')
     }).catch((error) => {
       // Обработка ошибок при выходе
       console.error('Ошибка выхода:', error);
@@ -191,4 +191,4 @@ const Loyaut:FC = () => {
   );
 };
 
-export {Loyaut};
+export {Layaut};

@@ -4,7 +4,7 @@ import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import React, { FC, useState } from 'react';
 import './input.scss'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from "uuid";
 import { ProcessDataFailure } from 'store/processes/process';
 import { setGlobalError } from 'store/error';
@@ -36,11 +36,17 @@ const InputSend = () => {
   const db = getFirestore();
   const [text, setText] = useState('');
   const [img, setImg] = useState<File | null>(null);
-  const {chatID, user} = useAppSelector((state) => state.chat);
+  const { overUserID } = useParams();
+  const {user} = useAppSelector((state) => state.chat);
   const { id } = useAuth();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {error} = useAppSelector((state) => state.process);
+  const generateChatID = (id1: string, id2: string) => {
+    const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
+    const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
+    return (`${firstId}${secondId}`);
+};
 
   const calculateHash = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
@@ -70,15 +76,18 @@ const InputSend = () => {
       const imageUrl = await getImageUrlFromStorage(hash);
       if (imageUrl) {
         console.log('Изображение уже существует:', imageUrl);
-        await updateDoc(doc(db, "chats", chatID), {
-          messages: arrayUnion({
-            id: uuid(),
-            text,
-            senderId: user.id,
-            date: Timestamp.now(),
-            img: imageUrl, 
-          }),
-        });
+        if(overUserID){
+
+          await updateDoc(doc(db, "chats", generateChatID(id.toString(),overUserID)), {
+            messages: arrayUnion({
+              id: uuid(),
+              text,
+              senderId: user.id,
+              date: Timestamp.now(),
+              img: imageUrl, 
+            }),
+          });
+        }
         setText('');
         setImg(null);
       } else {
@@ -103,15 +112,18 @@ const InputSend = () => {
           async () => {
             try {
               const downloadURL = await getDownloadURL(storageRef);
-              await updateDoc(doc(db, "chats", chatID), {
-                messages: arrayUnion({
-                  id: uuid(),
-                  text,
-                  senderId: user.id,
-                  date: Timestamp.now(),
-                  img: downloadURL,
-                }),
-              });
+              if(overUserID){
+
+                await updateDoc(doc(db, "chats", generateChatID(id.toString(),overUserID)), {
+                  messages: arrayUnion({
+                    id: uuid(),
+                    text,
+                    senderId: user.id,
+                    date: Timestamp.now(),
+                    img: downloadURL,
+                  }),
+                });
+              }
               setText('');
               setImg(null);
             } catch (error) {
@@ -122,41 +134,44 @@ const InputSend = () => {
       }
     } else {
       // Логика для отправки сообщения без изображения
-      if (text !== '') {
-        const newMessage = {
-          id: uuid(),
-          text,
-          senderId: user.id,
+      if(overUserID){
+
+        if (text !== '') {
+          const newMessage = {
+            id: uuid(),
+            text,
+            senderId: user.id,
           date: Timestamp.now(),
           img: null,
         };
-        await updateDoc(doc(db, "chats", chatID), {
+        await updateDoc(doc(db, "chats", generateChatID(id.toString(),overUserID)), {
           messages: arrayUnion(newMessage),
         }).catch((err) => {
           dispatch(ProcessDataFailure(err));
         });
 
         await updateDoc(doc(db, "UserChat", user.id), {
-          [chatID + ".lastMessage"]: {
+          [generateChatID(id.toString(),overUserID) + ".lastMessage"]: {
             text,
           },
-          [chatID + ".date"]: serverTimestamp(),
+          [generateChatID(id.toString(),overUserID) + ".date"]: serverTimestamp(),
         }).catch((err) => {
           dispatch(ProcessDataFailure(err));
         });
 
         await updateDoc(doc(db, "UserChat", id.toString()), {
-          [chatID + ".lastMessage"]: {
+          [generateChatID(id.toString(),overUserID) + ".lastMessage"]: {
             text,
           },
-          [chatID + ".date"]: serverTimestamp(),
+          [generateChatID(id.toString(),overUserID) + ".date"]: serverTimestamp(),
         }).catch((err) => {
           dispatch(ProcessDataFailure(err));
         });
-
+        
         setText('');
         setImg(null);
       }
+    }
     }
   };
 

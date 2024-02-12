@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 const initialState = {
-    email:'',
+    email:null,
     token:'',
     id:0,
     fullName:'',
@@ -22,7 +22,7 @@ const userSlise = createSlice ( {
 
         },
         removeUser(state){
-            state.email = '';
+            state.email = null;
             state.token = '';
             state.id = 0;
             state.fullName = '';

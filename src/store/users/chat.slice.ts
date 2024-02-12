@@ -1,45 +1,40 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { OtherUserInfo } from "types/user";
 
-interface chatSlice{
-    chatID:string,
-    user:OtherUserInfo,
+interface ChatState {
+    user: OtherUserInfo;
+    chatID: string;
 }
-const initialState:chatSlice = {
-    chatID: '',
+
+const initialState: ChatState = {
+    chatID:'',
     user: {
         id: "",
         photoURL: "",
         fullName: "",
-        id2: ""
     },
 }; 
-const generateChatId = (id1: string , id2: string) => {
-    const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
-    const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
-    return `${firstId}${secondId}`;
-  };
-const chatSlise = createSlice ( {
+
+const chatSlice = createSlice({
     name: 'chat',
     initialState,
-    reducers:{
-        setChat(state, action){
-            const { id, id2, user } = action.payload;
+    reducers: {
+        setChat(state, action) {
+            const { chatID, user } = action.payload;
             state.user = user;
-            state.chatID = generateChatId(id.toString(), id2.toString());
+            state.chatID = chatID;
         },
-        removeChat(state){
+        removeChat(state) {
             state.chatID = '';
             state.user = {
                 id: "",
                 photoURL: "",
                 fullName: "",
-                id2: "",
             };
         }
-
     }
-})
-export const {setChat, removeChat} = chatSlise.actions;
+});
 
-export default chatSlise.reducer;
+export const { setChat, removeChat } = chatSlice.actions;
+
+export default chatSlice.reducer;

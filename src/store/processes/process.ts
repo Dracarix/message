@@ -19,7 +19,6 @@ const useProcess = createSlice({
     },
     ProcessDataFailure: (state, action) => {
       state.loading = false;
-      state.error = null;
       state.error = action.payload;
     },
   },

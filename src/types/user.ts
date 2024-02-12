@@ -52,7 +52,6 @@ export interface ProcessDataState {
     id: string;
     photoURL: string;
     fullName: string;
-    id2:string;
   };
 
   export interface MessagesType {

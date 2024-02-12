@@ -24,13 +24,12 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     useEffect(() => {
       
       const getChats = () => {
-        dispatch(ProcessDataStart());
+
         const unsub = onSnapshot(doc(db, "UserChat", id.toString()), (doc) => {
           const data = doc.data();
 
           if(data){
             const chatObjects: ChatObject[] = Object.values(data);
-            dispatch(ProcessDataSuccess())
             setChats(chatObjects);
           }
         });
@@ -39,12 +38,12 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
         };
         
       };
-      id ? getChats() : dispatch(ProcessDataFailure('Похоже что произошла ошибка'))
+      getChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const handleSelect = (chat: ChatObject) => {
-        dispatch(setChat({id: id ,id2:chat.UserInfo.id ,user:chat.UserInfo}));
-        navigate('/chat');
+        dispatch(setChat({user:chat.UserInfo}));
+        navigate(`/chat/${chat.UserInfo.id}`);
     }
     const handleMouseEnter = () => {
         setVidno(true)

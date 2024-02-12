@@ -5,12 +5,15 @@ import { FC, useEffect, useState } from 'react';
 import { MessagesType } from 'types/user';
 import './message.scss'
 
-const Message = () => {
-    const {chatID} = useAppSelector((state) => state.chat);
+interface chatIDtype  {chatID: string};
+
+const Message:FC<chatIDtype> = ({chatID}) => {
+
     const {id} = useAppSelector((state) => state.user);
     const [message, setMessage] = useState([]);
     const db = getFirestore();
     useEffect(() => {
+      
         const unSub = onSnapshot(doc(db,"chats", chatID), (doc)=>{
             if (doc.exists()) {
                 const data = doc.data()?.messages;

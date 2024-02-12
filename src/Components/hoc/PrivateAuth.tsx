@@ -1,34 +1,21 @@
-// import { collection, getDocs, getFirestore, query, where } from 'firebase/firestore';
-import { useAuth } from 'hooks/use-auth';
-// import React, { useEffect } from 'react';
-import {  Navigate, Outlet} from 'react-router-dom';
+import { IsLoadingBig } from 'Components/UI/isLoading/isLoading';
+import { useHaveAuth } from 'hooks/use-auth';
+import { useEffect } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 
 const PrivateAuth = () => {
-    const {isAuth} = useAuth();
-    // const db = getFirestore();
-    // const searchValue = 'Ergy'
-    // useEffect(()=> {
-    //     setTimeout(async ()=> {
-    //         const q = query(
-    //             collection(db, "users"),
-    //             where("name", "==" , searchValue)
-    //           );
-    //           const querySnapshot = await getDocs(q);
-    //           try {
+    const { user } = useHaveAuth();
 
-    //             console.log('Query Snapshot:', querySnapshot);
-    //             // ... (остальной код)
-    //           } catch (error) {
-    //             console.error('Firestore Error:', error);
-    //           }
-    //     })
-        
-    // },[isAuth])
-    if(isAuth){
-        return <Outlet />
-    }
-        
-    return <Navigate to='loading'/>
+    useEffect(() => {
+        console.log(user);
+    }, [user]);
+
+    return user === null ? (
+        <IsLoadingBig />
+    ) : user === 'none' ? (
+        <Navigate to="/login" />
+    ) : (
+        <Outlet />
+    );
 };
-
 export default PrivateAuth;

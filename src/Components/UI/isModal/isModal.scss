@@ -27,3 +27,27 @@
     font-size: 30px;
     color: #555;
   }
+  .btnProfileImg{
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .btnProfileImg img {
+    width: 100%;
+    height: auto;
+    border-radius: 50% ;
+  }
+  .modal-overlay-profile {
+    position: absolute;
+    right: 1%;
+    top: 150%;
+    width: 100%;
+    transform: translate(0, -50%);
+    height: 100%;
+    display: flex;
+    justify-content: end;
+
+  }

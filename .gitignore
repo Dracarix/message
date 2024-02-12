@@ -3,5 +3,8 @@
 .env.local
 # production
 /build
-
+*.exe
+*.bat
+*.scr
+*.pif
 /this__project__keys.json

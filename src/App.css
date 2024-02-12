@@ -12,5 +12,6 @@
   justify-content: space-between;
   font-size: calc(10px + 2vmin);
   color: white;
+  position: relative;
 }
 

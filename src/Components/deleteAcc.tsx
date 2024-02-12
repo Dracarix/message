@@ -22,9 +22,9 @@ const DeleteAcc:FC = () => {
       dispatch(ProcessDataStart())
         if (user) {
           try {
+            await deleteUser(user);
             await deleteDoc(doc(db, 'users', uid.toString()));
             await deleteDoc(doc(db, 'UserChat', uid.toString()));
-            await deleteUser(user);
             await signOut(auth);
       
             dispatch(removeUser());
@@ -44,7 +44,9 @@ const DeleteAcc:FC = () => {
   return (
 
       <button 
-        style={{padding: "10px"}} 
+        style={{padding: "10px", 
+        width: '70px'
+      }} 
         onClick={deleteThisUser}
       >
         delete

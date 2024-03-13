@@ -1,66 +1,100 @@
+@import './Variables.scss';
+@import './style.scss';
+
+
+
 .chat{
     width: 100%;
-
-
-
+    display: flex;justify-content: center;
+    flex-direction: row-reverse;
+    height: auto;
 }
 .chat_section{
-    max-width: 80vw;
+    width: 50vw;
+    user-select: none;
     position: relative;
-    left: 50%;
-    transform: translate(-50%);
+
+    
 }
+
+.rightColumn{
+
+  width: 270px;
+  margin: 8px 0 0 24px;
+
+
+}
+
+.main__right__column{
+  background-color: $background-main-color;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  padding: 8px 8px;
+  border-radius: 8px;
+}
+
 .chatInfo{
+  margin-top: 8px;
     display: flex;
-    background-color: darkblue;
+    background-color: $background-main-color;
+    height: 50px;
+    border-radius: 5px;
+    color: $color-white;
+    align-items: center;
     justify-content: start;
 }
 .chatInfo .chatIcons img{
     border-radius: 50%;
-    width: 30px;
+    width: 36px;
+    padding: 8px 8px;
 }
+
 .ChatsOtherUserColumn{
-    position: fixed;
-    left: 0;
-    top: 50%;
     padding: 0;
-    transform: translate(0 , -50%);
+    margin: 0;
     width: auto;
-    background-color: red;
 }
-.leftColumn-enter {
-    transform: translateX(-100%);
-  }
-  
-  .leftColumn-enter-active {
-    transform: translateX(0);
-    transition: opacity 500ms ease-in, transform 500ms ease-in;
-  }
-  
-  .leftColumn-exit {
-    transform: translateX(0);
-  }
-  
-  .leftColumn-exit-active {
-    transform: translateX(-100%);
-    transition: opacity 500ms ease-out, transform 500ms ease-out;
-  }
+
+.band__ChatsIcon{
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.ChatsIcon{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  height: 30px;
+  margin-bottom: 8px;
+  transition: 0.1s;
+  cursor: pointer;
+  user-select: none;
+  color: $color-white;
+}
+.ChatsIcon:not(.loading):hover{
+  background-color: $color-dark-grey;
+}
+.ChatsIcon.active{
+  background-color: $color-dark-grey;
+}
   .ChatsIcon img{
     width: 40px;
+    height: 40px;
     border-radius: 50%;
-    z-index: 2;
   }
-  .ChatsIcon{
-    display: flex;
-    margin-bottom: 5px;
-    background-color: black;
-  }
-  .ChatsIcon h3{
-    position: absolute;
-    z-index: 1;
-
+  .ChatsIcon span{
     overflow-wrap: break-word;
-    max-width: 90px;
-    background-color: blue;
+    display: inline-block;
+    width: 190px;
+    font-size: 12px;
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis; 
 
   }

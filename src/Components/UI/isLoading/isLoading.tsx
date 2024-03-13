@@ -62,4 +62,19 @@ const IsLoadingMini = () => {
   return <div className="loader"></div>
 };
 
-export {IsLoadingBig, IsLoadingMini};
+
+const IsLoaderUsers = () => {
+    return(
+
+        <div className="loader_users">
+            <div className="wrapper">
+                <div className="circle"></div>
+                <div className="line-1"></div>
+                <div className="line-2"></div>
+
+            </div>
+        </div>
+        )
+}
+
+export {IsLoadingBig, IsLoadingMini, IsLoaderUsers};

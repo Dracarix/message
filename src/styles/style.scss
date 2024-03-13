@@ -1,30 +1,56 @@
 @import './message.scss';
+@import './Variables.scss';
+
+:root[data-theme='light'] {
+    --background-color: #ffffff;
+    --text-color: #000;
+    --border-color: #000;
+    --shadow-color: #141414;
+  }
+  
+  :root[data-theme='dark'] {
+    --background-color: #141414;
+    --text-color: #d5d5d5;
+    --border-color: #ffffff;
+    --shadow-color: #d5d5d5;
+  }
+
+body{
+    background: $background;
+    color: $color;
+    transition: all 0.2s;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+}
 .rootBlock{
 display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: center;
 }
-body{
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-}
+
 .user-list{
     position: absolute;
-    transform: translate(100%, 80%);
+    left: 50%;
+    transform: translate(-50%, 48px);
     user-select: none;
-    padding: 0;
+    width: 20vw;
+    background-color: aqua;
+    padding: 0 12px  0 12px;
+    z-index: 2;
     margin: 0;
     list-style-type: none;
 }
 .user-item{
     background-color: grey;
     height: 30px;
+    width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 10px;
+    padding: 10px 0 10px 0;
     margin: 10px 0;
     color: red;
     font-size: 12px;
@@ -35,4 +61,6 @@ body{
     width: 30px;
 }
 
+.profileButton{
 
+}

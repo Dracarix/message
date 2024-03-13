@@ -1,0 +1,31 @@
+.err-enter {
+    opacity: 0;
+    transform: translate(10px, -50%) rotate(45deg);
+  }
+  
+  .err-enter-active {
+    opacity: 1;
+    transform: translate(0, -50%) rotate(45deg);
+    transition: opacity 500ms ease-in, transform 500ms ease-in;
+  }
+  
+  .err-exit {
+    opacity: 1;
+    transform: translate(0, -50%) rotate(45deg);
+  }
+  
+  .err-exit-active {
+    opacity: 0;
+
+    transform: translate(10px , -50%) rotate(45deg);
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
+  .errorBlock{
+    position: absolute;
+    display: inline-block;
+    left: 50%;
+    top: calc(20px + 10vw);
+    transform: translate(-50%);
+    font-size: calc(12px + 1vw);
+
+  }

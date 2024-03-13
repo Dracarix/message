@@ -3,21 +3,35 @@ import { useAppSelector } from 'hooks/use-redux';
 import React from 'react';
 import { FC, useEffect, useState } from 'react';
 import { MessagesType } from 'types/user';
-import './message.scss'
+import './messages.scss'
+import { MessageLoader } from '../isLoading/chatLoader';
 
 interface chatIDtype  {chatID: string};
 
 const Message:FC<chatIDtype> = ({chatID}) => {
     const [message, setMessage] = useState([]);
+    const [loading, setLoading] = useState(false)
     const db = getFirestore();
     useEffect(() => {
       
         const unSub = onSnapshot(doc(db,"chats", chatID), (doc)=>{
+
+            setLoading(true)
+
             if (doc.exists()) {
                 const data = doc.data()?.messages;
 
                 if (data) {
                     setMessage(data);
+                    setTimeout(()=>{
+                      setLoading(false)
+                    },250)
+                    
+                }else{
+                  
+                  setTimeout(()=>{
+                    setLoading(false)
+                  },250)
                 }
             }
         })
@@ -27,12 +41,13 @@ const Message:FC<chatIDtype> = ({chatID}) => {
     },[chatID])
   return (
     <div className='soobsheniya'>
-{message.map((e: MessagesType["word"]) => {
-  if (e) {  
-    return <Words key={e.id} word={e} />;
-  }
-  return null; 
-})}
+      {loading ? <MessageLoader/>
+        : message.map((e: MessagesType["word"]) => {
+          if (e) {  
+            return <Words key={e.id} word={e} />;
+          }
+          return null; 
+     })}
     </div>
   );
 };

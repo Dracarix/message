@@ -1,21 +1,48 @@
+@import '../../../styles/Variables.scss';
+@import '../../../styles/style.scss';
+
 .inputSearch{
     outline: none;
     border-radius: 5px;
     border: none;
+    background-color: #393939;
     padding: 8px 32px 8px 32px;
     width: 100%;
     z-index: 1;
+    color: $color-white-grey;
+}
+.inputSearch::-webkit-input-placeholder{
+  color: $color-white-grey;
+}
+.inputSearch::-moz-placeholder{
+  color: $color-white;
+}
+.inputSearch:-ms-input-placeholder{
+  color: $color-white;
 }
 .inputSend{
     display: flex;
     position: fixed;
-    top: 100%;
-    width: 100%;
-    margin-top: 10px;
-
+    bottom: 4px;
+    width: 50vw;
 }
 .inputSend input[type="text"]{
     width: 100%;
+    outline: none;
+    background-color: $background-main-color;
+    padding: 0 8px;
+    border-radius: 5px;
+    border: none;
+    color: $color-white;
+}
+.inputSend input[type="text"]::-webkit-input-placeholder{
+  color: $color-white-grey;
+}
+.inputSend input[type="text"]::-moz-placeholder{
+  color: $color-white-grey;
+}
+.inputSend input[type="text"]:-ms-input-placeholder{
+  color: $color-white-grey;
 }
 .inputSend .send {
     display: flex;
@@ -26,13 +53,14 @@
 .lupa{
     position: absolute;
     width: 30px;
+    cursor: pointer;
     left: 0;
     top: 50%;
     transform: translate(0, -50%);
     z-index: 2;
 }
 .closebtn{
-
+    cursor: pointer;
     position: absolute;
     width: 30px;
     right: 0;
@@ -59,6 +87,31 @@
   
   .close-exit-active {
     opacity: 0;
+
     transform: translate(10px , -50%) rotate(45deg);
     transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
+
+
+  .search-enter {
+
+    z-index: 2;
+    transform: translate(-2000px, 48px);
+  }
+  
+  .search-enter-active {
+    z-index: 2;
+    transform: translate(-50%,48px) ;
+    transition: transform 500ms ease-in-out;
+  }
+  
+  .search-exit {
+    z-index: 2;
+    transform: translate(-2000px, 48px) ;
+  }
+  
+  .search-exit-active {
+    z-index: 2;
+    transform: translate(-50% , 48px) ;
+    transition: transform 500ms ease-in-out;
   }

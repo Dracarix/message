@@ -24,7 +24,10 @@ const SearchInput = () => {
   const db = getFirestore();
   const {error} = useAppSelector((state)=> state.process);
   const userSearchData: SearchUserState[] = useAppSelector((state)=> state.setSearchUsers.users);
+  const [neverSearch, setNeverSearch] = useState<SearchUserState[]>([]);
+  const [navValue, setNavValue] = useState('')
   const [boolSearchValue, setBoolSearchValue ] = useState(false);
+  const [boolSearchNever, setBoolSearchNever ] = useState(false);
 
   useEffect(()=> {
     if(searchValue !== ''){
@@ -33,42 +36,55 @@ const SearchInput = () => {
       setBoolSearchValue(false)
     }
   }, [searchValue])
+  useEffect(()=> {
+    if(userSearchData.length){
+      setBoolSearchNever(true)
+    }else{
+      setBoolSearchNever(false)
+    }
+  },[userSearchData])
+  
   const generateChatId = (id1: string, id2: string) => {
     const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
     const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
     return `${firstId}${secondId}`;
   };
+
   const handleSelect = async (user: SearchUserState) => {
     const combinedId = generateChatId(id.toString(), user.id.toString());
+    
     try{
       const res = await getDoc(doc(db, "chats",combinedId))
       
       if(!res.exists()){
         await setDoc(doc(db, "chats", combinedId), { messages: [] });
-
+        
         await updateDoc(doc(db,"UserChat", id.toString()), {
           [combinedId + ".UserInfo"]: {
             id: user.id,
             fullName: user.fullName,
             photoURL: user.photoURL,
           },
-          [combinedId + ".date"]: serverTimestamp()
+          [combinedId + ".date"]: serverTimestamp(),
+          
         });
-
+        
         await updateDoc(doc(db,"UserChat", user.id.toString()), {
           [combinedId + ".UserInfo"]: {
             id: id,
             fullName: fullName,
             photoURL: photoURL,
           },
-          [combinedId + ".date"]: serverTimestamp()
+          [combinedId + ".date"]: serverTimestamp(),
+          
         })
+        
         navigate(`/chat/${user.id}`);
       }else{
-        
+        navigate(`/chat/${user.id}`);
       }
     }catch(err: any){
-      dispatch(ProcessDataFailure(err))
+      dispatch(setGlobalError(err))
       dispatch(setSearchUserData([]))
     }
     dispatch(setSearchUserData([]));
@@ -76,22 +92,22 @@ const SearchInput = () => {
   } 
   
   const SearchUsers = async () => {
-    const q = query(
-      collection(db, "users"),
-      where("fullName", ">=", searchValue),
-      where("fullName", "<=", searchValue + '\uf8ff')
-    );
-
-    try{
+      setNavValue(searchValue);
       dispatch(ProcessDataStart());
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(collection(db, "users"));
       if(!querySnapshot.empty){
+         const usersSearch: SearchUserState[] = [];
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data() as SearchUserState;
+            usersSearch.push(userData);
+          })
+          const res = usersSearch
+          .filter(user => user.fullName && user.fullName.toLowerCase()
+          .includes(searchValue.toLowerCase()));
+          setNeverSearch(res)
+
           dispatch(ProcessDataSuccess())
-          const usersData = querySnapshot.docs.map((doc) => {
-            const data = doc.data() as SearchUserState; // Уточняем тип данных
-            return data;
-          });
-          dispatch(setSearchUserData(usersData))
+          dispatch(setSearchUserData(res.slice(0, 5)))
 
       }else{
         dispatch(ProcessDataFailure('нет таких пользователей'));
@@ -100,16 +116,24 @@ const SearchInput = () => {
 
       }
       
-    }catch(err: any){
-      dispatch(ProcessDataFailure(err.message));
-      console.error(err.message)
-    };
+    
   }
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.code === "Enter" && SearchUsers();
   };
+  const fullSearch = () => {
+    setSearchUserData([]);
+    setSearchValue('');
+    navigate(`/search/${navValue}`);
+  }
   const handleClose = () => {
-    setSearchValue('')
+    setSearchValue('');
+    dispatch(ProcessDataFailure(null));
+    setBoolSearchNever(false);
+    setTimeout(()=>{
+      dispatch(setSearchUserData([]))
+    },500)
+    
   }
   return (
     <div style={{width: '50%' , position: 'relative', display: 'flex', justifyContent: 'center'}}>
@@ -124,30 +148,48 @@ const SearchInput = () => {
         className='inputSearch'
         />
                 {userSearchData.length >= 1 ? (
-            <ul className='user-list'>
-            {userSearchData.map((user) => (
-              user.id !== id && (
-                  <li 
-                  style={{cursor: 'pointer'}}
-                  key={user.id} 
-                  className="user-item"
-                  onClick={() => handleSelect(user)}
-                  >
-                  <img src={user.photoURL} alt={user.fullName} />
-                  <div>
-                    <p>first name: {user.firstName}</p>
-                  </div>
-                </li>
-              )
-              ))}
-          </ul>
+                  <TransitionGroup
+                  style={{zIndex:2}}>
+                    {boolSearchNever && (
+
+                    <CSSTransition 
+                    timeout={500} 
+                    
+                    classNames="search" unmountOnExit 
+                    in={boolSearchNever}
+                    >
+                          <ul className='user-list'>
+                          {userSearchData.map((user) => (
+                            user.id !== id && (
+                                <li 
+                                style={{cursor: 'pointer'}}
+                                key={user.id} 
+                                className="user-item"
+                                onClick={() => handleSelect(user)}
+                                >
+                                <img src={user.photoURL} alt={user.fullName} />
+                                <div>
+                                  <p>first name: {user.firstName}</p>
+                                </div>
+                              </li>
+                            )
+                            ))}
+                            {neverSearch.length > 5 && 
+                              <button
+                              onClick={fullSearch}
+                              >Показать все</button>
+                            }
+                        </ul>
+                    </CSSTransition>
+                    )}
+                  </TransitionGroup>
         ) : (
             ''
             )}
             {error && <div style={{position: 'absolute', top: '10%', backgroundColor: 'grey'}}><span>{error}</span>
         </div>}
         <TransitionGroup>
-          {boolSearchValue ?( 
+          {boolSearchValue &&( 
               <CSSTransition 
               timeout={500} 
               classNames="close" unmountOnExit 
@@ -159,8 +201,7 @@ const SearchInput = () => {
                 <path fill="currentColor" d="M9 9v4a1 1 0 1 1-2 0V9H3a1 1 0 1 1 0-2h4V3a1 1 0 1 1 2 0v4h4a1 1 0 1 1 0 2H9Z"></path>
               </svg>
               </CSSTransition>
-            )
-          : '' }
+            )}
           </TransitionGroup>
     </div>
   );
@@ -169,15 +210,17 @@ const SearchInput = () => {
 const inputSearchHaveUsers = () => {
 
 }
-
-const InputSend = () => {
+type Disabled = {disabled: boolean};
+const InputSend = ({disabled}: Disabled) => {
   const storage = getStorage();
   const db = getFirestore();
   const [text, setText] = useState('');
   const [img, setImg] = useState<File | null>(null);
   const { overUserID } = useParams();
   const {user} = useAppSelector((state) => state.chat);
+  const [chatID, setChatID] = useState('');
   const { id } = useAuth();
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {error} = useAppSelector((state) => state.process);
@@ -186,7 +229,11 @@ const InputSend = () => {
     const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
     return (`${firstId}${secondId}`);
 };
-
+useEffect(()=>{
+  if(overUserID){
+    setChatID(generateChatID(id.toString(),overUserID))
+  }
+},[overUserID])
   const calculateHash = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
     const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
@@ -215,9 +262,9 @@ const InputSend = () => {
       const imageUrl = await getImageUrlFromStorage(hash);
       if (imageUrl) {
         console.log('Изображение уже существует:', imageUrl);
-        if(overUserID){
+        if(chatID !== ''){
 
-          await updateDoc(doc(db, "chats", generateChatID(id.toString(),overUserID)), {
+          await updateDoc(doc(db, "chats", chatID), {
             messages: arrayUnion({
               id: uuid(),
               text,
@@ -226,7 +273,55 @@ const InputSend = () => {
               img: imageUrl, 
             }),
           });
+          if(text !== ''){
+
+            await updateDoc(doc(db, "UserChat", user.id), {
+              [chatID + ".lastMessage"]: {
+                text,
+                date:Timestamp.now(),
+                from: id.toString(),
+              },
+              [chatID + ".date"]: serverTimestamp(),
+            }).catch((err) => {
+              dispatch(ProcessDataFailure(err));
+            });
+    
+            await updateDoc(doc(db, "UserChat", id.toString()), {
+              [chatID + ".lastMessage"]: {
+                text,
+                date:Timestamp.now(),
+                from: id.toString(),
+              },
+              [chatID + ".date"]: serverTimestamp(),
+            }).catch((err) => {
+              dispatch(ProcessDataFailure(err));
+            });
+          }else{
+            await updateDoc(doc(db, "UserChat", user.id), {
+              [chatID + ".lastMessage"]: {
+                text: 'Изображение',
+                date:Timestamp.now(),
+                from: id.toString(),
+              },
+              [chatID + ".date"]: serverTimestamp(),
+            }).catch((err) => {
+              dispatch(ProcessDataFailure(err));
+            });
+    
+            await updateDoc(doc(db, "UserChat", id.toString()), {
+              [chatID + ".lastMessage"]: {
+                text: 'Изображение',
+                date:Timestamp.now(),
+                from: id.toString(),
+              },
+              [chatID + ".date"]: serverTimestamp(),
+            }).catch((err) => {
+              dispatch(ProcessDataFailure(err));
+            });
+          }
+
         }
+        
         setText('');
         setImg(null);
       } else {
@@ -238,7 +333,9 @@ const InputSend = () => {
           'state_changed',
           // Обработчик прогресса загрузки, если нужно
           (snapshot) => {
-            // Добавьте обработчик прогресса загрузки, если требуется
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              // Обновляем состояние вашего компонента с процентами
+              setUploadProgress(progress);
           },
           (error: any) => {
             if (typeof error === 'string') {
@@ -251,9 +348,9 @@ const InputSend = () => {
           async () => {
             try {
               const downloadURL = await getDownloadURL(storageRef);
-              if(overUserID){
+              if(chatID !== ''){
 
-                await updateDoc(doc(db, "chats", generateChatID(id.toString(),overUserID)), {
+                await updateDoc(doc(db, "chats", chatID), {
                   messages: arrayUnion({
                     id: uuid(),
                     text,
@@ -262,8 +359,56 @@ const InputSend = () => {
                     img: downloadURL,
                   }),
                 });
+                if(text !== ''){
+
+                  await updateDoc(doc(db, "UserChat", user.id), {
+                    [chatID + ".lastMessage"]: {
+                      text,
+                      date:Timestamp.now(),
+                      from: id.toString(),
+                    },
+                    [chatID + ".date"]: serverTimestamp(),
+                  }).catch((err) => {
+                    dispatch(ProcessDataFailure(err));
+                  });
+          
+                  await updateDoc(doc(db, "UserChat", id.toString()), {
+                    [chatID + ".lastMessage"]: {
+                      text,
+                      date:Timestamp.now(),
+                      from: id.toString(),
+                    },
+                    [chatID + ".date"]: serverTimestamp(),
+                  }).catch((err) => {
+                    dispatch(ProcessDataFailure(err));
+                  });
+                }else{
+                  await updateDoc(doc(db, "UserChat", user.id), {
+                    [chatID + ".lastMessage"]: {
+                      text: 'Изображение',
+                      date:Timestamp.now(),
+                      from: id.toString(),
+                    },
+                    [chatID + ".date"]: serverTimestamp(),
+                  }).catch((err) => {
+                    dispatch(ProcessDataFailure(err));
+                  });
+          
+                  await updateDoc(doc(db, "UserChat", id.toString()), {
+                    [chatID + ".lastMessage"]: {
+                      text: 'Изображение',
+                      date:Timestamp.now(),
+                      from: id.toString(),
+                    },
+                    [chatID + ".date"]: serverTimestamp(),
+                  }).catch((err) => {
+                    dispatch(ProcessDataFailure(err));
+                  });
+                }
               }
+              
               setText('');
+              
               setImg(null);
             } catch (error) {
               console.error('Ошибка при получении URL-адреса изображения:', error);
@@ -273,9 +418,10 @@ const InputSend = () => {
       }
     } else {
       // Логика для отправки сообщения без изображения
-      if(overUserID){
+      if(chatID !== ''){
 
         if (text !== '') {
+          
           const newMessage = {
             id: uuid(),
             text,
@@ -283,30 +429,32 @@ const InputSend = () => {
           date: Timestamp.now(),
           img: null,
         };
-        await updateDoc(doc(db, "chats", generateChatID(id.toString(),overUserID)), {
+        await updateDoc(doc(db, "chats", chatID), {
           messages: arrayUnion(newMessage),
         }).catch((err) => {
           dispatch(ProcessDataFailure(err));
         });
-
-        await updateDoc(doc(db, "UserChat", user.id), {
-          [generateChatID(id.toString(),overUserID) + ".lastMessage"]: {
-            text,
-          },
-          [generateChatID(id.toString(),overUserID) + ".date"]: serverTimestamp(),
-        }).catch((err) => {
-          dispatch(ProcessDataFailure(err));
-        });
-
-        await updateDoc(doc(db, "UserChat", id.toString()), {
-          [generateChatID(id.toString(),overUserID) + ".lastMessage"]: {
-            text,
-          },
-          [generateChatID(id.toString(),overUserID) + ".date"]: serverTimestamp(),
-        }).catch((err) => {
-          dispatch(ProcessDataFailure(err));
-        });
         
+        await updateDoc(doc(db, "UserChat", user.id), {
+          [chatID + ".lastMessage"]: {
+            text,
+            date:Timestamp.now(),
+            from: id.toString(),
+          },
+          [chatID + ".date"]: serverTimestamp(),
+        }).catch((err) => {
+          dispatch(ProcessDataFailure(err));
+        });
+        await updateDoc(doc(db, "UserChat", id.toString()), {
+          [chatID + ".lastMessage"]: {
+            text,
+            date:Timestamp.now(),
+            from: id.toString(),
+          },
+          [chatID + ".date"]: serverTimestamp(),
+        }).catch((err) => {
+          dispatch(ProcessDataFailure(err));
+        });
         setText('');
         setImg(null);
       }
@@ -321,7 +469,6 @@ const InputSend = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-
     const file = e.target.files ? e.target.files[0] : null;
     setImg(file);
   };
@@ -337,6 +484,7 @@ const InputSend = () => {
         onChange={(e) => setText(e.target.value)}
         value={text}
         onKeyDown={handleEnter}
+        disabled={disabled}
       />
       <div className="send">
         <input

@@ -18,6 +18,7 @@ import { NotPages } from 'pages/NotPages';
 import { Chats } from 'pages/Chat';
 import { collection, doc, getFirestore, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { ref } from 'firebase/storage';
+import {UserSearch} from 'pages/searchUsers';
 
 function App() {  
   const dispatch = useAppDispatch();
@@ -25,6 +26,7 @@ function App() {
   const auth = getAuth();
   const thisUser = useAppSelector((state) => state.user);
   const {error} = useAppSelector((state) => state.process);
+  const theme = useAppSelector((state) => state.theme);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
 
@@ -60,6 +62,11 @@ function App() {
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [dispatch, db]);
 
+useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
 
   const router = createBrowserRouter(createRoutesFromElements(
       <Route element={<Layout />}>
@@ -67,7 +74,7 @@ function App() {
           <Route path='profile' element={<HomePage />} />
           <Route path='/' element={<Masseges />} />
           <Route path='error' element={<ErrorPage />} />
-          {/* <Route path='chat' element={<Chats/>}/> */}
+          <Route path='search/:value' element={<UserSearch/>} />
           <Route path='chat/:overUserID' element={<Chats />} />
         </Route>
         <Route path='login' element={<LoginPage />} />

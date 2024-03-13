@@ -47,6 +47,11 @@ export interface ProcessDataState {
       fullName: string;
     };
     date: Timestamp;
+    lastMessage:{
+      text: string , 
+      date:Timestamp,
+      from: string;
+    } | null,
   }
   export type OtherUserInfo = {
     id: string;

@@ -1,0 +1,15 @@
+@import './style.scss';
+
+.ThemeStyle {
+    border: none;
+    color: $color;
+    background: transparent;
+  }
+  .light {
+    background: transparent;
+    color: $color;
+  }
+  .dark {
+    color: $color;
+    background: transparent;
+  }

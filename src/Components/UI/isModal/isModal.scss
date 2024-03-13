@@ -1,6 +1,8 @@
+@import '../../../styles/style.scss';
 .modal-overlay {
     position: fixed;
     top: 50%;
+    z-index: 10;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
@@ -40,16 +42,50 @@
     height: auto;
     border-radius: 50% ;
   }
+  //modal menu !!!!!!!!!!
   .modal-overlay-profile {
     position: fixed;
-    width: 100vw;
-    height: 100vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 
   }
   .profileButton{
     position: fixed;
     display:flex;
     flex-direction: column;
-    right: 1%;
-    top: 56px;
+    right: 0.5%;
+    width: 140px;
+    top: 68px;
+    user-select: none;
+    list-style-type: none;
+    align-items: start;
+    border-radius: 4px;
+    margin: 0;
+    padding: 0 2px 0 2px;
+    box-shadow: 0px 0px 5px $shadow;
+    background-color: #353535;
+  }
+  .list_menu{
+    width: 100%;
+    margin-top: 8px;
+    padding-bottom: 8px;
+    border-bottom:1px  solid #000;
+    color:$link-color;
+  }
+  .list_menu:last-child{
+    border:none;
+    padding-bottom: 0;
+    margin-bottom: 8px;
+  }
+  @media (hover: hover) {
+    .list_menu:hover{
+      background-color: rgba(255, 255, 255, 0.08);
+      transition: 0.2s;
+    }
   }

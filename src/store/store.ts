@@ -5,6 +5,8 @@ import setGlobalError from './error'
 import { searchUsersReducer } from "./searchUsers/searchUsers";
 import isModalSlice from './processes/isModal';
 import chatSlice from "./users/chat.slice";
+import useMessageProcess from './processes/processedMessages'
+import themeReducer from '../Components/Theme/theme.slice'
 
 export const store = configureStore({
     reducer:{
@@ -14,6 +16,8 @@ export const store = configureStore({
         setSearchUsers: searchUsersReducer,
         isModalReduser: isModalSlice,
         chat:chatSlice,
+        processMessages:useMessageProcess,
+        theme: themeReducer,
     }
 })
 export type RootState = ReturnType<typeof store.getState>;

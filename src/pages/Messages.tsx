@@ -1,120 +1,145 @@
-import { IsLoadingBig } from 'Components/UI/isLoading/isLoading';
-import { collection, doc, getDocs, getFirestore, onSnapshot, query, where } from 'firebase/firestore';
+import { IsLoaderUsers, IsLoadingBig } from 'Components/UI/isLoading/isLoading';
+import { doc, getDoc, getFirestore, onSnapshot } from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
-import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { setChat } from 'store/users/chat.slice';
-import { ChatObject, SearchUserState } from 'types/user';
+import { ChatObject } from 'types/user';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FinishMessages, StartMessages } from 'store/processes/processedMessages';
 
-const Messages: FC = () => { // Изменено имя компонента на Messages
+const Messages: FC = () => { 
     const { id } = useAuth();
-    const [searchValue, setSearchValue] = useState('');
-    const dispatch = useAppDispatch();
-    const { loading } = useAppSelector((state) => state.process);
+    const [searchValueSplide, setSearchValueSplide] = useState('');
+    const [hasMore, setHasMore] = useState(true);
+    const [fullChats, setFullChats] = useState<ChatObject[]>([]) 
     const [chats, setChats] = useState<ChatObject[]>([]);
-    const [boolSearchValue, setBoolSearchValue ] = useState(false);
+    const [boolSearchValueSplide, setBoolSearchValueSplide ] = useState(false);
+    const [chatsFilter, setChatsFilter] = useState<ChatObject[]>([]);
+    const [startIndex, setStartIndex] = useState(0);
+    const dispatch = useAppDispatch();
+    const { loading } = useAppSelector((state) => state.processMessages);
+    const [ignore, setIgnore] = useState(12);
+    const itemsPerPage = 12;
     const navigate = useNavigate();
-
     const db = getFirestore();
+
     const generateChatID = (id1: string, id2: string) => {
         const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
         const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
         return (`${firstId}${secondId}`);
     };
+    
     useEffect(() => {
-        const getChats = () => {
-            dispatch(ProcessDataStart());
-            const unsub = onSnapshot(doc(db, "UserChat", id.toString()), (doc) => {
-                const data = doc.data();
-
-                if (data) {
-                    const chatObjects: ChatObject[] = Object.values(data);
-                    dispatch(ProcessDataSuccess())
-                    setChats(chatObjects);
-                }
-            });
-            return () => {
-                unsub();
-            };
+        const getChats = async () => {
+            dispatch(StartMessages());
+            const docSnap = await getDoc(doc(db, "UserChat", id.toString()));
+            const data = docSnap.data();
+            
+            if (data) {
+                const sortedChats: ChatObject[] = Object.values(data)
+                .filter(i => i !== null && i.lastMessage)
+                .sort((a, b) => {
+                    if (!a.lastMessage && !b.lastMessage) {
+                        return 0;
+                    } else if (!a.lastMessage) {
+                        return 1;
+                    } else if (!b.lastMessage) {
+                        return -1;
+                    } else {
+                        return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
+                    }
+                });
+                
+                
+                setFullChats(sortedChats);
+                setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
+                dispatch(FinishMessages());
+            }
         };
-        getChats()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        getChats();
     }, [id]);
     useEffect(()=> {
-        if(searchValue !== ''){
-          setBoolSearchValue(true)
+        console.log(chats)
+    },[chats])
+    useEffect(()=> {
+        if(searchValueSplide !== ''){
+          setBoolSearchValueSplide(true)
         }else{
-          setBoolSearchValue(false)
+          setBoolSearchValueSplide(false)
         }
-      }, [searchValue])
-    
+      }, [searchValueSplide])
+
     const handleSelect = (chat: ChatObject) => {
             dispatch(setChat({ chatID: generateChatID(id.toString(), chat.UserInfo.id) ,user: chat.UserInfo }));
             navigate(`/chat/${chat.UserInfo.id}`);
     };
-    const SearchUsers = async () => {
-        const q = query(
-            collection(db, "UserChat" , id.toString()),
-            where("fullName", ">=", searchValue),
-            where("fullName", "<=", searchValue + '\uf8ff')
-          );
-          try{
-            dispatch(ProcessDataStart());
-            const querySnapshot = await getDocs(q);
-            if(!querySnapshot.empty){
-                dispatch(ProcessDataSuccess())
-                const usersData = querySnapshot.docs.map((doc) => {
-                  const data = doc.data() as SearchUserState; // Уточняем тип данных
-                  return data;
-                });
-                dispatch(setSearchUserData(usersData))
-      
-            }else{
-              dispatch(ProcessDataFailure('нет таких пользователей'));
-              dispatch(setSearchUserData([]))
-            console.log('нет таких пользователей')
-      
-            }
-            
-          }catch(err: any){
-            dispatch(ProcessDataFailure(err.message));
-            console.error(err.message)
-          };
+
+    const SearchUsers = () => {
+        console.log('1')
+        if(searchValueSplide !== ''){
+            const filteredChats = fullChats.filter(chat => chat.UserInfo.fullName.toLowerCase().includes(searchValueSplide.toLowerCase()));
+            setChatsFilter(filteredChats);
+            setIgnore(12)
+        }else {
+            setChatsFilter([]);
+        }
+
     }
+
     const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
         e.code === "Enter" && SearchUsers();
       };
+
+      const handleClick = () => {
+        SearchUsers();
+      };
+
       const handleClose = () => {
-        setSearchValue('')
+        setSearchValueSplide('');
+        setChatsFilter([]);
       }
-    if (loading) { 
-        return <IsLoadingBig/>; 
+
+    const nextChats = async () => {
+        const newItems = fullChats.slice(startIndex + ignore, startIndex + ignore + itemsPerPage);
+        setChats(prevItems => {
+            const filteredNewItems = newItems.filter(newItem => {
+              
+            return !prevItems.some(prevItem => prevItem.UserInfo.id === newItem.UserInfo.id);
+          });
+          return [...prevItems, ...filteredNewItems];
+        });
+        setStartIndex(prevIndex => prevIndex + itemsPerPage);
+        setIgnore(0)
+        if (startIndex + itemsPerPage >= fullChats.length) {
+            setHasMore(false);
+        }
+        
     }
+
 
     return (
         <div className='rootBlock'>
             <div className='overUsersList'>
-            <div style={{width: '50%' , position: 'relative', display: 'flex', justifyContent: 'center'}}>
-                <img className='lupa' src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/images-norm.png?alt=media&token=9a602fcd-c85e-4bab-bb8e-cad0e9e12ed1' alt=''/>
+            <div style={{width: '70%' , position: 'relative', display: 'flex', justifyContent: 'center',left:'calc(6px + 2%)', margin: '12px 8px 12px 0px'}}>
+                <img onClick={handleClick} className='lupa' src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/images-norm.png?alt=media&token=9a602fcd-c85e-4bab-bb8e-cad0e9e12ed1' alt=''/>
                 <input 
                     type="text"
-                    value={searchValue} 
-                    onChange={(e) => setSearchValue(e.target.value)}
+                    value={searchValueSplide} 
+                    onChange={(e) => setSearchValueSplide(e.target.value)}
                     onKeyDown={handleKey}
                     placeholder='Поиск'
-
+                    style={{zIndex:1}}
                     className='inputSearch'
                     />
                             <TransitionGroup>
-                    {boolSearchValue ?( 
+                    {boolSearchValueSplide ?( 
                         <CSSTransition 
                         timeout={500} 
                         classNames="close" unmountOnExit 
-                        in={boolSearchValue}
+                        in={boolSearchValueSplide}
                         >
 
                     
@@ -125,19 +150,63 @@ const Messages: FC = () => { // Изменено имя компонента н�
                         )
                     : '' }
                     </TransitionGroup>
-    </div>
-                <ul >
-                    {chats.map((chat) => (
-                        <li
-                        className='ChatsOtherUser'
-                        key={chat.UserInfo.id}
-                        onClick={() => handleSelect(chat)}
-                        >
-                            <img src={chat.UserInfo.photoURL} alt={chat.UserInfo.fullName}/>
-                            <h3>{chat.UserInfo.fullName}</h3>
-                        </li>
-                    ))}
-                </ul>
+            </div>
+                {loading ? (
+                <div style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%'}}>
+                    <IsLoaderUsers/>
+                    <IsLoaderUsers/>
+                    <IsLoaderUsers/>
+                    <IsLoaderUsers/>
+                    <IsLoaderUsers/>
+                    <IsLoaderUsers/>
+                    <IsLoaderUsers/>
+                </div>
+                ): ( chatsFilter.length !== 0 ? (
+                        <ul className='chatUsersMain' >
+                        {chatsFilter.map((chatFiltered)=> (
+                            <li
+                            className='ChatsOtherUser'
+                            key={chatFiltered.UserInfo.id}
+                                        onClick={() => handleSelect(chatFiltered)}
+                                    >
+                                        <img src={chatFiltered.UserInfo.photoURL} alt={chatFiltered.UserInfo.fullName}/>
+                                        <h3>{chatFiltered.UserInfo.fullName}</h3>
+                                        <p>{chatFiltered.lastMessage?.from === id.toString() 
+                                        ? (<span>Вы:{chatFiltered.lastMessage?.text} </span>) : (`${chatFiltered.UserInfo.fullName} 
+                                        : ${chatFiltered.lastMessage?.text}`)}</p>
+                                    </li>
+                                ))}
+                                </ul>
+                            ):(
+                            <InfiniteScroll 
+                            next={nextChats} 
+                            hasMore={hasMore} 
+                            loader={''} 
+                            dataLength={chats.length}
+                            scrollableTarget="chatUsersMain"
+                            scrollThreshold={0.9}
+
+                            >
+                                <ul className='chatUsersMain' >
+                                {chats.map((chat, index) => (
+                                    <li
+                                        className="ChatsOtherUser"
+                                        key={index}
+                                        onClick={() => handleSelect(chat)}
+                                    >
+                                        <img src={chat.UserInfo.photoURL} alt={chat.UserInfo.fullName} />
+                                        <h3>{chat.UserInfo.fullName}</h3>
+                                        <p>{chat.lastMessage?.from === id.toString() 
+                                        ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
+                                        : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
+                                        }</p>
+                                    </li>
+                                ))}
+                                </ul>
+                            </InfiniteScroll>
+                        ))}
+                    
+                
             </div>
         </div>
     );

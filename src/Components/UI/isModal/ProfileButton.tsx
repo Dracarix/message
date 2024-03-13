@@ -12,6 +12,7 @@ const ProfileButton:FC<Props> = ({children}) => {
         if (e.target === e.currentTarget) {
           
           setProfileBlock(false)
+          e.stopPropagation()
         }
       };
     return (

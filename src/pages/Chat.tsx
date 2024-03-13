@@ -3,17 +3,17 @@ import { Message } from 'Components/UI/message/Message';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { useEffect, useState } from 'react';
 import '../styles/chat.scss'
-import { LeftUsers } from 'Components/leftColumnUsers';
+import { LeftUsers } from 'Components/rightColumnUsers';
 import {  Navigate, useParams } from 'react-router-dom';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { setChat } from 'store/users/chat.slice';
 import { useAuth } from 'hooks/use-auth';
-import { ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
+import { ChatLoader } from 'Components/UI/isLoading/chatLoader';
 
 const Chats = () => {
   const {user} = useAppSelector((state) => state.chat);
-  const {loading} = useAppSelector((state) => state.process);
   const { overUserID } = useParams();
+  const [loading , setLoading] = useState(false);
   const {id} = useAuth();
   const dispatch = useAppDispatch();
   const db = getFirestore();
@@ -26,54 +26,56 @@ const Chats = () => {
   };
   useEffect(() => {
     const fetchChat = async () => {
-      dispatch(ProcessDataStart());
+        setLoading(true)
       
+      console.log('1')
       if (overUserID) {
         
-        const userDoc = await getDoc(doc(db, 'users', overUserID));
-        if (userDoc.exists()) {
-          
           await getDoc(doc(db, 'UserChat', id.toString()))
             .then((doc) => {
-
+              console.log('2')
               if (doc.exists()) {
-
+                console.log('3')
 
                 const data = doc.data();
                 if(data){
                   const chatId = generateChatId(id.toString(), overUserID);
                   const overUserIDValue = data[chatId];
+                  console.log('4')
                   if (overUserIDValue) {
                     
                     dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
-                    dispatch(ProcessDataSuccess());
-  
+                    
+                    setTimeout(()=>{
+                      setLoading(false)
+                    },250)
+                    console.log('5')
                   } else {
+                    console.log('1')
                     // Значение overUserIDValue не существует
-                    dispatch(ProcessDataSuccess());
-                    setHuynya(true)
+                    
+                    setTimeout(()=>{
+                      setLoading(false)
+                    },250)
                   }
                 }else{
-                  dispatch(ProcessDataSuccess());
+                  console.log('1')
+                  setLoading(false)
                   setHuynya(true)
                 }
                 
               }else{
-                dispatch(ProcessDataSuccess());
-                setHuynya(true)
+                console.log('1')
+                setLoading(false)
               }
             })
             .catch((error) => {
+              console.log('1')
               console.log(error);
-              dispatch(ProcessDataSuccess());
+              setLoading(false)
             });
-        } else {
-          dispatch(ProcessDataSuccess());
-          setHuynya(true)
-
-        }
       } else {
-        dispatch(ProcessDataSuccess());
+        setLoading(false)
         setHuynya(true)
 
       }
@@ -87,26 +89,27 @@ const Chats = () => {
 if(huynya){
   return <Navigate to='/'/>
 }
-if (loading) {
-    // Если данные чата еще не загружены, можно показать загрузочный индикатор или просто сообщение о загрузке
-    return <div>Loading chat...</div>;
-}
+
   return (
     <div className='chat'>
       <LeftUsers thisID={user.id} />
       <section className='chat_section'>
-        <div className='chatInfo'>
-          <div className='chatIcons'>
-            <img src={user.photoURL} alt="" />
-          </div>
-          <span>{user.fullName}</span>
+        {loading ? <ChatLoader/> 
+        : (
+          <div className='chatInfo'>
+            <div className='chatIcons'>
+              <img src={user.photoURL} alt="" />
+            </div>
+            <span>{user.fullName}</span>
 
         
         </div>
+        )}
+        
         {overUserID && 
           <Message chatID={generateChatId(id.toString(), overUserID)} />
         }
-        <InputSend/>
+        <InputSend disabled={loading}/>
       </section>
     </div>
   );

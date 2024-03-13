@@ -1,0 +1,90 @@
+@import '../../../styles/Variables.scss';
+@import '../../../styles/style.scss';
+
+.messageContent-right{
+    display: flex;
+    position: relative;
+    right: 0;
+    justify-content: end;
+    margin-top: 4px;
+    
+}
+.messageContent-left{
+    display: flex;
+    position: relative;
+    left: 0;
+    margin-top: 4px;
+}
+
+.messageContent-right .block_mess,
+.messageContent-left .block_mess{
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    background: linear-gradient(335.98deg, #001392FF -27.09%,#011386FF -27.09%,#011D94FF -19.16%,#006FFFFF 22.32%,#0054D1FF 58.52%,#004BC2FF 108.63%,#000C57FF 246.21%,#001A83FF 246.21%);
+    border-radius: 10px;
+    max-width: 70%;
+    color: $color-white;
+    overflow: hidden;
+    padding:  0 36px 0 8px;
+
+}
+.messageContent-right .block_mess{
+    margin-right: 4px;
+}
+
+.messageContent-left img, 
+.messageContent-right img{
+    max-width: 100%;
+
+}
+.messageContent-right p{
+    padding: 0 15px 0 0;
+    word-wrap: break-word;
+    text-align: right;
+    width: 100%;
+
+}
+.messageContent-left p{
+    padding: 0 15px 0 0;
+    word-wrap: break-word;
+
+    width: 100%;
+}
+.messageContent-right .messageInfo{
+    position: absolute;
+    right:  5px;
+    bottom: 5px;
+    user-select: none;
+}
+.messageContent-left .messageInfo{
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    user-select: none;
+}
+
+.messageInfo span{
+    font-size: 12px;
+    color:$color-white-grey;
+}
+
+.soobsheniya{
+    height: 82vh;
+    overflow-y: auto;
+}
+.soobsheniya::-webkit-scrollbar {
+    width: 5px; /* Ширина */
+    margin-left: 4px;
+}
+
+/* Ползунок */
+.soobsheniya::-webkit-scrollbar-thumb {
+    background-color: #888; /* Цвет */
+    border-radius: 5px; /* Закругление углов */
+}
+
+/* Полоса прокрутки */
+.soobsheniya::-webkit-scrollbar-track {
+    background-color: transparent; /* Цвет */
+}

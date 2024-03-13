@@ -1,26 +1,61 @@
-.ChatsOtherUser{
+@import './Variables.scss';
+
+.ChatsOtherUser {
     display: flex;
-    background-color: green;
+    align-items: center;
+    position: relative;
+    background-color: rgb(1, 28, 72);
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 12px;
+    color: white;
+    padding:  8px 16px;
+    transition: 0.1s;
+    
 }
-.ChatsOtherUser h3{
+.ChatsOtherUser h3 {
     margin-left: 16px;
 }
-.ChatsOtherUser img{
+.ChatsOtherUser p {
+    position: absolute;
+    color: $grey-color;
+    right: 5%;
+    display: flex;
+    align-items: center;
+}
+.LastMessage{
+    color: $color-white;
+    display: inline-block;
+    width: 100px;
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis; 
+    margin-left: 8px;
+}
+.ChatsOtherUser img {
     width: 50px;
     height: 50px;
     border-radius: 50%;
 }
-.overUsersList{
-    padding: 0;
-    margin: 12px 0 0 0;
-    height: 90vh;
-    width: 70vw;
+
+.overUsersList {
+    padding: 0 0 12px 0;
+    margin: 24px 0 24px 0;
+    height: auto;
+    width: 80vw;
     border-radius: 15px 15px 0 0;
-    background-color: red;
+    background-color: rgb(0, 18, 46);
+
 }
-.overUsersList ul{
+
+.overUsersList .chatUsersMain {
     padding: 0;
     margin: 0;
+    overflow-y: auto;
+    height: calc(100% - 20px); 
+}
+@media (hover: hover){
+    .ChatsOtherUser:hover{
+        background-color: rgb(8, 42, 96);
+        
+    }
 }

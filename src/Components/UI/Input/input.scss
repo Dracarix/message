@@ -52,43 +52,58 @@
 }
 .lupa{
     position: absolute;
-    width: 30px;
+    width: 32px;
+    height: 26px;
+    padding: 2px ;
     cursor: pointer;
     left: 0;
     top: 50%;
     transform: translate(0, -50%);
     z-index: 2;
+
+}
+.lupa circle{
+  stroke: $grey-color;
+}
+.lupa path{
+  fill:$grey-color ;
 }
 .closebtn{
     cursor: pointer;
     position: absolute;
-    width: 30px;
+    width: 20px;
+    height: 20px;
     right: 0;
+    padding: 2px;
     z-index: 2;
     top: 50%;
-    transform: translate(0, -50%) rotate(45deg);
-    color: black;
+    transform: translate(0, -50%) ;
+    
+}
+.closebtn path{
+  stroke: $grey-color;
+
 }
 .close-enter {
     opacity: 0;
-    transform: translate(10px, -50%) rotate(45deg);
+    transform: translate(10px, -50%) ;
   }
   
   .close-enter-active {
     opacity: 1;
-    transform: translate(0, -50%) rotate(45deg);
+    transform: translate(0, -50%) ;
     transition: opacity 500ms ease-in, transform 500ms ease-in;
   }
   
   .close-exit {
     opacity: 1;
-    transform: translate(0, -50%) rotate(45deg);
+    transform: translate(0, -50%) ;
   }
   
   .close-exit-active {
     opacity: 0;
 
-    transform: translate(10px , -50%) rotate(45deg);
+    transform: translate(10px , -50%) ;
     transition: opacity 500ms ease-out, transform 500ms ease-out;
   }
 
@@ -96,22 +111,22 @@
   .search-enter {
 
     z-index: 2;
-    transform: translate(-2000px, 48px);
+    opacity: 0;
   }
   
   .search-enter-active {
     z-index: 2;
-    transform: translate(-50%,48px) ;
-    transition: transform 500ms ease-in-out;
+    opacity: 1;
+    transition: all 100ms ease-in-out;
   }
   
   .search-exit {
     z-index: 2;
-    transform: translate(-2000px, 48px) ;
+    opacity: 0;
   }
   
   .search-exit-active {
     z-index: 2;
-    transform: translate(-50% , 48px) ;
-    transition: transform 500ms ease-in-out;
+    opacity: 1;
+    transition:all 100ms ease-in-out;
   }

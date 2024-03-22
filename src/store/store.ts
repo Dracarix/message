@@ -7,7 +7,8 @@ import isModalSlice from './processes/isModal';
 import chatSlice from "./users/chat.slice";
 import useMessageProcess from './processes/processedMessages'
 import themeReducer from '../Components/Theme/theme.slice'
-
+import {needMainInput} from './searchUsers/mainInputDisabled'
+import useMediaMenu from './menu.slice'
 export const store = configureStore({
     reducer:{
         user:userReduser,
@@ -18,6 +19,8 @@ export const store = configureStore({
         chat:chatSlice,
         processMessages:useMessageProcess,
         theme: themeReducer,
+        needMainInput: needMainInput,
+        useMenu: useMediaMenu,
     }
 })
 export type RootState = ReturnType<typeof store.getState>;

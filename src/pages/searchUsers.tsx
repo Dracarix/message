@@ -1,6 +1,5 @@
 import ErrBlock from 'Components/UI/ErrorBlock/error';
 import { IsLoaderUsers } from 'Components/UI/isLoading/isLoading';
-import { error } from 'console';
 import { getDocs, collection, getFirestore, getDoc, doc, serverTimestamp, setDoc, updateDoc, query, where } from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
@@ -12,6 +11,8 @@ import { ProcessDataStart, ProcessDataSuccess, ProcessDataFailure } from 'store/
 import { StartMessages, FinishMessages } from 'store/processes/processedMessages';
 import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { SearchUserState } from 'types/user';
+import { ReactComponent as Lupa } from '../svg/search-lupa.svg';
+import { ReactComponent as CloseBtn } from '../svg/close.svg';
 
 const UserSearch = () => {
     const { value: searchValue } = useParams();
@@ -23,10 +24,10 @@ const UserSearch = () => {
     const [startIndex, setStartIndex] = useState(0);
     const [otherUsersData, setOtherUsersData] = useState<SearchUserState[]>([]);
     const [fullUsersData, setFullUsersData] = useState<SearchUserState[]>([]);
-    const [ignore, setIgnore] = useState(12);
+    const [ignore, setIgnore] = useState(15);
     const [hasMore, setHasMore] = useState(true);
     const navigate = useNavigate();
-    const itemsPerPage = 12;
+    const itemsPerPage = 15;
     const {error} = useAppSelector(state => state.process);
     const {loading} = useAppSelector(state => state.processMessages);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,7 +110,7 @@ const UserSearch = () => {
               return data;
             });
             setFullUsersData(usersData)
-            const newItems = usersData.slice(startIndex, startIndex + itemsPerPage);
+            const newItems = usersData.slice(startIndex + itemsPerPage);
             setOtherUsersData(newItems);
             dispatch(FinishMessages())
         }else{
@@ -206,10 +207,7 @@ const UserSearch = () => {
           margin:'16px 0px 8px 0px'
         }}
       >
-    <img 
-    className='lupa' 
-    onClick={value ? SearchUsers : ()=> {}}
-    src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/images-norm.png?alt=media&token=9a602fcd-c85e-4bab-bb8e-cad0e9e12ed1' alt=''/>
+   <Lupa className='lupa' onClick={SearchUsers} />
       <input 
         type="text"
         value={value} 
@@ -226,11 +224,10 @@ const UserSearch = () => {
               classNames="close" unmountOnExit 
               in={boolSearchValue}
               >
-
-          
-              <svg onClick={handleClose} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 16 16" className='closebtn'>
-                <path fill="currentColor" d="M9 9v4a1 1 0 1 1-2 0V9H3a1 1 0 1 1 0-2h4V3a1 1 0 1 1 2 0v4h4a1 1 0 1 1 0 2H9Z"></path>
-              </svg>
+                <CloseBtn 
+                  onClick={handleClose}
+                  className='closebtn'
+                />
               </CSSTransition>
             )}
           </TransitionGroup>
@@ -250,7 +247,6 @@ const UserSearch = () => {
           error 
             ? <ErrBlock/>
             : (
-
           <InfiniteScroll 
                     next={nextScroll} 
                     hasMore={hasMore} 
@@ -260,20 +256,20 @@ const UserSearch = () => {
                     scrollThreshold={0.7}
 
                     >
-                      <ul
+                      <div
                       style={{padding: 0}}
                       >
                         {otherUsersData.map((userData, index)=>(
-                          <li
+                          <button
                               className="ChatsOtherUser"
                               key={index}
                               onClick={() => handleSelect(userData)}
                           >
                               <img src={userData.photoURL} alt={userData.fullName} />
                               <h3>{userData.fullName}</h3>
-                          </li>
+                          </button>
                         ))}
-                      </ul>
+                      </div>
                     </InfiniteScroll>
             )
           

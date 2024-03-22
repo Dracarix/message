@@ -9,6 +9,9 @@ import { setChat } from 'store/users/chat.slice';
 import { ChatObject } from 'types/user';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FinishMessages, StartMessages } from 'store/processes/processedMessages';
+import { ReactComponent as Lupa } from '../svg/search-lupa.svg';
+import { ReactComponent as CloseBtn } from '../svg/close.svg';
+import { setDisabledInput, setWorkedInput } from 'store/searchUsers/mainInputDisabled';
 
 const Messages: FC = () => { 
     const { id } = useAuth();
@@ -21,8 +24,8 @@ const Messages: FC = () => {
     const [startIndex, setStartIndex] = useState(0);
     const dispatch = useAppDispatch();
     const { loading } = useAppSelector((state) => state.processMessages);
-    const [ignore, setIgnore] = useState(12);
-    const itemsPerPage = 12;
+    const [ignore, setIgnore] = useState(15);
+    const itemsPerPage = 15;
     const navigate = useNavigate();
     const db = getFirestore();
 
@@ -53,7 +56,7 @@ const Messages: FC = () => {
                     }
                 });
                 
-                
+                console.log(sortedChats)
                 setFullChats(sortedChats);
                 setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
                 dispatch(FinishMessages());
@@ -67,7 +70,9 @@ const Messages: FC = () => {
     useEffect(()=> {
         if(searchValueSplide !== ''){
           setBoolSearchValueSplide(true)
+          dispatch(setDisabledInput())
         }else{
+            dispatch(setWorkedInput())
           setBoolSearchValueSplide(false)
         }
       }, [searchValueSplide])
@@ -90,12 +95,14 @@ const Messages: FC = () => {
     }
 
     const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        e.code === "Enter" && SearchUsers();
+        if(e.code === "Enter"){ 
+            SearchUsers()
+          }else if (e.code === "Escape"){
+            handleClose();
+          }
       };
 
-      const handleClick = () => {
-        SearchUsers();
-      };
+      
 
       const handleClose = () => {
         setSearchValueSplide('');
@@ -124,7 +131,7 @@ const Messages: FC = () => {
         <div className='rootBlock'>
             <div className='overUsersList'>
             <div style={{width: '70%' , position: 'relative', display: 'flex', justifyContent: 'center',left:'calc(6px + 2%)', margin: '12px 8px 12px 0px'}}>
-                <img onClick={handleClick} className='lupa' src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/images-norm.png?alt=media&token=9a602fcd-c85e-4bab-bb8e-cad0e9e12ed1' alt=''/>
+            <Lupa className='lupa' onClick={SearchUsers} />
                 <input 
                     type="text"
                     value={searchValueSplide} 
@@ -143,9 +150,10 @@ const Messages: FC = () => {
                         >
 
                     
-                        <svg onClick={handleClose} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 16 16" className='closebtn'>
-                            <path fill="currentColor" d="M9 9v4a1 1 0 1 1-2 0V9H3a1 1 0 1 1 0-2h4V3a1 1 0 1 1 2 0v4h4a1 1 0 1 1 0 2H9Z"></path>
-                        </svg>
+                                <CloseBtn 
+                                    onClick={handleClose}
+                                    className='closebtn'
+                                />
                         </CSSTransition>
                         )
                     : '' }
@@ -162,21 +170,21 @@ const Messages: FC = () => {
                     <IsLoaderUsers/>
                 </div>
                 ): ( chatsFilter.length !== 0 ? (
-                        <ul className='chatUsersMain' >
+                        <div className='chatUsersMain' >
                         {chatsFilter.map((chatFiltered)=> (
-                            <li
+                            <button
                             className='ChatsOtherUser'
                             key={chatFiltered.UserInfo.id}
                                         onClick={() => handleSelect(chatFiltered)}
                                     >
-                                        <img src={chatFiltered.UserInfo.photoURL} alt={chatFiltered.UserInfo.fullName}/>
+                                        <img src={chatFiltered.UserInfo.photoURL} loading='lazy' alt={chatFiltered.UserInfo.fullName}/>
                                         <h3>{chatFiltered.UserInfo.fullName}</h3>
                                         <p>{chatFiltered.lastMessage?.from === id.toString() 
-                                        ? (<span>Вы:{chatFiltered.lastMessage?.text} </span>) : (`${chatFiltered.UserInfo.fullName} 
-                                        : ${chatFiltered.lastMessage?.text}`)}</p>
-                                    </li>
+                                        ? (<>Вы: <span className='LastMessage'> {chatFiltered.lastMessage?.text} </span></>) 
+                                        : (<span className='LastMessage'>{chatFiltered.lastMessage?.text}</span>)}</p>
+                                    </button>
                                 ))}
-                                </ul>
+                                </div>
                             ):(
                             <InfiniteScroll 
                             next={nextChats} 
@@ -187,22 +195,22 @@ const Messages: FC = () => {
                             scrollThreshold={0.9}
 
                             >
-                                <ul className='chatUsersMain' >
+                                <div className='chatUsersMain' >
                                 {chats.map((chat, index) => (
-                                    <li
+                                    <button
                                         className="ChatsOtherUser"
                                         key={index}
                                         onClick={() => handleSelect(chat)}
                                     >
-                                        <img src={chat.UserInfo.photoURL} alt={chat.UserInfo.fullName} />
+                                        <img src={chat.UserInfo.photoURL} loading='lazy' alt={chat.UserInfo.fullName} />
                                         <h3>{chat.UserInfo.fullName}</h3>
                                         <p>{chat.lastMessage?.from === id.toString() 
                                         ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
                                         : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
                                         }</p>
-                                    </li>
+                                    </button>
                                 ))}
-                                </ul>
+                                </div>
                             </InfiniteScroll>
                         ))}
                     

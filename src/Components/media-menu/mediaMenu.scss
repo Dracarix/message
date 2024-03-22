@@ -1,0 +1,101 @@
+@import '../../styles/Variables.scss';
+@import '../../styles/style.scss';
+
+
+
+.mini__logo{
+    width: 40px;
+}
+
+
+
+
+.open-menu-enter {
+    opacity: 0;
+    border-top-left-radius: 500px ;
+    transform: translateX(70%) translateY(100%) scale(0);
+  }
+  
+  .open-menu-enter-active {
+    opacity: 1;
+    border-top-left-radius: 0;
+    transform: translateX(0) translateY(0) scale(1);
+    transition: all 0.3s ease-in;
+  }
+  
+  .open-menu-exit {
+    opacity: 1;
+    border-top-left-radius: 0 ;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  
+  .open-menu-exit-active {
+    opacity: 1;
+    border-top-left-radius: 500px;
+    transform: translateX(70%) translateY(100%) scale(0);
+    transition: all 0.3s ease-out;
+  }
+
+
+.menu{
+    position: fixed;
+    background-color: $menu-background;
+    width: 100vw;
+    height: 100vh;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: start;
+    bottom: 0;
+    z-index: 11;
+
+    scale:1;
+}
+
+.menu .profile__block{
+    padding: 24px;
+    position: relative;
+    left: 50%;
+    border-radius: 20px;
+    transform: translate(-50%);
+    background-color: rgba($color: #000000, $alpha: 0.4);
+    width: 80%;
+    height: 20vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.menu .profile__block img{
+    width: 50px;
+    border-radius: 50%;
+}
+
+.header__lupa{
+    cursor: pointer;
+}
+.header__lupa circle{
+    stroke: $grey-color;
+}
+.header__lupa path{
+    fill:$grey-color ;
+}
+
+.mess__icon.active path {
+    stroke:$dark-link-color;
+}
+.mess__icon.active #last__path,
+.mess__icon.active rect{
+    fill: $dark-link-color;
+}
+.mess__icon:not(.active) path {
+    stroke:$grey-color;
+}
+.mess__icon:not(.active) #last__path,
+.mess__icon:not(.active) rect{
+    fill: $grey-color;
+}
+.mess__icon{
+    transition: all 0.5s ease-in-out;
+}

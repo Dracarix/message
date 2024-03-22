@@ -22,7 +22,7 @@
 
   .close_arrow-enter {
 
-    transform: translateY(300px) ;
+    transform: translateY(400px) ;
   
   }
   
@@ -39,6 +39,30 @@
   
   .close_arrow-exit-active {
 
-    transform: translateY(300px);
+    transform: translateY(400px);
     transition: all 500ms ease-in-out;
+  }
+  @media (max-width:800px ) {
+    .close_arrow-enter {
+
+      transform: translateY(20vh) ;
+    
+    }
+    
+    .close_arrow-enter-active {
+  
+      transform: translateY(0px);
+      transition: all 500ms ease-in-out;
+    }
+    
+    .close_arrow-exit {
+  
+      transform: translateY(0px);
+    }
+    
+    .close_arrow-exit-active {
+  
+      transform: translateY(20vh);
+      transition: all 500ms ease-in-out;
+    }
   }

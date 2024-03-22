@@ -13,6 +13,8 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import '../styles/CSSTransition.css'
 import { RootState } from 'store/store';
 import { useAuth } from 'hooks/use-auth';
+import BackLogin from '../Images/background-login.png';
+import LogoBig from '../Images/My-logo-big.png';
 
 const RegisterPage = () => {
   const dispatch = useAppDispatch();
@@ -91,23 +93,32 @@ const RegisterPage = () => {
     return <IsLoadingBig/>
   }
   return (
-    <div className='regBlock'>
-    
-      <FormRegister title="Signup" handleForm={handleReg}/>
-      <p className="signin"> Already have an account?  <Link to='/login'>Signin</Link> </p>  
-      <TransitionGroup>
-        {hasError && (
-        <CSSTransition 
-        timeout={500} 
-        classNames="slide" unmountOnExit 
-        in={hasError}
-        >
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-          {error && error }
-          </div>
-        </CSSTransition>
-      )}
-    </TransitionGroup>   
+    <div 
+      className='regBlock'
+      style={{backgroundImage:`url(${BackLogin})`}}
+    >
+      <img 
+        src={LogoBig} 
+        alt="Logo this website" 
+        style={{width: '30vw'}}
+      />
+      <div className='block__form_login'>
+        <FormRegister title="Signup" handleForm={handleReg}/>
+        <p className="signin"> Already have an account?  <Link to='/login'>Signin</Link> </p>  
+        <TransitionGroup>
+          {hasError && (
+            <CSSTransition 
+              timeout={500} 
+              classNames="slide" unmountOnExit 
+              in={hasError}
+            >
+              <div style={{display: 'flex', flexDirection: 'column'}}>
+              {error && error }
+              </div>
+            </CSSTransition>
+          )}
+        </TransitionGroup>   
+      </div>
 
     </div>
   );    

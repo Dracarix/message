@@ -12,7 +12,8 @@ import CryptoJS from 'crypto-js';
 import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { SearchUserState } from 'types/user';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-
+import { ReactComponent as Lupa } from '../../../svg/search-lupa.svg';
+import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
 
 
 const SearchInput = () => {
@@ -28,6 +29,7 @@ const SearchInput = () => {
   const [navValue, setNavValue] = useState('')
   const [boolSearchValue, setBoolSearchValue ] = useState(false);
   const [boolSearchNever, setBoolSearchNever ] = useState(false);
+  const {need} = useAppSelector((state) => state.needMainInput)
 
   useEffect(()=> {
     if(searchValue !== ''){
@@ -119,9 +121,15 @@ const SearchInput = () => {
     
   }
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.code === "Enter" && SearchUsers();
+    if(e.code === "Enter"){ 
+      SearchUsers()
+    }else if (e.code === "Escape"){
+      handleClose();
+    }
   };
+
   const fullSearch = () => {
+    handleClose();
     setSearchUserData([]);
     setSearchValue('');
     navigate(`/search/${navValue}`);
@@ -137,52 +145,60 @@ const SearchInput = () => {
   }
   return (
     <div style={{width: '50%' , position: 'relative', display: 'flex', justifyContent: 'center'}}>
-      <img className='lupa' src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/images-norm.png?alt=media&token=9a602fcd-c85e-4bab-bb8e-cad0e9e12ed1' alt=''/>
+      <Lupa className='lupa' onClick={SearchUsers} />
       <input 
         type="text"
         value={searchValue} 
         onChange={(e) => setSearchValue(e.target.value)}
         onKeyDown={handleKey}
         placeholder='Поиск'
-
+        disabled = {need ? false : true}
         className='inputSearch'
         />
                 {userSearchData.length >= 1 ? (
+                  <div className="modal__mini"
+                  onClick={handleClose}>
                   <TransitionGroup
                   style={{zIndex:2}}>
                     {boolSearchNever && (
 
                     <CSSTransition 
-                    timeout={500} 
+                    timeout={100} 
                     
                     classNames="search" unmountOnExit 
                     in={boolSearchNever}
                     >
-                          <ul className='user-list'>
+                      
+
+                      
+                          <div className='user-list'>
                           {userSearchData.map((user) => (
                             user.id !== id && (
-                                <li 
+                                <button 
                                 style={{cursor: 'pointer'}}
                                 key={user.id} 
                                 className="user-item"
                                 onClick={() => handleSelect(user)}
                                 >
                                 <img src={user.photoURL} alt={user.fullName} />
-                                <div>
-                                  <p>first name: {user.firstName}</p>
+                                <div className='nameUsersSearch'>
+                                  <p>{user.fullName}</p>
                                 </div>
-                              </li>
+                              </button>
                             )
                             ))}
                             {neverSearch.length > 5 && 
                               <button
+                              className='allSearchBtn'
                               onClick={fullSearch}
                               >Показать все</button>
                             }
-                        </ul>
+                        </div>
+                        
                     </CSSTransition>
                     )}
                   </TransitionGroup>
+                  </div>
         ) : (
             ''
             )}
@@ -197,9 +213,11 @@ const SearchInput = () => {
               >
 
           
-              <svg onClick={handleClose} xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 16 16" className='closebtn'>
-                <path fill="currentColor" d="M9 9v4a1 1 0 1 1-2 0V9H3a1 1 0 1 1 0-2h4V3a1 1 0 1 1 2 0v4h4a1 1 0 1 1 0 2H9Z"></path>
-              </svg>
+              <CloseBtn 
+                onClick={handleClose} 
+                className='closebtn'
+              />
+                
               </CSSTransition>
             )}
           </TransitionGroup>
@@ -207,9 +225,12 @@ const SearchInput = () => {
   );
 };
 
+
 const inputSearchHaveUsers = () => {
 
 }
+
+
 type Disabled = {disabled: boolean};
 const InputSend = ({disabled}: Disabled) => {
   const storage = getStorage();

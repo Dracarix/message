@@ -10,6 +10,8 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import '../styles/CSSTransition.css'
 import { browserLocalPersistence, getAuth, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from 'hooks/use-auth';
+import BackLogin from '../Images/background-login.png';
+import LogoBig from '../Images/My-logo-big.png';
 
 const LoginPage = () => {
 
@@ -88,27 +90,34 @@ const LoginPage = () => {
     return <IsLoadingBig/>
   }
   return (
-    <div
+    <div 
       className='regBlock'
+      style={{backgroundImage:`url(${BackLogin})`}}
     >
-      <FormLogin title="Signin" handleForm={(email, pass) => handleLogin(email, pass)}/>
-      <p className="signin">Don't have an account yet?  <Link to='/register'>Signup</Link> </p>
-      <TransitionGroup>
-        {hasError && (
-        <CSSTransition 
-        timeout={500} 
-        classNames="slide" unmountOnExit 
-        in={hasError}
-        >
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-          {error ? error : (
-            ''
+      <img 
+        src={LogoBig} 
+        alt="Logo this website" 
+        style={{width: '20vw'}}
+      />
+      <div className='block__form_login'>
+          <FormLogin title="Signin" handleForm={(email, pass) => handleLogin(email, pass)}/>
+          <p className="signin">Don't have an account yet?  <Link to='/register'>Signup</Link> </p>
+          <TransitionGroup>
+            {hasError && (
+            <CSSTransition 
+            timeout={500} 
+            classNames="slide" unmountOnExit 
+            in={hasError}
+            >
+              <div style={{display: 'flex', flexDirection: 'column'}}>
+              {error ? error : (
+                ''
+              )}
+              </div>
+            </CSSTransition>
           )}
-          </div>
-        </CSSTransition>
-      )}
-    </TransitionGroup>  
-
+        </TransitionGroup>  
+      </div>
     </div>
   );
 };

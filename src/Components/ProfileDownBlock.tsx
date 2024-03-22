@@ -8,8 +8,6 @@ import { useAppDispatch, useAppSelector } from "hooks/use-redux";
 import { useMatch, useNavigate } from "react-router-dom";
 import Theme from "./Theme/theme";
 import '../styles/menu.scss';
-import { useState } from "react";
-import { useMediaQuery } from "react-responsive";
 
 const ProfileDownBlock = () => {
     const navigate = useNavigate();

@@ -7,8 +7,14 @@
     padding: 4px 8px;
     justify-content: center;
     align-items: center;
-    bottom: 5%;
+    bottom: 7%;
     scale: 1;
     right:3% ;
 
+}
+@media (max-width:800px ) {
+    .scrollTop{
+        bottom: 20vh;
+        right:1% ;
+    }
 }

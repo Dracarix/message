@@ -1,6 +1,8 @@
 import React, { FC, useState } from 'react';
 import { Form } from 'react-router-dom';
 import './form.scss';
+import { ReactComponent as EyeIcon } from './svg/eye.svg';
+import { ReactComponent as NoEyeIcon } from './svg/noeye.svg';
 
 interface FormProps{
     title: string;
@@ -26,6 +28,7 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
         <label>
             <input 
               type='firstName' 
+              maxLength={16}
               value={firstName}
               placeholder=''
               required
@@ -37,6 +40,7 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
         <label>
             <input 
               type='lastName' 
+              maxLength={16}
               value={lastName}
               placeholder=''
               required
@@ -49,6 +53,7 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
         <label>
           <input 
               type="email"
+              minLength={4}
               value={email}
               className='input'
               placeholder=''
@@ -59,7 +64,7 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
         </label> 
         <label>
           <input 
-              type="password"
+              type={!showPassword ? 'password' : 'text'}
               value={pass}
               className='input'
               placeholder=''
@@ -67,16 +72,25 @@ const FormRegister:FC<FormProps> = ({title, handleForm} ) => {
               onChange={(e) => setPass(e.target.value)}
           />
           <span>Password</span>
+          <button
+            onClick={togglePasswordVisibility}
+            className='eye__btn'
+            title='hide or not hide password'
+            style={!showPassword ? {margin: '0 4px 0 0'} : {}}
+          >
+            {showPassword 
+            ? <NoEyeIcon
+                width='32.5px'
+                height='32.5px'
+              /> 
+            : <EyeIcon
+                width='25px'
+                height='25px'
+              />}
+          </button>
       </label>
 
-        <button
-        onClick={togglePasswordVisibility}
-        style={{ cursor: "pointer" }}
-        hidden
-        title='hide or not hide password'
-      >
-        <img src={showPassword ? "./svg/noeye.svg" : "./svg/eye.svg"} alt="" />
-      </button>
+        
 
     <button
       className="submit"

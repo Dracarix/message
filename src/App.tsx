@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import './App.css';
 import './styles/style.scss'
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, } from 'react-router-dom';
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, } from 'react-router-dom';
 import {Layout} from 'Components/Loyaut';
 import {HomePage} from 'pages/homePage';
 import {LoginPage} from 'pages/loginPage';
 import {RegisterPage} from 'pages/registerPage';
-import Masseges from 'pages/Messages';
+import Messages from 'pages/Messages';
 import { ErrorPage } from 'pages/errorPage';
-import { useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { removeUser, setUser } from 'store/users/user.slice';
@@ -17,16 +17,21 @@ import PrivateAuth from 'Components/hoc/PrivateAuth';
 import { NotPages } from 'pages/NotPages';
 import { Chats } from 'pages/Chat';
 import { collection, doc, getFirestore, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { ref } from 'firebase/storage';
 import {UserSearch} from 'pages/searchUsers';
+import { openReAuth } from 'store/processes/isModal';
+import {ProfileSetting} from 'pages/ProfileSetting';
 
-function App() {  
+const App:FC = () => {  
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const auth = getAuth();
   const thisUser = useAppSelector((state) => state.user);
   const {error} = useAppSelector((state) => state.process);
   const theme = useAppSelector((state) => state.theme);
+
+
+
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
 
@@ -34,6 +39,7 @@ function App() {
             const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
                 const data = doc.data();
                 if(data){
+                    
                     dispatch(setUser({
                         email: user.email,
                         token: user.refreshToken,
@@ -43,6 +49,7 @@ function App() {
                         firstName: data.firstName,
                         lastName :data.lastName,
                     }));
+                    
                 }
             });
 
@@ -72,10 +79,11 @@ useEffect(() => {
       <Route element={<Layout />}>
         <Route element={<PrivateAuth/>}>
           <Route path='profile' element={<HomePage />} />
-          <Route path='/' element={<Masseges />} />
+          <Route path='/' element={<Messages />} />
           <Route path='error' element={<ErrorPage />} />
           <Route path='search/:value' element={<UserSearch/>} />
           <Route path='chat/:overUserID' element={<Chats />} />
+          <Route path='profile/setting/:thisID' element={<ProfileSetting />} />
         </Route>
         <Route path='login' element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />

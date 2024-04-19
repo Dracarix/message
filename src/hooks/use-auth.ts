@@ -25,17 +25,17 @@ export const useHaveAuth = () => {
     useEffect(()=> {
         
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setTimeout(()=>{
-            if(user){
-                setAuthState({ user });
+          setTimeout(() => {
+            if (user) {
+              setAuthState({ user });
 
-            }else{
-              
-                setAuthState({ user: "none" });
-              }
-          }, 3000)
+            } else {
+
+              setAuthState({ user: "none" });
+            }
+          }, 3000);
 
         });
-      });
+      },[auth]);
       return authState;
 }

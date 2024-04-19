@@ -1,8 +1,8 @@
-import { Timestamp, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
-import { getDownloadURL, getMetadata, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { Timestamp, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, getMetadata, getStorage,  ref,  uploadBytesResumable } from "firebase/storage";
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
-import React, { FC, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './input.scss'
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from "uuid";
@@ -14,6 +14,8 @@ import { SearchUserState } from 'types/user';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ReactComponent as Lupa } from '../../../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
+import ImgFile from '../../../Images/img.png';
+import SendBtn from '../../../Images/send-btn.png';
 
 
 const SearchInput = () => {
@@ -226,11 +228,6 @@ const SearchInput = () => {
 };
 
 
-const inputSearchHaveUsers = () => {
-
-}
-
-
 type Disabled = {disabled: boolean};
 const InputSend = ({disabled}: Disabled) => {
   const storage = getStorage();
@@ -255,13 +252,12 @@ useEffect(()=>{
     setChatID(generateChatID(id.toString(),overUserID))
   }
 },[overUserID])
-  const calculateHash = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
-    const hash = CryptoJS.SHA256(wordArray);
-    return hash.toString(CryptoJS.enc.Hex);
-  };
-  
+const calculateHash = async (file: File): Promise<string> => {
+  const arrayBuffer = await file.arrayBuffer();
+  const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
+  const hash = CryptoJS.SHA256(wordArray);
+  return hash.toString(CryptoJS.enc.Hex);
+};
   const getImageUrlFromStorage = async (hash: string): Promise<string | null> => {
     try {
       const imageRef = ref(storage, hash);
@@ -284,12 +280,13 @@ useEffect(()=>{
       if (imageUrl) {
         console.log('Изображение уже существует:', imageUrl);
         if(chatID !== ''){
-
+          setText('');
+          setImg(null);
           await updateDoc(doc(db, "chats", chatID), {
             messages: arrayUnion({
               id: uuid(),
               text,
-              senderId: user.id,
+              senderId: id,
               date: Timestamp.now(),
               img: imageUrl, 
             }),
@@ -343,10 +340,8 @@ useEffect(()=>{
 
         }
         
-        setText('');
-        setImg(null);
+
       } else {
-        console.log('Изображение не существует в Storage, загружаем новое...');
         const storageRef = ref(storage, hash);
         const uploadTask = uploadBytesResumable(storageRef, img);
 
@@ -370,12 +365,13 @@ useEffect(()=>{
             try {
               const downloadURL = await getDownloadURL(storageRef);
               if(chatID !== ''){
-
+                setText('');
+                setImg(null);
                 await updateDoc(doc(db, "chats", chatID), {
                   messages: arrayUnion({
                     id: uuid(),
                     text,
-                    senderId: user.id,
+                    senderId: id,
                     date: Timestamp.now(),
                     img: downloadURL,
                   }),
@@ -428,9 +424,7 @@ useEffect(()=>{
                 }
               }
               
-              setText('');
               
-              setImg(null);
             } catch (error) {
               console.error('Ошибка при получении URL-адреса изображения:', error);
             }
@@ -442,11 +436,12 @@ useEffect(()=>{
       if(chatID !== ''){
 
         if (text !== '') {
-          
+          setText('');
+          setImg(null);
           const newMessage = {
             id: uuid(),
             text,
-            senderId: user.id,
+            senderId: id,
           date: Timestamp.now(),
           img: null,
         };
@@ -476,8 +471,7 @@ useEffect(()=>{
         }).catch((err) => {
           dispatch(ProcessDataFailure(err));
         });
-        setText('');
-        setImg(null);
+
       }
     }
     }
@@ -517,7 +511,7 @@ useEffect(()=>{
           alt="Кнопка загрузки изображения"
         />
         <label htmlFor="image">
-          <img src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/img.png?alt=media&token=c1afb4e2-be38-4ff5-ad4d-3b029f9efb76' alt="" />
+          <img src={ImgFile} alt="" />
         </label>
         <button 
           onClick={handleSend}
@@ -527,7 +521,7 @@ useEffect(()=>{
           }}
         >
           <img 
-          src='https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/send-btn.png?alt=media&token=c4cd439b-c2b3-4a83-8d35-af74b8bc4a67' 
+          src={SendBtn} 
           alt=''
           className='img_send'
           />
@@ -539,4 +533,4 @@ useEffect(()=>{
   );
 };
 
-export {SearchInput, InputSend, inputSearchHaveUsers};
+export {SearchInput, InputSend }

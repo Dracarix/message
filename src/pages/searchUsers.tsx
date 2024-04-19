@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { ProcessDataStart, ProcessDataSuccess, ProcessDataFailure } from 'store/processes/process';
+import { ProcessDataStart, ProcessDataFailure } from 'store/processes/process';
 import { StartMessages, FinishMessages } from 'store/processes/processedMessages';
 import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { SearchUserState } from 'types/user';
@@ -29,29 +29,27 @@ const UserSearch = () => {
     const navigate = useNavigate();
     const itemsPerPage = 15;
     const {error} = useAppSelector(state => state.process);
-    const {loading} = useAppSelector(state => state.processMessages);
+    const {loadingMess} = useAppSelector(state => state.processMessages);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
       if (searchValue) {
         setValue(searchValue);
         const FirstSearchUsers = async () => {
           dispatch(StartMessages())
-          const q = query(
-            collection(db, "users"),
-            where("fullName", ">=", searchValue),
-            where("fullName", "<=", searchValue + '\uf8ff')
-          )
           try{
-            
-            const querySnapshot = await getDocs(q);
+            const querySnapshot = await getDocs(collection(db, "users"));
             if(!querySnapshot.empty){
-                dispatch(ProcessDataSuccess())
-                const usersData = querySnapshot.docs.map((doc) => {
-                  const data = doc.data() as SearchUserState; // Уточняем тип данных
-                  return data;
-                });
-                setFullUsersData(usersData)
-                const newItems = usersData.slice(startIndex, startIndex + itemsPerPage);
+                dispatch(StartMessages())
+                const usersSearch: SearchUserState[] = [];
+                querySnapshot.forEach((doc) => {
+                  const userData = doc.data() as SearchUserState;
+                  usersSearch.push(userData);
+                })
+                const res = usersSearch
+                .filter(user => user.fullName && user.fullName.toLowerCase()
+                .includes(value.toLowerCase()));
+                setFullUsersData(res)
+                const newItems = res.slice(startIndex + itemsPerPage);
                 setOtherUsersData(newItems);
                 dispatch(FinishMessages())
             }else{
@@ -67,6 +65,8 @@ const UserSearch = () => {
       
       }
       FirstSearchUsers()
+      }else{
+
       }
     }, [searchValue]);
 
@@ -83,9 +83,7 @@ const UserSearch = () => {
       };
       
     }, [searchValue]);
-    useEffect(()=> {
-      console.log(otherUsersData);
-    },[otherUsersData])
+
     const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.code === "Enter" && value) {
         SearchUsers();
@@ -95,29 +93,29 @@ const UserSearch = () => {
     const SearchUsers = async () => {
       setStartIndex(0);
       dispatch(ProcessDataFailure(null));
-      const q = query(
-        collection(db, "users"),
-        where("fullName", ">=", value),
-        where("fullName", "<=", value + '\uf8ff')
-      )
+     
       try{
         dispatch(ProcessDataStart());
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(collection(db, "users"));
         if(!querySnapshot.empty){
             dispatch(StartMessages())
-            const usersData = querySnapshot.docs.map((doc) => {
-              const data = doc.data() as SearchUserState; // Уточняем тип данных
-              return data;
-            });
-            setFullUsersData(usersData)
-            const newItems = usersData.slice(startIndex + itemsPerPage);
+            const usersSearch: SearchUserState[] = [];
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data() as SearchUserState;
+            usersSearch.push(userData);
+          })
+          const res = usersSearch
+          .filter(user => user.fullName && user.fullName.toLowerCase()
+          .includes(value.toLowerCase()));
+            setFullUsersData(res)
+            const newItems = res.slice(startIndex + itemsPerPage);
             setOtherUsersData(newItems);
             dispatch(FinishMessages())
         }else{
           dispatch(ProcessDataFailure('нет таких пользователей'));
           dispatch(FinishMessages())
         
-        setOtherUsersData([]);
+          setOtherUsersData([]);
         }
         
       }catch(err: any){
@@ -232,7 +230,7 @@ const UserSearch = () => {
             )}
           </TransitionGroup>
           </div>
-          {loading ? (
+          {loadingMess ? (
             <div>
               <IsLoaderUsers/>
               <IsLoaderUsers/>

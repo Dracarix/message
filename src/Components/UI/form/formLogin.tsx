@@ -3,6 +3,8 @@ import React, { FC, useState } from 'react';
 import { Form } from 'react-router-dom';
 import './form.scss'
 import { useAppSelector } from 'hooks/use-redux';
+import { ReactComponent as EyeIcon } from './svg/eye.svg';
+import { ReactComponent as NoEyeIcon } from './svg/noeye.svg';
 
 interface FormProps{
   title: string;
@@ -39,7 +41,7 @@ const FormLogin:FC<FormProps> = ({title,handleForm }) => {
 </label> 
 <label>
   <input 
-      type="password"
+      type={!showPassword ? 'password' : 'text'}
       value={pass}
       name="password"
       className='input'
@@ -48,16 +50,24 @@ const FormLogin:FC<FormProps> = ({title,handleForm }) => {
       onChange={(e) => setPass(e.target.value)}
   />
   <span>Password</span>
+  <button
+        onClick={togglePasswordVisibility}
+        className='eye__btn'
+        title='hide or not hide password'
+        style={!showPassword ? {margin: '0 4px 0 0'} : {}}
+      >
+        {showPassword 
+        ? <NoEyeIcon
+            width='32.5px'
+            height='32.5px'
+          /> 
+        : <EyeIcon
+            width='25px'
+            height='25px'
+          />}
+      </button>
 </label>
 
-<button
-onClick={togglePasswordVisibility}
-style={{ cursor: "pointer" }}
-hidden
-title='hide or not hide password'
->
-<img src={showPassword ? "./svg/noeye.svg" : "./svg/eye.svg"} alt="" />
-</button>
 
 <button
 className="submit"
@@ -97,31 +107,43 @@ const ReAuthenticate:FC<FormProps> = ({title,handleForm }) => {
           className='input'
           placeholder=''
           required
+          minLength={4}
           onChange={(e) => setEmail(e.target.value)}
       />
       <span>Email</span>
     </label> 
     <label>
       <input 
-          type="password"
+          type={!showPassword ? 'password' : 'text'}
           value={pass}
           name="password"
           className='input'
           placeholder=''
           required
+          minLength={8}
+          maxLength={32}
           onChange={(e) => setPass(e.target.value)}
       />
       <span>Password</span>
+      <button
+        onClick={togglePasswordVisibility}
+        className='eye__btn'
+        title='hide or not hide password'
+        style={!showPassword ? {margin: '0 4px 0 0'} : {}}
+      >
+        {showPassword 
+        ? <NoEyeIcon
+            width='32.5px'
+            height='32.5px'
+          /> 
+        : <EyeIcon
+            width='25px'
+            height='25px'
+          />}
+      </button>
     </label>
     
-    <button
-    onClick={togglePasswordVisibility}
-    style={{ cursor: "pointer" }}
-    hidden
-    title='hide or not hide password'
-    >
-    <img src={showPassword ? "./svg/noeye.svg" : "./svg/eye.svg"} alt="" />
-    </button>
+    
     
     <button
     className="submit"

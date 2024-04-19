@@ -14,6 +14,7 @@ const DeleteAcc:FC = () => {
     const auth = getAuth();
     const db = getFirestore();
     const dispatch = useAppDispatch();
+
     const {id} = useAppSelector((state) => state.user);
     const user = auth.currentUser;
     const navigate = useNavigate();
@@ -60,7 +61,6 @@ const DeleteAcc:FC = () => {
         if(dataThisUser){
           const userObject: ChatObject[] = Object.values(dataThisUser);
           userObject.forEach(async (item)=> {
-            console.log(item)
             if(item.UserInfo.id && item && item.UserInfo){
 
             const idOtherUser = item.UserInfo.id;
@@ -98,6 +98,7 @@ const DeleteAcc:FC = () => {
         onClick={deleteThisUser}
       >
         delete
+        
       </button>
 
     

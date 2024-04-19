@@ -5,7 +5,8 @@
 
 .chat{
     width: 100%;
-    display: flex;justify-content: center;
+    display: flex;
+    justify-content: center;
     flex-direction: row-reverse;
     height: auto;
 }
@@ -13,16 +14,11 @@
     width: 50vw;
     user-select: none;
     position: relative;
-
-    
 }
 
 .rightColumn{
-
   width: 270px;
   margin: 8px 0 0 24px;
-
-
 }
 
 .main__right__column{
@@ -47,6 +43,7 @@
 .chatInfo .chatIcons img{
     border-radius: 50%;
     width: 36px;
+    @include AvaMain;
     padding: 8px 8px;
 }
 
@@ -97,4 +94,13 @@
     white-space: nowrap; 
     text-overflow: ellipsis; 
 
+  }
+
+  @media (max-width: 800px ){
+    .rightColumn{
+      display: none;
+    }
+    .chat_section{
+      width: 90vw;
+    }
   }

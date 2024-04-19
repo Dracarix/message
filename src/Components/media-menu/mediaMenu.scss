@@ -49,8 +49,9 @@
     align-items: start;
     bottom: 0;
     z-index: 11;
-
+    color: $color-white-grey;
     scale:1;
+    user-select: none;
 }
 
 .menu .profile__block{
@@ -61,15 +62,22 @@
     transform: translate(-50%);
     background-color: rgba($color: #000000, $alpha: 0.4);
     width: 80%;
-    height: 20vh;
+    height: 20vw;
+    min-height: 80px;
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
 
 .menu .profile__block img{
-    width: 50px;
+    width: 15vw;
+    @include AvaMain;
+    min-width: 50px;
     border-radius: 50%;
+    position: absolute;
+    left: calc(4px + 1vw);
+    bottom: calc(4px + 5%);
+
 }
 
 .header__lupa{
@@ -98,4 +106,51 @@
 }
 .mess__icon{
     transition: all 0.5s ease-in-out;
+}
+
+.close__btn__menu {
+    position: absolute;
+    top: 70px;
+    right: 5px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: #fff0f0;
+    border: none;
+    background-color: transparent;
+    border-radius: 50% ;
+    user-select: none;
+  }
+
+
+.menu h4{
+    height: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: $color-white-grey;
+}
+.menu .setting__profile{
+    position: absolute;
+    bottom: 6px;
+    width: auto;
+    display: inline;
+    right: 5%;
+    color: $link-color;
+    font-size: calc(10px + 10%);
+}
+
+.media__menu__quit{
+    position: absolute;
+    bottom: 20%;
+    right: 5%;
+    width: auto;
+
+}
+.media__menu__theme{
+    position: absolute;
+    bottom: 20%;
+    left: 5%;
+    width: auto;
 }

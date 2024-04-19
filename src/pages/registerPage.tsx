@@ -2,7 +2,7 @@ import { FormRegister } from 'Components/UI/form/formRegister';
 import { getAuth, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, updateProfile } from 'firebase/auth';
 import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { useAppDispatch } from 'hooks/use-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { setUser } from 'store/users/user.slice';
 import '../Components/UI/form/form.scss' 
 import { useSelector } from 'react-redux';
@@ -24,6 +24,7 @@ const RegisterPage = () => {
   const { loading, error} = useSelector((state: RootState) => state.process)|| {};
   const [hasError, setHasError] = useState(false);
   const {isAuth} = useAuth();
+  const location = useLocation()
   const defaultPhoto = 'https://firebasestorage.googleapis.com/v0/b/messager-react-1753d.appspot.com/o/default__photo.jpg?alt=media&token=808ffaeb-5259-4554-b25a-782e7b38ce8b'
   useEffect(() => {
     if (error !== null) {
@@ -33,7 +34,9 @@ const RegisterPage = () => {
   useEffect(()=> {
     const Redirect =  () => {
       dispatch(ProcessDataStart())
-      
+      if(location.pathname === '/register'){
+        document.title = 'Регистрация'
+      }
         if(isAuth){
           navigate('/');
           dispatch(ProcessDataSuccess());

@@ -70,8 +70,61 @@
 }
 
 .soobsheniya{
-    height: 82vh;
-    overflow-y: auto;
+    height: 80vh;
+    display: flex;
+    flex-direction: column-reverse;
+
+    overflow-y: scroll;
+}
+@media (max-height: 800px ){
+    .soobsheniya{
+        height: 75vh;
+    }
+}
+@media (max-height: 650px ){
+    .soobsheniya{
+        height: 70vh;
+    }
+}
+@media (max-height: 530px ){
+    .soobsheniya{
+        height: 65vh;
+    }
+}
+@media (max-width: 800px ){
+    .soobsheniya{
+        height: 70vh;
+    }
+}
+@media (max-width: 800px) and (max-height: 740px){
+    .soobsheniya{
+        height: 68vh;
+    }
+}
+@media (max-width: 800px) and (max-height: 690px){
+    .soobsheniya{
+        height: 65vh;
+    }
+}
+@media (max-width: 800px) and (max-height: 630px){
+    .soobsheniya{
+        height: 62vh;
+    }
+}
+@media (max-width: 800px) and (max-height: 580px){
+    .soobsheniya{
+        height: 60vh;
+    }
+}
+@media (max-width: 800px) and (max-height: 550px){
+    .soobsheniya{
+        height: 57vh;
+    }
+}
+@media (max-width: 800px) and (max-height: 510px){
+    .soobsheniya{
+        height: 53vh;
+    }
 }
 .soobsheniya::-webkit-scrollbar {
     width: 5px; /* Ширина */

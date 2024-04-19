@@ -1,7 +1,7 @@
 
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { setUser } from 'store/users/user.slice';
-import { Link, useNavigate,  } from 'react-router-dom';
+import { Link, useLocation, useNavigate,  } from 'react-router-dom';
 import {FormLogin} from 'Components/UI/form/formLogin';
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { IsLoadingBig } from 'Components/UI/isLoading/isLoading';
@@ -19,6 +19,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { loading, error} = useAppSelector((state) => state.process)|| {};
   const [hasError, setHasError] = useState(false);
+  const location = useLocation();
+
   const auth = getAuth();
   const {isAuth} = useAuth()
   useEffect(() => {
@@ -30,7 +32,9 @@ const LoginPage = () => {
   useEffect(()=> {
     const Redirect =  () => {
       dispatch(ProcessDataStart())
-      
+      if(location.pathname === '/login'){
+        document.title = 'Аутентификация'
+      }
         if(isAuth){
           navigate('/');
           dispatch(ProcessDataSuccess());

@@ -35,7 +35,7 @@ export interface ProcessDataState {
     message: string;
   }
   export interface NodeChildren {
-    children: React.ReactNode;
+    children?: React.ReactNode;
   }
   export interface DefaultChildren {
     children: string,
@@ -69,3 +69,8 @@ export interface ProcessDataState {
       img: string | null;
     }
   } 
+  export interface LinkBtnTypes {
+    icon: boolean,
+
+    className?:string,
+  }

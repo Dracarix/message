@@ -15,20 +15,20 @@
   }
   
   .modal-content {
-    background: #fff;
+    background: $background-main;
     padding: 20px;
-    height: 40vh;
+    height: auto;
     border-radius: 8px;
     position: relative;
   }
   
   .close-btn {
     position: absolute;
-    top: 5px;
+    top: 0px;
     right: 5px;
     cursor: pointer;
     font-size: 30px;
-    color: #555;
+    color: $color;
   }
   .btnProfileImg{
     width: 40px;
@@ -43,6 +43,9 @@
     width: 40px;
     height: 40px;
     border-radius: 50% ;
+    object-fit:cover;
+    object-position: center;
+    aspect-ratio: 1/1;
   }
   .arrow-profile{
     stroke: $grey-color;
@@ -121,10 +124,9 @@
     user-select: none;
     list-style-type: none;
     align-items: start;
-    border-radius: 4px;
+    border-radius: 8px;
     margin: 0;
     padding: 0 2px 0 2px;
-    box-shadow: 0px 0px 5px $shadow;
     background-color: #353535;
   }
 
@@ -132,7 +134,7 @@
     width: 100%;
     margin-top: 8px;
     padding-bottom: 8px;
-    border-bottom:1px  solid #000;
+    border-bottom:1px  solid $color;
     color:$link-color;
   }
   .list_menu:last-child{
@@ -146,3 +148,17 @@
       transition: 0.2s;
     }
   }
+
+  .confirm__btn{
+    border: 1px solid black ;
+    background: $background;
+    color: $color;
+    width: 100px;
+    border-radius: 8px;
+    height: 40px;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  

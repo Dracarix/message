@@ -6,8 +6,6 @@ import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore';
 import { removeUser } from 'store/users/user.slice';
 import { closeModal, openReAuth } from 'store/processes/isModal';
-import { setGlobalError } from 'store/error';
-import { useNavigate } from 'react-router-dom';
 
 const ReAuthenticationForm = () => {
     const auth = getAuth();

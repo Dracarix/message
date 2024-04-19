@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import NewButton from './UI/button/NewButton';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { ReactComponent as ArrowBottom } from '../svg/arrow__bottom.svg';
 
 const ScrollTop = () => {
     const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -40,4 +41,53 @@ const ScrollTop = () => {
   );
 };
 
-export default ScrollTop;
+const ScrollBottom = () => {
+  const [isBottomMessageVisible, setIsBottomMessageVisible] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const soobsheniya = document.getElementById('soobsheniya');
+      const bottomMessage = document.getElementById('bottom__message');
+      if (soobsheniya && bottomMessage) {
+        const soobsheniyaRect = soobsheniya.getBoundingClientRect();
+        const bottomMessageRect = bottomMessage.getBoundingClientRect();
+        setIsBottomMessageVisible(bottomMessageRect.top >= soobsheniyaRect.top && bottomMessageRect.bottom <= soobsheniyaRect.bottom);
+      }
+    };
+
+    const soobsheniya = document.getElementById('soobsheniya');
+    if (soobsheniya) {
+      soobsheniya.addEventListener('scroll', handleScroll);
+      return () => {
+        soobsheniya.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, []);
+
+  const scrollToBottom = () => {
+    const bottomMessage = document.getElementById('bottom__message');
+    if (bottomMessage) {
+      bottomMessage.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <TransitionGroup>
+      {!isBottomMessageVisible && (
+        <CSSTransition 
+          timeout={500} 
+          classNames="close_arrow" 
+          unmountOnExit 
+          in={!isBottomMessageVisible}
+        >
+          <NewButton className='scrollBottom' onClick={scrollToBottom}>
+            <ArrowBottom
+              width="39" height="37"
+            />
+          </NewButton>
+        </CSSTransition>
+      )}
+    </TransitionGroup>
+  );
+};
+export {ScrollTop, ScrollBottom};

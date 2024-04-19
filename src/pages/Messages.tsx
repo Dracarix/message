@@ -1,5 +1,5 @@
-import { IsLoaderUsers, IsLoadingBig } from 'Components/UI/isLoading/isLoading';
-import { doc, getDoc, getFirestore, onSnapshot } from 'firebase/firestore';
+import { IsLoaderUsers} from 'Components/UI/isLoading/isLoading';
+import { doc, getDoc, getFirestore} from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState } from 'react';
@@ -22,8 +22,9 @@ const Messages: FC = () => {
     const [boolSearchValueSplide, setBoolSearchValueSplide ] = useState(false);
     const [chatsFilter, setChatsFilter] = useState<ChatObject[]>([]);
     const [startIndex, setStartIndex] = useState(0);
+    
     const dispatch = useAppDispatch();
-    const { loading } = useAppSelector((state) => state.processMessages);
+    const { loadingMess } = useAppSelector((state) => state.processMessages);
     const [ignore, setIgnore] = useState(15);
     const itemsPerPage = 15;
     const navigate = useNavigate();
@@ -56,17 +57,14 @@ const Messages: FC = () => {
                     }
                 });
                 
-                console.log(sortedChats)
                 setFullChats(sortedChats);
                 setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
                 dispatch(FinishMessages());
             }
         };
         getChats();
-    }, [id]);
-    useEffect(()=> {
-        console.log(chats)
-    },[chats])
+    }, []);
+
     useEffect(()=> {
         if(searchValueSplide !== ''){
           setBoolSearchValueSplide(true)
@@ -101,8 +99,6 @@ const Messages: FC = () => {
             handleClose();
           }
       };
-
-      
 
       const handleClose = () => {
         setSearchValueSplide('');
@@ -159,7 +155,7 @@ const Messages: FC = () => {
                     : '' }
                     </TransitionGroup>
             </div>
-                {loading ? (
+                {loadingMess ? (
                 <div style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%'}}>
                     <IsLoaderUsers/>
                     <IsLoaderUsers/>
@@ -177,11 +173,13 @@ const Messages: FC = () => {
                             key={chatFiltered.UserInfo.id}
                                         onClick={() => handleSelect(chatFiltered)}
                                     >
-                                        <img src={chatFiltered.UserInfo.photoURL} loading='lazy' alt={chatFiltered.UserInfo.fullName}/>
-                                        <h3>{chatFiltered.UserInfo.fullName}</h3>
-                                        <p>{chatFiltered.lastMessage?.from === id.toString() 
-                                        ? (<>Вы: <span className='LastMessage'> {chatFiltered.lastMessage?.text} </span></>) 
-                                        : (<span className='LastMessage'>{chatFiltered.lastMessage?.text}</span>)}</p>
+                                        <img src={chatFiltered.UserInfo?.photoURL} loading='lazy' alt={chatFiltered.UserInfo.fullName}/>
+                                        <div className='info__user_mess'>
+                                            <h3>{chatFiltered.UserInfo.fullName}</h3>
+                                            <p>{chatFiltered.lastMessage?.from === id.toString() 
+                                            ? (<>Вы: <span className='LastMessage'> {chatFiltered.lastMessage?.text} </span></>) 
+                                            : (<span className='LastMessage'>{chatFiltered.lastMessage?.text}</span>)}</p>
+                                        </div>
                                     </button>
                                 ))}
                                 </div>
@@ -191,7 +189,6 @@ const Messages: FC = () => {
                             hasMore={hasMore} 
                             loader={''} 
                             dataLength={chats.length}
-                            scrollableTarget="chatUsersMain"
                             scrollThreshold={0.9}
 
                             >
@@ -203,11 +200,13 @@ const Messages: FC = () => {
                                         onClick={() => handleSelect(chat)}
                                     >
                                         <img src={chat.UserInfo.photoURL} loading='lazy' alt={chat.UserInfo.fullName} />
-                                        <h3>{chat.UserInfo.fullName}</h3>
-                                        <p>{chat.lastMessage?.from === id.toString() 
-                                        ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
-                                        : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
-                                        }</p>
+                                        <div className='info__user_mess'>
+                                            <h3>{chat.UserInfo.fullName}</h3>
+                                            <p>{chat.lastMessage?.from === id.toString() 
+                                            ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
+                                            : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
+                                            }</p>
+                                        </div>
                                     </button>
                                 ))}
                                 </div>

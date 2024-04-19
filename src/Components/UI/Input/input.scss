@@ -24,11 +24,20 @@
     display: flex;
     position: fixed;
     bottom: 4px;
+    z-index: 10;
+    height: 35px;
     width: 50vw;
+}
+@media (max-width: 800px ){
+  .inputSend{
+    bottom: 64px;
+    width: 90%;
+  }
 }
 .inputSend input[type="text"]{
     width: 100%;
     outline: none;
+
     background-color: $background-main-color;
     padding: 0 8px;
     border-radius: 5px;
@@ -46,6 +55,8 @@
 }
 .inputSend .send {
     display: flex;
+    position: absolute;
+    right: 4px;
 } 
 .img_send{
     width: 30px;

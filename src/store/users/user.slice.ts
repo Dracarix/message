@@ -19,7 +19,7 @@ const userSlise = createSlice ( {
             state.fullName = action.payload.fullName;
             state.photoURL = action.payload.photoURL;
             state.firstName = action.payload.firstName;
-
+            state.lastName = action.payload.lastName;
         },
         removeUser(state){
             state.email = null;

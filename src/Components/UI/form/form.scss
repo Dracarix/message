@@ -131,7 +131,16 @@
 .submit:hover {
   background-color: rgb(56, 90, 194);
 }
-
+.eye__btn{
+  position: absolute;
+  right: 4px;
+  cursor: pointer;
+  top: 50%;
+  border: none;
+  background-color: transparent;
+  transform:translate( 0, -50%);
+  padding: 0;
+}
 @keyframes pulse {
   from {
     transform: scale(0.9);

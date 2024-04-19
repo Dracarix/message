@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  loading: false,
+  loadingMess: false,
 };
 
 const useMessageProcess = createSlice({
@@ -9,10 +9,10 @@ const useMessageProcess = createSlice({
   initialState,
   reducers: {
     StartMessages: (state) => {
-      state.loading = true;
+      state.loadingMess = true;
     },
     FinishMessages: (state) => {
-      state.loading = false;
+      state.loadingMess = false;
     },
    
   },

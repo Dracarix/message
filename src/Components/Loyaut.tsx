@@ -1,6 +1,6 @@
 import { useAppSelector } from 'hooks/use-redux';
-import { FC, useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { FC, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from 'hooks/use-auth';
 import { IsModal } from './UI/isModal/isModal';
 import { ProfileDownBlock } from './ProfileDownBlock';

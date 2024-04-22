@@ -6,28 +6,26 @@ import {FormLogin} from 'Components/UI/form/formLogin';
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { IsLoadingBig } from 'Components/UI/isLoading/isLoading';
 import { useEffect, useState } from 'react';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import '../styles/CSSTransition.css'
 import { browserLocalPersistence, getAuth, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from 'hooks/use-auth';
 import BackLogin from '../Images/background-login.png';
 import LogoBig from '../Images/My-logo-big.png';
+import { useMediaQuery } from 'react-responsive';
+
 
 const LoginPage = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { loading, error} = useAppSelector((state) => state.process)|| {};
-  const [hasError, setHasError] = useState(false);
-  const location = useLocation();
+  const { loading} = useAppSelector((state) => state.process)|| {};
 
+  const location = useLocation();
+  const mediaWidth = useMediaQuery({maxWidth: 800});
   const auth = getAuth();
+  const [errorAuth , setErrorAuth] = useState<string | null>(null);
   const {isAuth} = useAuth()
-  useEffect(() => {
-    if (error) {
-      setHasError(true);
-    }
-  }, [error, isAuth]);
+
 
   useEffect(()=> {
     const Redirect =  () => {
@@ -53,41 +51,39 @@ const LoginPage = () => {
 
   const handleLogin = async (email: string, password: string) => {
     try {
+      setErrorAuth(null)
       dispatch(ProcessDataStart())
       await signInWithEmailAndPassword(auth, email, password)
-      .then((data) => {
-
-      })
-      .catch((error) => {
-        dispatch(ProcessDataFailure(error.message));
-      })
-      setPersistence(auth, browserLocalPersistence)
-      .then(async (data) => {
-
-      })
-      .catch((error) => {
-        dispatch(ProcessDataFailure(error.message ));
-      });
-      
-
-      const user = auth.currentUser;
-      if(user){
-        const userData = {
-        email: user.email,
-        token: user.refreshToken,
-        id: user.uid,
-        fullName: user.displayName,
-        photoURL: user.photoURL,
-
-      };
-      dispatch(setUser(userData));
-      dispatch(ProcessDataSuccess());
-      console.log(isAuth)
-      if (isAuth){navigate('/')}
-    }
+        .then((data) => {
+          setPersistence(auth, browserLocalPersistence)
+            .then(async (data) => {
+              const user = auth.currentUser;
+              if(user){
+                const userData = {
+                email: user.email,
+                token: user.refreshToken,
+                id: user.uid,
+                fullName: user.displayName,
+                photoURL: user.photoURL,
+        
+              };
+              dispatch(setUser(userData));
+              dispatch(ProcessDataSuccess());
+              if (isAuth){navigate('/')}
+            }
+            })
+            .catch((error) => {
+              setErrorAuth(error.code)
+              dispatch(ProcessDataSuccess());
+            });
+        })
+        .catch((error) => {
+          setErrorAuth(error.code)
+          dispatch(ProcessDataSuccess());
+        })
     } catch (error: any) {
-      console.error('Ошибка при отправке запроса:', error.message);
-      dispatch(ProcessDataFailure({ code: error.code, message: error.message }));
+      setErrorAuth(error.code)
+      dispatch(ProcessDataSuccess());
     }
   };
   if(loading){
@@ -98,29 +94,22 @@ const LoginPage = () => {
       className='regBlock'
       style={{backgroundImage:`url(${BackLogin})`}}
     >
+      {!mediaWidth &&
+      
       <img 
         src={LogoBig} 
         alt="Logo this website" 
         style={{width: '20vw'}}
       />
+      }
       <div className='block__form_login'>
-          <FormLogin title="Signin" handleForm={(email, pass) => handleLogin(email, pass)}/>
-          <p className="signin">Don't have an account yet?  <Link to='/register'>Signup</Link> </p>
-          <TransitionGroup>
-            {hasError && (
-            <CSSTransition 
-            timeout={500} 
-            classNames="slide" unmountOnExit 
-            in={hasError}
-            >
-              <div style={{display: 'flex', flexDirection: 'column'}}>
-              {error ? error : (
-                ''
-              )}
-              </div>
-            </CSSTransition>
-          )}
-        </TransitionGroup>  
+          <FormLogin 
+            title="Signin"
+            handleForm={(email, pass) => handleLogin(email, pass)}
+            error={errorAuth || ''}
+           />
+          <p className="signin">Еще нет аккаунта?  <Link to='/register'>Регистрация</Link> </p>
+          {errorAuth && errorAuth}
       </div>
     </div>
   );

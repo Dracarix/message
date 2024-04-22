@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import './App.css';
 import './styles/style.scss'
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, } from 'react-router-dom';
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, } from 'react-router-dom';
 import {Layout} from 'Components/Loyaut';
 import {HomePage} from 'pages/homePage';
 import {LoginPage} from 'pages/loginPage';
@@ -12,27 +12,32 @@ import { FC, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { removeUser, setUser } from 'store/users/user.slice';
-import ErrorBoundary from 'Components/errorBount';
 import PrivateAuth from 'Components/hoc/PrivateAuth';
 import { NotPages } from 'pages/NotPages';
 import { Chats } from 'pages/Chat';
-import { collection, doc, getFirestore, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, getFirestore, onSnapshot,  } from 'firebase/firestore';
 import {UserSearch} from 'pages/searchUsers';
-import { openReAuth } from 'store/processes/isModal';
+import { openErrModal } from 'store/processes/isModal';
 import {ProfileSetting} from 'pages/ProfileSetting';
 
 const App:FC = () => {  
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const auth = getAuth();
-  const thisUser = useAppSelector((state) => state.user);
   const {error} = useAppSelector((state) => state.process);
   const theme = useAppSelector((state) => state.theme);
 
+useEffect(()=>{
+    if(error !== null){
+        dispatch(openErrModal())
+    }
 
+// eslint-disable-next-line react-hooks/exhaustive-deps
+},[error])
 
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const unsubscribe = onAuthStateChanged(auth, (user) => {
 
         if (user) {
@@ -100,3 +105,5 @@ useEffect(() => {
 }
 
 export default App;
+
+

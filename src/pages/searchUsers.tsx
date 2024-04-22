@@ -1,6 +1,6 @@
 import ErrBlock from 'Components/UI/ErrorBlock/error';
 import { IsLoaderUsers } from 'Components/UI/isLoading/isLoading';
-import { getDocs, collection, getFirestore, getDoc, doc, serverTimestamp, setDoc, updateDoc, query, where } from 'firebase/firestore';
+import { getDocs, collection, getFirestore, getDoc, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import React, { useEffect, useState } from 'react';
@@ -47,20 +47,19 @@ const UserSearch = () => {
                 })
                 const res = usersSearch
                 .filter(user => user.fullName && user.fullName.toLowerCase()
-                .includes(value.toLowerCase()));
+                .includes(searchValue.toLowerCase()));
                 setFullUsersData(res)
                 const newItems = res.slice(startIndex + itemsPerPage);
                 setOtherUsersData(newItems);
                 dispatch(FinishMessages())
             }else{
-              dispatch(ProcessDataFailure('нет таких пользователей'));
-            console.log('нет таких пользователей')
+              dispatch(ProcessDataFailure('Что то пошло не так'));
       
             }
             
           }catch(err: any){
-            dispatch(ProcessDataFailure(err.message));
-            console.error(err.message)
+            dispatch(ProcessDataFailure(err.code));
+            console.error(err.code)
           };
       
       }
@@ -68,6 +67,7 @@ const UserSearch = () => {
       }else{
 
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchValue]);
 
     const generateChatID = (id1: string, id2: string) => {
@@ -75,14 +75,17 @@ const UserSearch = () => {
       const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
       return (`${firstId}${secondId}`);
   };
+  useEffect(()=>{
+
+  })
     useEffect(()=> {
-      if(searchValue !== ''){
+      if(value !== ''){
         setBoolSearchValue(true)
       }else{
         setBoolSearchValue(false)
       };
       
-    }, [searchValue]);
+    }, [value]);
 
     const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.code === "Enter" && value) {
@@ -119,8 +122,8 @@ const UserSearch = () => {
         }
         
       }catch(err: any){
-        dispatch(ProcessDataFailure(err.message));
-        console.error(err.message)
+        dispatch(ProcessDataFailure(err.code));
+        console.error(err.code)
       };
   
   }
@@ -186,7 +189,7 @@ const UserSearch = () => {
 
     
   }
-  
+
   return (
     <div 
       style={{
@@ -214,6 +217,7 @@ const UserSearch = () => {
         placeholder='Поиск'
         style={{padding: '8px 0px 8px 32px'}}
         className='inputSearch'
+        enterKeyHint='search'
         />
                 <TransitionGroup>
           {boolSearchValue &&( 
@@ -245,13 +249,21 @@ const UserSearch = () => {
           error 
             ? <ErrBlock/>
             : (
-          <InfiniteScroll 
-                    next={nextScroll} 
-                    hasMore={hasMore} 
-                    loader={''} 
-                    dataLength={otherUsersData.length}
-                    scrollableTarget="chatUsersMain"
-                    scrollThreshold={0.7}
+              fullUsersData.length === 0 
+              ? <h3
+                  style={{
+                    width: '100%',
+                    textAlign: 'center'
+                  }}
+                >Таких пользователей нет</h3>
+              :
+                    <InfiniteScroll 
+                      next={nextScroll} 
+                      hasMore={hasMore} 
+                      loader={''} 
+                      dataLength={otherUsersData.length}
+                      scrollableTarget="chatUsersMain"
+                      scrollThreshold={0.7}
 
                     >
                       <div

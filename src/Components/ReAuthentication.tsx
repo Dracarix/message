@@ -49,7 +49,7 @@ const ReAuthenticationForm = () => {
     }
    
   return (
-    <ReAuthenticate title={'Сonfirm'} handleForm={handleReAuth} />
+    <ReAuthenticate title={'Сonfirm'} handleForm={handleReAuth} error={''} />
   );
 };
 

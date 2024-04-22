@@ -1,20 +1,22 @@
 import { IsLoaderUsers} from 'Components/UI/isLoading/isLoading';
-import { doc, getDoc, getFirestore} from 'firebase/firestore';
+import { Timestamp, doc, getDoc, getFirestore, serverTimestamp, setDoc, updateDoc} from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { setChat } from 'store/users/chat.slice';
-import { ChatObject } from 'types/user';
+import { ChatObject, UserState } from 'types/user';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FinishMessages, StartMessages } from 'store/processes/processedMessages';
 import { ReactComponent as Lupa } from '../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../svg/close.svg';
 import { setDisabledInput, setWorkedInput } from 'store/searchUsers/mainInputDisabled';
+import { v4 as uuid } from "uuid";
 
 const Messages: FC = () => { 
-    const { id } = useAuth();
+    const { id, fullName, photoURL } = useAuth();
+    const user = useAuth()
     const [searchValueSplide, setSearchValueSplide] = useState('');
     const [hasMore, setHasMore] = useState(true);
     const [fullChats, setFullChats] = useState<ChatObject[]>([]) 
@@ -28,8 +30,8 @@ const Messages: FC = () => {
     const [ignore, setIgnore] = useState(15);
     const itemsPerPage = 15;
     const navigate = useNavigate();
-    const db = getFirestore();
-
+    const db = getFirestore();  
+    const idAlexey = 'R17HULm5ASdb2XUQesjLuEYvnk12';
     const generateChatID = (id1: string, id2: string) => {
         const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
         const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
@@ -39,9 +41,10 @@ const Messages: FC = () => {
     useEffect(() => {
         const getChats = async () => {
             dispatch(StartMessages());
+            
+            const chatID = generateChatID(idAlexey, id.toString());
             const docSnap = await getDoc(doc(db, "UserChat", id.toString()));
             const data = docSnap.data();
-            
             if (data) {
                 const sortedChats: ChatObject[] = Object.values(data)
                 .filter(i => i !== null && i.lastMessage)
@@ -56,14 +59,59 @@ const Messages: FC = () => {
                         return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
                     }
                 });
+                if(sortedChats.length === 0){
+                    const docSnapAlexey = await getDoc(doc(db, "users", idAlexey));
+                    const dataAlexey = docSnapAlexey.data() as UserState;
+                    if(dataAlexey){
+                        console.log(dataAlexey);
+                        await setDoc(doc(db, "chats", chatID), { messages: [{
+                            id: uuid(),
+                            text: 'Hello, I`m a new user of this messenger.',
+                            senderId: id.toString(),
+                            date: Timestamp.now(),
+                            img: null, 
+                          }] });
+                          await updateDoc(doc(db, "UserChat" , id.toString()), {
+                            
+                              [chatID + ".UserInfo"]: {
+                                id: dataAlexey.id,
+                                fullName: dataAlexey.fullName,
+                                photoURL: dataAlexey.photoURL,
+                              },
+                              [chatID + ".date"]: serverTimestamp(),
+                              [chatID + ".lastMessage"]: {
+                                text:'Hello, I`m a new user of this messenger.',
+                                date:Timestamp.now(),
+                                from:  id.toString(),
+                              }
+                            
+                          })
                 
+                          await updateDoc(doc(db,"UserChat", idAlexey), {
+                            [chatID + ".UserInfo"]: {
+                                id:  id.toString(),
+                                fullName: fullName,
+                                photoURL: photoURL,
+                              },
+                              [chatID + ".date"]: serverTimestamp(),
+                              [chatID + ".lastMessage"]: {
+                                text:'Hello, I`m a new user of this messenger.',
+                                date:Timestamp.now(),
+                                from:  id.toString(),
+                              }
+                            
+                          })
+                          getChats()
+                    }
+                }
                 setFullChats(sortedChats);
                 setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
                 dispatch(FinishMessages());
             }
         };
         getChats();
-    }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[]);
 
     useEffect(()=> {
         if(searchValueSplide !== ''){
@@ -73,6 +121,7 @@ const Messages: FC = () => {
             dispatch(setWorkedInput())
           setBoolSearchValueSplide(false)
         }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [searchValueSplide])
 
     const handleSelect = (chat: ChatObject) => {
@@ -136,6 +185,7 @@ const Messages: FC = () => {
                     placeholder='Поиск'
                     style={{zIndex:1}}
                     className='inputSearch'
+                    enterKeyHint='search'
                     />
                             <TransitionGroup>
                     {boolSearchValueSplide ?( 

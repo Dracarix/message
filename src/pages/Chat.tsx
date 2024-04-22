@@ -11,7 +11,6 @@ import { useAuth } from 'hooks/use-auth';
 import { ChatLoader } from 'Components/UI/isLoading/chatLoader';
 import { ChatObject, SearchUserState } from 'types/user';
 import { ProcessDataFailure } from 'store/processes/process';
-import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { useMediaQuery } from 'react-responsive';
 
 const Chats = () => {

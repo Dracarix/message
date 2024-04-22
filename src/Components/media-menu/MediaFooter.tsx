@@ -8,7 +8,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const MediaFooter = () => {
   const {needMenu} = useAppSelector((state) => state.useMenu);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   const location = useLocation();
   const isMessagesPage = location.pathname === '/';
   const styleFooter  = {

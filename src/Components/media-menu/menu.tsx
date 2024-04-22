@@ -12,8 +12,6 @@ const MediaMenu:FC = () => {
   useEffect(() => {
     document.body.style.overflow = !needMenu ? "auto" : "hidden";
     window.scrollTo({ top: 0, behavior: "smooth" });
-    // dispatch(openReAuth()) 
-    console.log(id);
 
     
   }, [needMenu]);

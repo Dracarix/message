@@ -62,9 +62,7 @@ const QuitAccSystem = () => {
       }).catch((error: any) => {
         // Обработка ошибок при выходе
         
-        console.log('Ошибка выхода:', error);
       });
-      console.log(auth);
       
   }
   const closeThisModal = () => {

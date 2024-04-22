@@ -25,7 +25,6 @@ const SearchInput = () => {
   const { id, fullName, photoURL} = useAuth();
   const dispatch = useAppDispatch();
   const db = getFirestore();
-  const {error} = useAppSelector((state)=> state.process);
   const userSearchData: SearchUserState[] = useAppSelector((state)=> state.setSearchUsers.users);
   const [neverSearch, setNeverSearch] = useState<SearchUserState[]>([]);
   const [navValue, setNavValue] = useState('')
@@ -88,7 +87,7 @@ const SearchInput = () => {
         navigate(`/chat/${user.id}`);
       }
     }catch(err: any){
-      dispatch(setGlobalError(err))
+      dispatch(ProcessDataFailure(err.code));
       dispatch(setSearchUserData([]))
     }
     dispatch(setSearchUserData([]));
@@ -116,7 +115,6 @@ const SearchInput = () => {
       }else{
         dispatch(ProcessDataFailure('нет таких пользователей'));
         dispatch(setSearchUserData([]))
-      console.log('нет таких пользователей')
 
       }
       
@@ -156,6 +154,7 @@ const SearchInput = () => {
         placeholder='Поиск'
         disabled = {need ? false : true}
         className='inputSearch'
+        enterKeyHint='search'
         />
                 {userSearchData.length >= 1 ? (
                   <div className="modal__mini"
@@ -204,8 +203,7 @@ const SearchInput = () => {
         ) : (
             ''
             )}
-            {error && <div style={{position: 'absolute', top: '10%', backgroundColor: 'grey'}}><span>{error}</span>
-        </div>}
+           
         <TransitionGroup>
           {boolSearchValue &&( 
               <CSSTransition 
@@ -238,7 +236,6 @@ const InputSend = ({disabled}: Disabled) => {
   const {user} = useAppSelector((state) => state.chat);
   const [chatID, setChatID] = useState('');
   const { id } = useAuth();
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {error} = useAppSelector((state) => state.process);
@@ -251,6 +248,7 @@ useEffect(()=>{
   if(overUserID){
     setChatID(generateChatID(id.toString(),overUserID))
   }
+// eslint-disable-next-line react-hooks/exhaustive-deps
 },[overUserID])
 const calculateHash = async (file: File): Promise<string> => {
   const arrayBuffer = await file.arrayBuffer();
@@ -349,9 +347,7 @@ const calculateHash = async (file: File): Promise<string> => {
           'state_changed',
           // Обработчик прогресса загрузки, если нужно
           (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              // Обновляем состояние вашего компонента с процентами
-              setUploadProgress(progress);
+             
           },
           (error: any) => {
             if (typeof error === 'string') {
@@ -500,6 +496,7 @@ const calculateHash = async (file: File): Promise<string> => {
         value={text}
         onKeyDown={handleEnter}
         disabled={disabled}
+        enterKeyHint='send'
       />
       <div className="send">
         <input

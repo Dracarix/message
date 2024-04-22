@@ -3,14 +3,15 @@ import React, { FC } from 'react';
 import { closeModal } from 'store/processes/isModal';
 import './isModal.scss'
 import { ReAuthenticationForm } from 'Components/ReAuthentication';
-import { ProcessDataSuccess } from 'store/processes/process';
+import { ProcessDataFailure } from 'store/processes/process';
 import { QuitAccSystem } from 'Components/quitAcc';
 import { NodeChildren } from 'types/user';
 import { SettingCompletedProfile } from 'pages/ProfileSetting';
+import ErrorModal from './ErrorModal';
 
 const IsModal:FC<NodeChildren> = ({children}) => {
   const dispatch = useAppDispatch();
-  const {needReAuth, needQuit, openCompletSet} = useAppSelector((state) => state.isModalReduser);
+  const {needReAuth, needQuit, openCompletSet, errModal} = useAppSelector((state) => state.isModalReduser);
 
 
 
@@ -24,7 +25,7 @@ const IsModal:FC<NodeChildren> = ({children}) => {
   } 
   const closeThisModal = () => {
     dispatch(closeModal());
-    dispatch(ProcessDataSuccess());
+    dispatch(ProcessDataFailure(null));
   };
   
   return (
@@ -34,6 +35,7 @@ const IsModal:FC<NodeChildren> = ({children}) => {
         {needReAuth && <ReAuthenticationForm/>}
         {needQuit && <QuitAccSystem/>}
         {openCompletSet && <SettingCompletedProfile/>}
+        {errModal && <ErrorModal/>}
       </div>
     </div>
   );

@@ -6,9 +6,30 @@
 .mini__logo{
     width: 40px;
 }
+.transition__input{
+    width: 60%;
+    position: relative;
+    display: flex;
+    justify-content: end;
+}
 
+.search__media{
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background-color:#1a1a1a ;
+    color: #1a1a1a;
+    transition: all 0.3s; 
+    outline: none;
 
-
+}
+.search__media:focus{
+    width: 100%;
+    padding: 0 0 0 8px;
+    color: white;
+    border-radius: 8px;
+}
 
 .open-menu-enter {
     opacity: 0;
@@ -82,6 +103,11 @@
 
 .header__lupa{
     cursor: pointer;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    pointer-events:none;
+    transform: translate(0, -50%);
 }
 .header__lupa circle{
     stroke: $grey-color;
@@ -126,6 +152,7 @@
 
 .menu h4{
     height: 100%;
+    width: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

@@ -123,7 +123,9 @@ const FormRegister:FC<FormProps> = ({title, handleForm, error} ) => {
               classNames="slide" unmountOnExit 
               in={hasError}
             >
-              <div style={{display: 'flex', flexDirection: 'column'}}>
+              <div style={{display: 'flex', flexDirection: 'column',
+              color: 'black'
+              }}>
               {valideErr && valideErr }
               </div>
             </CSSTransition>

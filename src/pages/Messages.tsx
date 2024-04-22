@@ -16,7 +16,6 @@ import { v4 as uuid } from "uuid";
 
 const Messages: FC = () => { 
     const { id, fullName, photoURL } = useAuth();
-    const user = useAuth()
     const [searchValueSplide, setSearchValueSplide] = useState('');
     const [hasMore, setHasMore] = useState(true);
     const [fullChats, setFullChats] = useState<ChatObject[]>([]) 

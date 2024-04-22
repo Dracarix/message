@@ -1,12 +1,11 @@
 import { FormRegister } from 'Components/UI/form/formRegister';
 import { getAuth, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, updateProfile } from 'firebase/auth';
-import { Timestamp, arrayUnion, doc, getDoc, getFirestore, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { setUser } from 'store/users/user.slice';
 import '../Components/UI/form/form.scss' 
-import { useSelector } from 'react-redux';
-import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
+import { ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import { IsLoadingBig } from 'Components/UI/isLoading/isLoading';
 import { useEffect, useState } from 'react';
 import '../styles/CSSTransition.css';
@@ -14,7 +13,6 @@ import { useAuth } from 'hooks/use-auth';
 import BackLogin from '../Images/background-login.png';
 import LogoBig from '../Images/My-logo-big.png';
 import { useMediaQuery } from 'react-responsive';
-import { UserState } from 'types/user';
 
 const RegisterPage = () => {
   const dispatch = useAppDispatch();
@@ -104,7 +102,9 @@ const RegisterPage = () => {
   return (
     <div 
       className='regBlock'
-      style={{backgroundImage:`url(${BackLogin})`}}
+      style={{
+        backgroundImage:`url(${BackLogin})`
+      }}
     >
       {!mediaWidth &&(
         <img 
@@ -114,8 +114,8 @@ const RegisterPage = () => {
         />
       )}
       <div className='block__form_login'>
-        <FormRegister title="Signup" handleForm={handleReg} error={''}/>
-        <p className="signin"> Уже есть аккаунт?  <Link to='/login'>Вход</Link> </p>  
+        <FormRegister title="Signup" handleForm={handleReg} error={errorAuth || ''}/>
+        <p className="signin"> Уже есть аккаунт?  <Link style={{textShadow: 'none'}} to='/login'>Вход</Link> </p>  
 
       </div>
 

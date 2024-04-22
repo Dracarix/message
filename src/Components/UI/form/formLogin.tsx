@@ -2,7 +2,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Form } from 'react-router-dom';
 import './form.scss'
-import { useAppSelector } from 'hooks/use-redux';
 import { ReactComponent as EyeIcon } from './svg/eye.svg';
 import { ReactComponent as NoEyeIcon } from './svg/noeye.svg';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -97,7 +96,7 @@ disabled={!isFormValide()}
             classNames="slide" unmountOnExit 
             in={hasError}
             >
-              <div style={{display: 'flex', flexDirection: 'column', color: 'red'}}>
+              <div style={{display: 'flex', flexDirection: 'column', color: 'black'}}>
               {valideErr && valideErr}
               </div>
             </CSSTransition>
@@ -199,7 +198,7 @@ const ReAuthenticate:FC<FormProps> = ({title,handleForm, error }) => {
             classNames="slide" unmountOnExit 
             in={hasError}
             >
-              <div style={{display: 'flex', flexDirection: 'column', color: 'red'}}>
+              <div style={{display: 'flex', flexDirection: 'column', color: 'black'}}>
               {valideErr && valideErr}
               </div>
             </CSSTransition>

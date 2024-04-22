@@ -82,6 +82,7 @@
 }
   .ChatsIcon img{
     width: 40px;
+    @include AvaMain;
     height: 40px;
     border-radius: 50%;
   }

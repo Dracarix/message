@@ -17,7 +17,7 @@ const Message:FC<chatIDtype> = ({chatID}) => {
     const { id} = useAuth()
     const [hasMore, setHasMore] = useState(true);
     const [startIndex, setStartIndex] = useState(0); // Состояние для хранения текущего индекса начала загружаемых элементов
-    const itemsPerPage = 25;
+    const itemsPerPage = 100;
     const db = getFirestore();
     const [ignore, setIgnore] = useState(15);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -49,9 +49,7 @@ const Message:FC<chatIDtype> = ({chatID}) => {
                      
                 }else{
                     setLoading(false)
-                    if (messagesEndRef.current) {
-                      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-                    }
+                   
                 }
             }
         })
@@ -60,9 +58,8 @@ const Message:FC<chatIDtype> = ({chatID}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[chatID])
     const nextMess = () => {
-      console.log('э1');
 
-      const newItems = fullMessage.slice(startIndex + ignore, startIndex + ignore + itemsPerPage);
+      const newItems = fullMessage.slice(startIndex +  startIndex +  itemsPerPage);
       console.log(newItems);
 
     

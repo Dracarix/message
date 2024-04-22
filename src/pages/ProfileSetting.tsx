@@ -249,7 +249,7 @@ return (
                 </h3>
             ):(<>
                 <img 
-                    src={thisPhotoURL} 
+                    src={img ? URL.createObjectURL(img) : thisPhotoURL} 
                     alt={`Ваша фотография`} 
                     loading="eager"
                     

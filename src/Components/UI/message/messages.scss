@@ -27,6 +27,7 @@
     color: $color-white;
     overflow: hidden;
     padding:  0 36px 0 8px;
+    user-select:text;
 
 }
 .messageContent-right .block_mess{
@@ -42,6 +43,7 @@
     padding: 0 15px 0 0;
     word-wrap: break-word;
     text-align: right;
+
     width: 100%;
 
 }

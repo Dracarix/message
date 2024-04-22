@@ -1,7 +1,7 @@
 {
   "name": "messager",
   "version": "0.1.0",
-  "homepage": "https://dracarix.github.io/Art-gallery_react",
+  "homepage": "https://dracarix.github.io/message",
   "private": true,
   "dependencies": {
     "@firebase/storage": "^0.12.2",

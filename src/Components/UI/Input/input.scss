@@ -61,6 +61,30 @@
 .img_send{
     width: 30px;
 }
+.selected__img{
+  position: absolute;
+  border-radius: 4px;
+  background-color: $background-main-color;
+  top:-140px;
+  width: auto;
+height: 130px;
+}
+.selected__img img{
+  max-width: 130px;
+  min-width: 80px;
+height: 125px;
+  @include AvaMain;
+}
+.selected__img button{
+  position: absolute;
+  right: -11%;
+  cursor: pointer;
+  top:-11%;
+}
+.Close__selected__img path{
+  stroke-width:5;
+  stroke:$color;
+}
 .lupa{
     position: absolute;
     width: 32px;

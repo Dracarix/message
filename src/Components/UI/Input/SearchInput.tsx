@@ -7,7 +7,6 @@ import './input.scss'
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from "uuid";
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
-import { setGlobalError } from 'store/error';
 import CryptoJS from 'crypto-js';
 import { setSearchUserData } from 'store/searchUsers/searchUsers';
 import { SearchUserState } from 'types/user';
@@ -16,6 +15,7 @@ import { ReactComponent as Lupa } from '../../../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
 import ImgFile from '../../../Images/img.png';
 import SendBtn from '../../../Images/send-btn.png';
+import { ReactComponent as Close } from '../../../svg/close.svg';
 
 
 const SearchInput = () => {
@@ -237,7 +237,6 @@ const InputSend = ({disabled}: Disabled) => {
   const [chatID, setChatID] = useState('');
   const { id } = useAuth();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const {error} = useAppSelector((state) => state.process);
   const generateChatID = (id1: string, id2: string) => {
     const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
@@ -266,7 +265,8 @@ const calculateHash = async (file: File): Promise<string> => {
       if (error.code === 'storage/object-not-found') {
         return null;
       }
-      console.error('Ошибка при получении URL-адреса изображения:', error);
+      
+      dispatch(ProcessDataFailure(error.code))
       return null;
     }
   };
@@ -276,7 +276,6 @@ const calculateHash = async (file: File): Promise<string> => {
       const hash = await calculateHash(img);
       const imageUrl = await getImageUrlFromStorage(hash);
       if (imageUrl) {
-        console.log('Изображение уже существует:', imageUrl);
         if(chatID !== ''){
           setText('');
           setImg(null);
@@ -299,7 +298,7 @@ const calculateHash = async (file: File): Promise<string> => {
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
-              dispatch(ProcessDataFailure(err));
+              dispatch(ProcessDataFailure(err.code));
             });
     
             await updateDoc(doc(db, "UserChat", id.toString()), {
@@ -310,7 +309,7 @@ const calculateHash = async (file: File): Promise<string> => {
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
-              dispatch(ProcessDataFailure(err));
+              dispatch(ProcessDataFailure(err.code));
             });
           }else{
             await updateDoc(doc(db, "UserChat", user.id), {
@@ -321,7 +320,7 @@ const calculateHash = async (file: File): Promise<string> => {
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
-              dispatch(ProcessDataFailure(err));
+              dispatch(ProcessDataFailure(err.code));
             });
     
             await updateDoc(doc(db, "UserChat", id.toString()), {
@@ -332,7 +331,7 @@ const calculateHash = async (file: File): Promise<string> => {
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
-              dispatch(ProcessDataFailure(err));
+              dispatch(ProcessDataFailure(err.code));
             });
           }
 
@@ -350,12 +349,8 @@ const calculateHash = async (file: File): Promise<string> => {
              
           },
           (error: any) => {
-            if (typeof error === 'string') {
-              dispatch(setGlobalError(error));
-              navigate('/error');
-            } else {
-              console.error('Неожиданный тип ошибки:', error);
-            }
+            
+            dispatch(ProcessDataFailure(error.code))
           },
           async () => {
             try {
@@ -382,7 +377,7 @@ const calculateHash = async (file: File): Promise<string> => {
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
-                    dispatch(ProcessDataFailure(err));
+                    dispatch(ProcessDataFailure(err.code));
                   });
           
                   await updateDoc(doc(db, "UserChat", id.toString()), {
@@ -393,7 +388,7 @@ const calculateHash = async (file: File): Promise<string> => {
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
-                    dispatch(ProcessDataFailure(err));
+                    dispatch(ProcessDataFailure(err.code));
                   });
                 }else{
                   await updateDoc(doc(db, "UserChat", user.id), {
@@ -404,7 +399,7 @@ const calculateHash = async (file: File): Promise<string> => {
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
-                    dispatch(ProcessDataFailure(err));
+                    dispatch(ProcessDataFailure(err.code));
                   });
           
                   await updateDoc(doc(db, "UserChat", id.toString()), {
@@ -415,14 +410,14 @@ const calculateHash = async (file: File): Promise<string> => {
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
-                    dispatch(ProcessDataFailure(err));
+                    dispatch(ProcessDataFailure(err.code));
                   });
                 }
               }
               
               
-            } catch (error) {
-              console.error('Ошибка при получении URL-адреса изображения:', error);
+            } catch (error: any) {
+             dispatch(ProcessDataFailure(error.code))
             }
           }
         );
@@ -482,16 +477,26 @@ const calculateHash = async (file: File): Promise<string> => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     setImg(file);
+    e.target.value = '';
   };
 
   return (
     <div className="inputSend">
-      {img ? (
-        <div> ок</div>
-      ) :('')}
+      {img && (
+        <div className='selected__img'>
+          <img  src={URL.createObjectURL(img)} alt='Загруженное изображение'/>
+          <button 
+            style={{border: 'none', background: 'none', padding: 0}}
+            onClick={()=> setImg(null)}
+          >
+            <Close className='Close__selected__img' width='25px' height='25px'/>
+          </button>
+        </div>
+
+      ) }
       <input
         type="text"
-        placeholder="Type something..."
+        placeholder="Введите что нибудь..."
         onChange={(e) => setText(e.target.value)}
         value={text}
         onKeyDown={handleEnter}

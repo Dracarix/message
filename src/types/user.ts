@@ -8,6 +8,17 @@ export interface UserState{
     fullName: string,
     firstName: string,
     lastName: string | null,
+    selectedUsers?: { 
+      id: string;
+      photoURL: string;
+      fullName: string;
+     }[];
+}
+export type UserInfoOnly = {
+   
+  id: string;
+  photoURL: string;
+  fullName: string;
 }
 
 export interface SearchUserState {

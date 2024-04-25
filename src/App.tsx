@@ -19,6 +19,7 @@ import { doc, getFirestore, onSnapshot,  } from 'firebase/firestore';
 import {UserSearch} from 'pages/searchUsers';
 import { openErrModal } from 'store/processes/isModal';
 import {ProfileSetting} from 'pages/ProfileSetting';
+import { UserState } from 'types/user';
 
 const App:FC = () => {  
   const dispatch = useAppDispatch();
@@ -42,7 +43,7 @@ useEffect(()=>{
 
         if (user) {
             const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
-                const data = doc.data();
+                const data = doc.data() as UserState;
                 if(data){
                     
                     dispatch(setUser({
@@ -54,7 +55,6 @@ useEffect(()=>{
                         firstName: data.firstName,
                         lastName :data.lastName,
                     }));
-                    
                 }
             });
 

@@ -43,6 +43,7 @@ const Messages: FC = () => {
             
             const chatID = generateChatID(idAlexey, id.toString());
             const docSnap = await getDoc(doc(db, "UserChat", id.toString()));
+
             const data = docSnap.data();
             if (data) {
                 const sortedChats: ChatObject[] = Object.values(data)
@@ -62,7 +63,6 @@ const Messages: FC = () => {
                     const docSnapAlexey = await getDoc(doc(db, "users", idAlexey));
                     const dataAlexey = docSnapAlexey.data() as UserState;
                     if(dataAlexey){
-                        console.log(dataAlexey);
                         await setDoc(doc(db, "chats", chatID), { messages: [{
                             id: uuid(),
                             text: 'Hello, I`m a new user of this messenger.',
@@ -106,6 +106,8 @@ const Messages: FC = () => {
                 setFullChats(sortedChats);
                 setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
                 dispatch(FinishMessages());
+            
+                
             }
         };
         getChats();

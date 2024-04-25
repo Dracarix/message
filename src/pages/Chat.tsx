@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import '../styles/chat.scss'
 import { LeftUsers } from 'Components/rightColumnUsers';
 import {  Navigate, useParams } from 'react-router-dom';
-import { collection, doc, getDoc, getDocs, getFirestore, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, collection, doc, getDoc, getDocs, getFirestore, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { setChat } from 'store/users/chat.slice';
 import { useAuth } from 'hooks/use-auth';
 import { ChatLoader } from 'Components/UI/isLoading/chatLoader';
-import { ChatObject, SearchUserState } from 'types/user';
+import { ChatObject, SearchUserState, UserInfoOnly, UserState } from 'types/user';
 import { ProcessDataFailure } from 'store/processes/process';
 import { useMediaQuery } from 'react-responsive';
 
@@ -35,7 +35,7 @@ const Chats = () => {
       const db = getFirestore();
       const chatDoc = doc(db, "chats", chatId);
       const userChatDoc = doc(db, "UserChat", id.toString());
-  
+
       const chatDocSnapshot = await getDoc(chatDoc);
       if (!chatDocSnapshot.exists()) {
         await setDoc(chatDoc, { messages: [] });
@@ -70,6 +70,8 @@ const Chats = () => {
         setLoading(true)
       if (overUserID) {
         const querySnapshot = await getDocs(collection(db, "users"));
+        const docSnap = await getDoc(doc(db, "users", id.toString()));
+        const thisUserDocRef = doc (db, "users" , id.toString())
         if(querySnapshot.empty){
           setLoading(false);
           setValideChat(true);
@@ -100,7 +102,6 @@ const Chats = () => {
                   const UserArr: ChatObject[] = Object.values(data);
                   const chatId = generateChatId(id.toString(), overUserID);
                   setUserFound(false)
-          
                   UserArr.forEach(e => {
                     if(e.UserInfo.id === overUserID){
                       setUserFound(true);
@@ -109,16 +110,49 @@ const Chats = () => {
                   const userNew = usersSearch[0];
 
                   
-                  const overUserIDValue = data[chatId];
+                  const overUserIDValue = data[chatId] as ChatObject ;
+                  const RightChats = docSnap.data() as UserState;
                   if(userFound){
                     if (overUserIDValue) {
+                     
                       
-                      dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
-                      
-                      setTimeout(()=>{
-                        setLoading(false)
-                      },250)
-  
+                      if(RightChats){                        
+                        if(!RightChats.selectedUsers){
+                          await updateDoc(thisUserDocRef, { selectedUsers:[{
+                              id: overUserID,
+                              fullName: overUserIDValue.UserInfo.fullName,
+                              photoURL: overUserIDValue.UserInfo.photoURL,                   
+                          }]})
+                         
+                        }else{
+                          
+                          RightChats.selectedUsers.forEach(async element => {
+                            if(element.id !== overUserID){
+                              await updateDoc(thisUserDocRef,{
+                                selectedUsers:arrayUnion({
+                                  
+                                    id: overUserID,
+                                    fullName: overUserIDValue.UserInfo.fullName,
+                                    photoURL: overUserIDValue.UserInfo.photoURL,
+                                 
+                                })
+                              })
+                             
+                            }
+                          });
+                        }
+                        
+                          
+                        
+
+
+                        dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
+                        
+                        setTimeout(()=>{
+                          setLoading(false)
+                        },250)
+                        
+                      }
                     } else {
                       setTimeout(()=>{
                         setLoading(false)
@@ -127,13 +161,35 @@ const Chats = () => {
                   }else{
                     await newChat(userNew);
                     if (overUserIDValue) {
-                      
-                      dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
-                      
-                      setTimeout(()=>{
-                        setLoading(false)
-                      },250)
-  
+                      if(RightChats){
+                        if(!RightChats.selectedUsers){
+                          await updateDoc(thisUserDocRef, { selectedUsers:[{
+                              id: overUserID,
+                              fullName: overUserIDValue.UserInfo.fullName,
+                              photoURL: overUserIDValue.UserInfo.photoURL,                   
+                          }]})
+                        }else{
+                          RightChats.selectedUsers.forEach(async element => {
+                            if(element.id !== overUserID){
+                              await updateDoc(thisUserDocRef,{
+                                selectedUsers:arrayUnion({
+                                  
+                                    id: overUserID,
+                                    fullName: overUserIDValue.UserInfo.fullName,
+                                    photoURL: overUserIDValue.UserInfo.photoURL,
+                                 
+                                })
+                              })
+                            }
+                          });
+                        }
+                        dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
+                        
+                        setTimeout(()=>{
+                          setLoading(false)
+                        },250)
+                        
+                      }
                     } else {
                       setTimeout(()=>{
                         setLoading(false)

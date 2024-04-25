@@ -1,21 +1,20 @@
-import { getFirestore, onSnapshot, doc } from 'firebase/firestore';
-import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
-import React, { FC, useEffect, useState } from 'react';
+import { getFirestore, onSnapshot, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { useAppDispatch } from 'hooks/use-redux';
+import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ProcessDataStart, ProcessDataSuccess, ProcessDataFailure } from 'store/processes/process';
 import { setChat } from 'store/users/chat.slice';
-import { ChatObject } from 'types/user';
-import { IsLoadingBig } from './UI/isLoading/isLoading';
+import { UserInfoOnly } from 'types/user';
 import { useAuth } from 'hooks/use-auth';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { setGlobalError } from 'store/error';
+import { ReactComponent as Close } from '../svg/close.svg';
 
 export interface LeftUsersProps {
     thisID: string;
 }
+
 const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     const [loading, setLoading] = useState(false);
-    const [chats, setChats] = useState<ChatObject[]>([]);
+    const [chats, setChats] = useState<UserInfoOnly[]>([]);
     const { id} = useAuth();
     const [vidno, setVidno] = useState(false);
     const dispatch = useAppDispatch();
@@ -27,28 +26,19 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
       const getChats = () => {
 
           setLoading(true)
-        const unsub = onSnapshot(doc(db, "UserChat", id.toString()), (doc) => {
-          const data = doc.data();
+        const unsub = onSnapshot(doc(db, "users", id.toString()), (doc) => {
+          const data = doc.data()?.selectedUsers as UserInfoOnly[];
 
           if(data){
-            const sortedChats: ChatObject[] = Object.values(data)
-            .filter(i => i !== null && i.lastMessage)
-            .sort((a, b) => {
-              if (!a.lastMessage && !b.lastMessage) {
-                  return 0;
-              } else if (!a.lastMessage) {
-                  return 1;
-              } else if (!b.lastMessage) {
-                  return -1;
-              } else {
-                  return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
-              }
-          }).slice(0, 6);
-            setChats(sortedChats);
             
-            setTimeout(()=>{
-              setLoading(false)
-            },250)
+
+              
+              setChats(data.slice(0, 10));
+              
+              setTimeout(()=>{
+                setLoading(false)
+              },250)
+            
           }else{
             
             setTimeout(()=>{
@@ -65,9 +55,9 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
       getChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
-    const handleSelect = (chat: ChatObject) => {
-        dispatch(setChat({user:chat.UserInfo}));
-        navigate(`/chat/${chat.UserInfo.id}`);
+    const handleSelect = (chat: UserInfoOnly[][0]) => {
+        dispatch(setChat({user:chat}));
+        navigate(`/chat/${chat.id}`);
     }
     const handleMouseEnter = () => {
         setVidno(true)
@@ -75,7 +65,19 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     const handleMouseLeave = () => {
         setVidno(false)
     }
-    
+    const deleteSelectedUser = async(chat: UserInfoOnly[][0]) =>{
+      
+        await updateDoc(doc(db, 'users',id.toString() ),{
+          selectedUsers:arrayRemove({
+            
+              id: chat.id,
+              fullName: chat.fullName,
+              photoURL: chat.photoURL,
+           
+          })
+        })
+      
+    }
   return (
     <div
       className='rightColumn'
@@ -127,15 +129,19 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
                     </div>
                 </>
                     
-            ): chats.length >= 2 && (
-              chats.map((chat)=> (
+            ): chats.length >= 1 &&  (
+              chats.map((chat, index)=> (
                       <li 
-                          className={chat.UserInfo.id !== thisID ? 'ChatsIcon' : 'ChatsIcon active'} 
-                          key={chat.UserInfo.id} 
+                          className={chat.id !== thisID ? 'ChatsIcon' : 'ChatsIcon active'} 
+                          key={index} 
                           onClick={() => handleSelect(chat)}
                       >
-                          <span>{chat.UserInfo.fullName}</span>
-                          <img src={chat.UserInfo.photoURL} alt={chat.UserInfo.fullName}/>
+                          <img src={chat.photoURL} alt={chat.fullName}/>
+                          <span>{chat.fullName}</span>
+                          <Close onClick={(event: React.MouseEvent)=>{ 
+                            event.stopPropagation();
+                            deleteSelectedUser(chat);
+                          }} className='delete__user__column' width='25px' height='25px'/>
                       </li>
               )))}
           </ul>

@@ -1,5 +1,5 @@
-import { getFirestore, onSnapshot, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { useAppDispatch } from 'hooks/use-redux';
+import { getFirestore, onSnapshot, doc, updateDoc, arrayRemove } from 'firebase/firestore';
+import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setChat } from 'store/users/chat.slice';
@@ -15,6 +15,7 @@ export interface LeftUsersProps {
 const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     const [loading, setLoading] = useState(false);
     const [chats, setChats] = useState<UserInfoOnly[]>([]);
+    const {user} = useAppSelector(state => state.chat)
     const { id} = useAuth();
     const [vidno, setVidno] = useState(false);
     const dispatch = useAppDispatch();
@@ -66,7 +67,18 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
         setVidno(false)
     }
     const deleteSelectedUser = async(chat: UserInfoOnly[][0]) =>{
-      
+        if(chat.id === user.id){
+          await updateDoc(doc(db, 'users',id.toString() ),{
+            selectedUsers:arrayRemove({
+              
+                id: chat.id,
+                fullName: chat.fullName,
+                photoURL: chat.photoURL,
+             
+            })
+          })
+          navigate('/')
+        }
         await updateDoc(doc(db, 'users',id.toString() ),{
           selectedUsers:arrayRemove({
             

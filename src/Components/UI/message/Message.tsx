@@ -4,7 +4,6 @@ import { FC, useEffect, useState , useRef} from 'react';
 import { MessagesType } from 'types/user';
 import './messages.scss'
 import { MessageLoader } from '../isLoading/chatLoader';
-import { useAuth } from 'hooks/use-auth';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ScrollBottom } from 'Components/scrollTop';
 
@@ -14,12 +13,11 @@ const Message:FC<chatIDtype> = ({chatID}) => {
     const [message, setMessage] = useState<MessagesType["word"][]>([]);
     const [fullMessage, setFullMessage] = useState<MessagesType["word"][]>([]);
     const [loading, setLoading] = useState(false);
-    const { id} = useAuth()
     const [hasMore, setHasMore] = useState(true);
     const [startIndex, setStartIndex] = useState(0); // Состояние для хранения текущего индекса начала загружаемых элементов
     const itemsPerPage = 100;
     const db = getFirestore();
-    const [ignore, setIgnore] = useState(15);
+    // const [ignore, setIgnore] = useState(15);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // useEffect(() => {

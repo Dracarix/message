@@ -9,7 +9,7 @@ import { arrayUnion, collection, doc, getDoc, getDocs, getFirestore, serverTimes
 import { setChat } from 'store/users/chat.slice';
 import { useAuth } from 'hooks/use-auth';
 import { ChatLoader } from 'Components/UI/isLoading/chatLoader';
-import { ChatObject, SearchUserState, UserInfoOnly, UserState } from 'types/user';
+import { ChatObject, SearchUserState,  UserState } from 'types/user';
 import { ProcessDataFailure } from 'store/processes/process';
 import { useMediaQuery } from 'react-responsive';
 
@@ -125,7 +125,17 @@ const Chats = () => {
                           }]})
                          
                         }else{
-                          
+                          if(RightChats.selectedUsers.length === 0){
+                            await updateDoc(thisUserDocRef,{
+                              selectedUsers:arrayUnion({
+                                
+                                  id: overUserID,
+                                  fullName: overUserIDValue.UserInfo.fullName,
+                                  photoURL: overUserIDValue.UserInfo.photoURL,
+                               
+                              })
+                            })
+                          }
                           RightChats.selectedUsers.forEach(async element => {
                             if(element.id !== overUserID){
                               await updateDoc(thisUserDocRef,{
@@ -163,12 +173,25 @@ const Chats = () => {
                     if (overUserIDValue) {
                       if(RightChats){
                         if(!RightChats.selectedUsers){
+                          console.log('1');
                           await updateDoc(thisUserDocRef, { selectedUsers:[{
                               id: overUserID,
                               fullName: overUserIDValue.UserInfo.fullName,
                               photoURL: overUserIDValue.UserInfo.photoURL,                   
                           }]})
                         }else{
+                          console.log('2');
+                          if(RightChats.selectedUsers.length === 0){
+                            await updateDoc(thisUserDocRef,{
+                              selectedUsers:arrayUnion({
+                                
+                                  id: overUserID,
+                                  fullName: overUserIDValue.UserInfo.fullName,
+                                  photoURL: overUserIDValue.UserInfo.photoURL,
+                               
+                              })
+                            })
+                          }
                           RightChats.selectedUsers.forEach(async element => {
                             if(element.id !== overUserID){
                               await updateDoc(thisUserDocRef,{

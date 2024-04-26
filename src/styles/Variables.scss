@@ -10,9 +10,9 @@ $color-white: #fff;
 $background-main-color: #282c34;
 $color-dark-grey: #3f4349;
 $color-dark-opacity: rgba(102, 101, 101, 0.5);
-$messages-background: rgb(0, 18, 46);
-$messages-color-block:rgb(1, 28, 72) ;
-$messages-color-block-hovered:rgb(8, 42, 96) ;
+$messages-background: #161616;
+$messages-color-block:#2f2f3b ;
+$messages-color-block-hovered:#2f2f3b8e ;
 $loyaut-background: #282c34;
 $menu-background: var(--menu-background);
 @mixin AvaMain {

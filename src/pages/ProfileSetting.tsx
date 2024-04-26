@@ -153,8 +153,8 @@ const ProfileSetting = () => {
                       },
                       async () => {
                           const downloadURL = await getDownloadURL(storageRef);
-                          await userUpdatePhoto(downloadURL)
                           setThisPhotoURL(downloadURL);
+                          await userUpdatePhoto(downloadURL)
                       }
                   )
                 }
@@ -196,8 +196,6 @@ const ProfileSetting = () => {
                             await updateDoc(docRef, { [`${ChatID}.UserInfo.lastName`]:twoName });
                         }
                             
-                      console.log(nameFull);
-                      console.log(id);
                       
                     }
 

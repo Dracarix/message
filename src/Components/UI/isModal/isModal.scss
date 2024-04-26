@@ -12,6 +12,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    backdrop-filter:blur(15px);
+    transition: backdrop-filter 0.1s ;
+    -webkit-backdrop-filter: blur(10px);
   }
   
   .modal-content {
@@ -20,6 +23,8 @@
     height: auto;
     border-radius: 8px;
     position: relative;
+    filter: none;
+    z-index: 20;
   }
   
   .close-btn {

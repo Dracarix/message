@@ -11,7 +11,7 @@
   }
   
   :root[data-theme='dark'] {
-    --background-color: #141414;
+    --background-color: #1F1F1F;
     --text-color: #d5d5d5;
     --background-main:#1a1a1a;
     --border-color: #ffffff;
@@ -19,8 +19,8 @@
     --menu-background:#314D5E;
   }
 
-body{
-    background: $background;
+  body{
+    background-color: $background;
     color: $color;
     transition: all 0.2s;
     margin: 0;

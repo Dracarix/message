@@ -7,6 +7,7 @@ import { UserInfoOnly } from 'types/user';
 import { useAuth } from 'hooks/use-auth';
 import { setGlobalError } from 'store/error';
 import { ReactComponent as Close } from '../svg/close.svg';
+import { ProcessDataFailure } from 'store/processes/process';
 
 export interface LeftUsersProps {
     thisID: string;
@@ -36,16 +37,16 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
               
               setChats(data.slice(0, 10));
               
-              setTimeout(()=>{
+              
                 setLoading(false)
-              },250)
+             
             
           }else{
             
-            setTimeout(()=>{
+            
               setLoading(false)
-            },250)
-            setGlobalError('Похоже что произошка ошибка')
+            
+            dispatch(ProcessDataFailure('Похоже что произошка ошибка'))
           }
         });
         return () => {

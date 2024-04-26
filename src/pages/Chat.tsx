@@ -208,15 +208,15 @@ const Chats = () => {
                         }
                         dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
                         
-                        setTimeout(()=>{
+                        
                           setLoading(false)
-                        },250)
+                       
                         
                       }
                     } else {
-                      setTimeout(()=>{
+                      
                         setLoading(false)
-                      },250)
+                      
                     }
                   }
                   
@@ -230,7 +230,8 @@ const Chats = () => {
                 setLoading(false)
               }
             })
-            .catch((error) => {
+            .catch((error: any) => {
+              dispatch(ProcessDataFailure(error.code))
               setLoading(false)
             });
       } else {

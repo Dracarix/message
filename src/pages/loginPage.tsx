@@ -34,7 +34,7 @@ const LoginPage = () => {
         document.title = 'Аутентификация'
       }
         if(isAuth){
-          navigate('/');
+          navigate('/message/');
           dispatch(ProcessDataSuccess());
         }else{
           setTimeout(()=> {
@@ -69,7 +69,7 @@ const LoginPage = () => {
               };
               dispatch(setUser(userData));
               dispatch(ProcessDataSuccess());
-              if (isAuth){navigate('/')}
+              if (isAuth){navigate('/message/')}
             }
             })
             .catch((error) => {

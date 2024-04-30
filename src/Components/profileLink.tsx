@@ -12,7 +12,7 @@ const ProfileSettingLink:FC<LinkBtnTypes> = ({icon , className = ''}) => {
     const dispatch = useAppDispatch();
     const NavSettingProf = () => {
         dispatch(closeMenu());
-        navigate(`profile/setting/${id.toString()}`)
+        navigate(`/message/profile/setting/${id.toString()}`)
     }
 return (
     <button className={`btnQuit ${className}`}

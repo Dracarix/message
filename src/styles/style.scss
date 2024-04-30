@@ -56,6 +56,9 @@ flex-direction: column;
 justify-content: center;
 align-items: center;
 }
+.default__btn{
+    @include ClearBtn;
+}
 .modal__mini{
     width: 100vw;
     position: fixed;

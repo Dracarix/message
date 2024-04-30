@@ -15,8 +15,15 @@ $messages-color-block:#2f2f3b ;
 $messages-color-block-hovered:#2f2f3b8e ;
 $loyaut-background: #282c34;
 $menu-background: var(--menu-background);
+$color-delete-link:#ff0000;
 @mixin AvaMain {
     aspect-ratio: 1/1;
     object-fit: cover;
     object-position: center;
   }
+@mixin ClearBtn {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}

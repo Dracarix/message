@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import {ReactComponent as MessIcon} from '../../svg/messages.svg';
 import {ReactComponent as ProfileIcon} from '../../svg/profile.svg';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { closeMenu, openMenu } from 'store/menu.slice';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { removeSelectMess } from 'store/users/deleteMess';
 
 const MediaFooter = () => {
   const {needMenu} = useAppSelector((state) => state.useMenu);
@@ -11,7 +11,7 @@ const MediaFooter = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
-  const isMessagesPage = location.pathname === '/';
+  const isMessagesPage = location.pathname === '/message/';
   const styleFooter  = {
     width: '100%',
     display:'flex',
@@ -28,7 +28,10 @@ const MediaFooter = () => {
     <div style={styleFooter}>
       
         <MessIcon 
-          onClick={()=> navigate('/')}
+          onClick={()=> {
+            dispatch(removeSelectMess())
+            navigate('/message/')
+          }}
           className={`mess__icon ${isMessagesPage ? 'active' : ''}`}
         />
         <div className='profile__main'

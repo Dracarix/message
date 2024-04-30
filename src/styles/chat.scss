@@ -46,7 +46,11 @@
     @include AvaMain;
     padding: 8px 8px;
 }
-
+.chatInfo.selected__message{
+  justify-content: space-between;
+  font-size: 20px;
+  padding: 0 16px;
+}
 .ChatsOtherUserColumn{
     padding: 0;
     margin: 0;
@@ -124,7 +128,30 @@
     text-overflow: ellipsis; 
 
   }
-
+.delete__select__btn{
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  color: #ff0202;
+}
+.delete__select__btn:hover{
+  text-decoration: underline;
+}
+  .Close__select{
+    color: $link-color;
+    
+  }
+  .close__select__btn{
+    font-size: 17px;
+    color: #fff;
+  }
+  .trash__svg path{
+    stroke: #fff;
+    stroke-width:2px;
+  }
+  .Close__select:hover{
+    text-decoration: underline;
+  }
   @media (max-width: 800px ){
     .rightColumn{
       display: none;

@@ -7,7 +7,7 @@ const ErrorPage = () => {
     return (
     <div>
       {error && error}
-      <Link to='/'>На главную страницу</Link>
+      <Link to='/message/'>На главную страницу</Link>
     </div>
   );
 };

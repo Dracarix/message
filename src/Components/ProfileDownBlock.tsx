@@ -7,7 +7,7 @@ import { QuitAccBtn } from "./quitAcc";
 import ProfileSettingLink from "./profileLink";
 
 const ProfileDownBlock = () => {
-    const match = useMatch("/search/:value");
+    const match = useMatch("message/search/:value");
 
     return(
         <>{!match && 

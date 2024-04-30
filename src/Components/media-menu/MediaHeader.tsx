@@ -14,11 +14,11 @@ const MediaHeader = () => {
     }
   };
   const SearchLink = () => {
-    navigate(`/search/${searchValue}`);
+    navigate(`/message/search/${searchValue}`);
     setSearchValue('');
   };
   const handleBack = () => {
-    navigate('/');
+    navigate('/message/');
   }
   return (
     <>

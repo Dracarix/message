@@ -38,7 +38,7 @@ const DeleteAcc:FC = () => {
               dispatch(ProcessDataSuccess())
             }else{
               dispatch(setGlobalError(error.message ));
-              navigate('/error')
+              navigate('/message/error')
               console.error(error.message)
             }
           }

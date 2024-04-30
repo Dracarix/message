@@ -12,6 +12,7 @@ import { ChatLoader } from 'Components/UI/isLoading/chatLoader';
 import { ChatObject, SearchUserState,  UserState } from 'types/user';
 import { ProcessDataFailure } from 'store/processes/process';
 import { useMediaQuery } from 'react-responsive';
+import CheckedMess from 'Components/UI/message/CheckedMess';
 
 const Chats = () => {
   const {user} = useAppSelector((state) => state.chat);
@@ -23,6 +24,8 @@ const Chats = () => {
   const [valideChat , setValideChat] = useState(false);
   const [userFound , setUserFound] = useState(false);
   const mediaWidth = useMediaQuery({maxWidth: 800});
+  const [select , setSelect] = useState(false)
+  const {words} = useAppSelector(state => state.selectedMess);
 
   const generateChatId = (id1: string , id2: string) => {
     const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
@@ -64,6 +67,7 @@ const Chats = () => {
       dispatch(ProcessDataFailure(err));
     }
   };
+
   useEffect(() => {
     
     const fetchChat = async () => {
@@ -245,10 +249,17 @@ const Chats = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overUserID, id]);
 
+  useEffect(()=>{
+    if(words.length === 0){
+      setSelect(false)
+    }else{
+      setSelect(true)
+    }
+  },[words])
 
 
 if(valideChat){
-  return <Navigate to='/'/>
+  return <Navigate to='/message/'/>
 }
 
   return (
@@ -257,14 +268,16 @@ if(valideChat){
       <section className='chat_section'>
         {loading ? <ChatLoader/> 
         : (
-          <div className='chatInfo'>
-            <div className='chatIcons'>
-              <img src={user.photoURL} alt="" />
+          !select
+            ?(<div className='chatInfo'>
+                <div className='chatIcons'>
+                  <img src={user.photoURL} alt="" />
+                </div>
+                <span>{user.fullName}</span>
+                
+            
             </div>
-            <span>{user.fullName}</span>
-
-        
-        </div>
+            ):(<CheckedMess/>)
         )}
         
         {overUserID && 

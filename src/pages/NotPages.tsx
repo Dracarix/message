@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const NotPages = () => {
     const navigate = useNavigate();
     useEffect(() => {
-        navigate('/login')
+        navigate('/message/login')
     })
   return (
     <IsLoadingBig/>

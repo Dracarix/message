@@ -76,8 +76,9 @@ export interface ProcessDataState {
       id: string;
       text: string;
       senderId:string;
-      date: Timestamp;
+      date: Timestamp | null;
       img: string | null;
+      deleteFor?: string
     }
   } 
   export interface LinkBtnTypes {

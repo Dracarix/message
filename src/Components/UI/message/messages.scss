@@ -7,6 +7,7 @@
     right: 0;
     justify-content: end;
     margin-top: 4px;
+    transition: all 0.1s;
     
 }
 .messageContent-left{
@@ -14,10 +15,45 @@
     position: relative;
     left: 0;
     margin-top: 4px;
+    transition: all 0.1s;
+}
+.checkMessInput{
+    appearance: none;
+    position: absolute;
+}
+.customCheckMess{
+
+    opacity: 0;
+    transition: all 0.1s;
+}
+.checkMessInput:checked + .messageContent-main{
+    background-color: #0000006c;
+}
+.checkMessInput:checked + .messageContent-main .customCheckMess{
+    opacity: 1;
+}
+.messageContent-right:hover .customCheckMess{
+
+    opacity: 1;
+}
+.messageContent-left:hover .customCheckMess{
+
+    opacity: 1;
+}
+.messageContent-left .customCheckMess{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+.messageContent-right .customCheckMess{
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translate(0, -50%);
 }
 
-.messageContent-right .block_mess,
-.messageContent-left .block_mess{
+.messageContent-main .block_mess{
     display: flex;
     position: relative;
     flex-direction: column;
@@ -28,7 +64,11 @@
     overflow: hidden;
     padding:  0 36px 0 8px;
     user-select:text;
+    margin-bottom: 4px;
 
+}
+.messageContent-main:hover {
+    background-color: #00000057;
 }
 .messageContent-right .block_mess{
     margin-right: 4px;

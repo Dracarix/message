@@ -83,15 +83,15 @@ useEffect(() => {
   const router = createBrowserRouter(createRoutesFromElements(
       <Route element={<Layout />}>
         <Route element={<PrivateAuth/>}>
-          <Route path='profile' element={<HomePage />} />
-          <Route path='/' element={<Messages />} />
-          <Route path='error' element={<ErrorPage />} />
-          <Route path='search/:value' element={<UserSearch/>} />
-          <Route path='chat/:overUserID' element={<Chats />} />
-          <Route path='profile/setting/:thisID' element={<ProfileSetting />} />
+          <Route path='message/profile' element={<HomePage />} />
+          <Route path='message/' element={<Messages />} />
+          <Route path='message/error' element={<ErrorPage />} />
+          <Route path='message/search/:value' element={<UserSearch/>} />
+          <Route path='message/chat/:overUserID' element={<Chats />} />
+          <Route path='message/profile/setting/:thisID' element={<ProfileSetting />} />
         </Route>
-        <Route path='login' element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
+        <Route path='message/login' element={<LoginPage />} />
+        <Route path="message/register" element={<RegisterPage />} />
         <Route path='*' element={<NotPages/>}/>
 
       </Route>

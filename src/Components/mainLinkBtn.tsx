@@ -1,12 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import MyLogoMini from '../Images/My-logo-mini.png';
+import { useAppDispatch } from "hooks/use-redux";
+import { removeSelectMess } from "store/users/deleteMess";
 
 
 const MainLinkBtn = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch()
 
     const handleBack = () => {
-      navigate('/');
+      dispatch(removeSelectMess())
+      navigate('/message/');
     }
   return (
     <button

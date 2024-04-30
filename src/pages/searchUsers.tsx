@@ -172,9 +172,9 @@ const UserSearch = () => {
           [combinedId + ".date"]: serverTimestamp(),
           
         });
-        navigate(`/chat/${user.id}`);
+        navigate(`/message/chat/${user.id}`);
       }else{
-        navigate(`/chat/${user.id}`);
+        navigate(`/message/chat/${user.id}`);
       }
     }catch(err: any){
       dispatch(ProcessDataFailure(err))

@@ -19,12 +19,14 @@
     margin-left: 16px;
 }
 .ChatsOtherUser p {
+    position: relative;
     color: $grey-color;
     right: 5%;
     display: flex;
     align-items: center;
     
 }
+
 .info__user_mess{
     display: flex;
     justify-content: space-between;
@@ -42,6 +44,7 @@
     }
     .ChatsOtherUser p {
         margin-left: 12px;
+        right: 0;
     }
 }
 .LastMessage{

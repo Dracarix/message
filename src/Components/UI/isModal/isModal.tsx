@@ -8,10 +8,11 @@ import { QuitAccSystem } from 'Components/quitAcc';
 import { NodeChildren } from 'types/user';
 import { SettingCompletedProfile } from 'pages/ProfileSetting';
 import ErrorModal from './ErrorModal';
+import DeleteMessConfirm from './deleteMessConfirm';
 
 const IsModal:FC<NodeChildren> = ({children}) => {
   const dispatch = useAppDispatch();
-  const {needReAuth, needQuit, openCompletSet, errModal} = useAppSelector((state) => state.isModalReduser);
+  const {needReAuth, needQuit, openCompletSet, errModal,ConfirmDelMess} = useAppSelector((state) => state.isModalReduser);
 
 
 
@@ -36,6 +37,7 @@ const IsModal:FC<NodeChildren> = ({children}) => {
         {needQuit && <QuitAccSystem/>}
         {openCompletSet && <SettingCompletedProfile/>}
         {errModal && <ErrorModal/>}
+        {ConfirmDelMess && <DeleteMessConfirm/>}
       </div>
     </div>
   );

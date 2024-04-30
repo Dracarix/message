@@ -37,14 +37,14 @@ const ProfileSetting = () => {
     useEffect(()=>{
         if(thisID){
             if(id.toString() !== thisID){
-               navigate('/');
+               navigate('/message/');
             }else{               
                 setOneName(firstName);
                 setTwoName(lastName)
                 setThisPhotoURL(photoURL);
             }
         }else{
-            navigate('/');
+            navigate('/message/');
         }
     },[])
     useEffect(()=>{

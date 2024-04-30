@@ -41,7 +41,7 @@ const RegisterPage = () => {
         document.title = 'Регистрация'
       }
         if(isAuth){
-          navigate('/');
+          navigate('/message/');
           dispatch(ProcessDataSuccess());
         }else{
           setTimeout(()=> {
@@ -88,7 +88,7 @@ const RegisterPage = () => {
           await setDoc(doc(db, "UserChat" , user.uid), {});
           setTimeout(()=> {
             dispatch(ProcessDataSuccess())
-            if (isAuth){navigate('/')}
+            if (isAuth){navigate('/message/')}
           },200)
     } catch (error:any) {
       dispatch(ProcessDataSuccess())

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { setChat } from 'store/users/chat.slice';
 import { UserInfoOnly } from 'types/user';
 import { useAuth } from 'hooks/use-auth';
-import { setGlobalError } from 'store/error';
 import { ReactComponent as Close } from '../svg/close.svg';
 import { ProcessDataFailure } from 'store/processes/process';
 
@@ -59,7 +58,7 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     }, [id]);
     const handleSelect = (chat: UserInfoOnly[][0]) => {
         dispatch(setChat({user:chat}));
-        navigate(`/chat/${chat.id}`);
+        navigate(`/message/chat/${chat.id}`);
     }
     const handleMouseEnter = () => {
         setVidno(true)
@@ -78,7 +77,7 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
              
             })
           })
-          navigate('/')
+          navigate('/message/')
         }
         await updateDoc(doc(db, 'users',id.toString() ),{
           selectedUsers:arrayRemove({
@@ -97,7 +96,7 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     >
       <div className='main__right__column'>
         <ul style={{padding: 0, margin: 0}}>
-          <li className='ChatsIcon' onClick={() => navigate('/')}>
+          <li className='ChatsIcon' onClick={() => navigate('/message/')}>
             <span>Все чаты</span>
           </li>
         </ul>

@@ -56,7 +56,7 @@ const QuitAccSystem = () => {
       dispatch(closeModal());
       await signOut(auth)
       .then(() => {
-        navigate('login')
+        navigate('/message/login')
         dispatch(removeUser());
         dispatch(closeMenu());
       }).catch((error: any) => {

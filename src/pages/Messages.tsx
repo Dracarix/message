@@ -1,5 +1,5 @@
 import { IsLoaderUsers} from 'Components/UI/isLoading/isLoading';
-import { Timestamp, doc, getDoc, getFirestore, serverTimestamp, setDoc, updateDoc} from 'firebase/firestore';
+import { Timestamp, doc, getDoc, getFirestore, onSnapshot, serverTimestamp, setDoc, updateDoc} from 'firebase/firestore';
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState } from 'react';
@@ -37,78 +37,160 @@ const Messages: FC = () => {
         return (`${firstId}${secondId}`);
     };
     
+    // useEffect(() => {
+    //     const getChats = async () => {
+    //         dispatch(StartMessages());
+            
+    //         const chatID = generateChatID(idAlexey, id.toString());
+    //         const docSnap = await getDoc(doc(db, "UserChat", id.toString()));
+
+    //         const data = docSnap.data();
+    //         if (data) {
+    //             const sortedChats: ChatObject[] = Object.values(data)
+    //             .filter(i => i !== null && i.lastMessage)
+    //             .sort((a, b) => {
+    //                 if (!a.lastMessage && !b.lastMessage) {
+    //                     return 0;
+    //                 } else if (!a.lastMessage) {
+    //                     return 1;
+    //                 } else if (!b.lastMessage) {
+    //                     return -1;
+    //                 } else {
+    //                     return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
+    //                 }
+    //             });
+    //             if(sortedChats.length === 0){
+    //                 const docSnapAlexey = await getDoc(doc(db, "users", idAlexey));
+    //                 const dataAlexey = docSnapAlexey.data() as UserState;
+    //                 if(dataAlexey){
+    //                     await setDoc(doc(db, "chats", chatID), { messages: [{
+    //                         id: uuid(),
+    //                         text: 'Hello, I`m a new user of this messenger.',
+    //                         senderId: id.toString(),
+    //                         date: Timestamp.now(),
+    //                         img: null, 
+    //                       }] });
+    //                       await updateDoc(doc(db, "UserChat" , id.toString()), {
+                            
+    //                           [chatID + ".UserInfo"]: {
+    //                             id: dataAlexey.id,
+    //                             fullName: dataAlexey.fullName,
+    //                             photoURL: dataAlexey.photoURL,
+    //                           },
+    //                           [chatID + ".date"]: serverTimestamp(),
+    //                           [chatID + ".lastMessage"]: {
+    //                             text:'Hello, I`m a new user of this messenger.',
+    //                             date:Timestamp.now(),
+    //                             from:  id.toString(),
+    //                           }
+                            
+    //                       })
+                
+    //                       await updateDoc(doc(db,"UserChat", idAlexey), {
+    //                         [chatID + ".UserInfo"]: {
+    //                             id:  id.toString(),
+    //                             fullName: fullName,
+    //                             photoURL: photoURL,
+    //                           },
+    //                           [chatID + ".date"]: serverTimestamp(),
+    //                           [chatID + ".lastMessage"]: {
+    //                             text:'Hello, I`m a new user of this messenger.',
+    //                             date:Timestamp.now(),
+    //                             from:  id.toString(),
+    //                           }
+                            
+    //                       })
+    //                       getChats()
+    //                 }
+    //             }
+    //             setFullChats(sortedChats);
+    //             setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
+    //             dispatch(FinishMessages());
+            
+                
+    //         }
+    //     };
+    //     getChats();
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // },[]);
     useEffect(() => {
         const getChats = async () => {
             dispatch(StartMessages());
-            
-            const chatID = generateChatID(idAlexey, id.toString());
-            const docSnap = await getDoc(doc(db, "UserChat", id.toString()));
-
-            const data = docSnap.data();
-            if (data) {
-                const sortedChats: ChatObject[] = Object.values(data)
-                .filter(i => i !== null && i.lastMessage)
-                .sort((a, b) => {
-                    if (!a.lastMessage && !b.lastMessage) {
-                        return 0;
-                    } else if (!a.lastMessage) {
-                        return 1;
-                    } else if (!b.lastMessage) {
-                        return -1;
-                    } else {
-                        return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
+            console.log(id);
+            const unSub = onSnapshot(doc(db, "UserChat", id.toString()), async (docum)=>{
+                const chatID = generateChatID(idAlexey, id.toString());
+                if (docum.exists()) {
+                    const data = docum.data();
+                    const sortedChats: ChatObject[] = Object.values(data)
+                    .filter(i => i !== null && i.lastMessage)
+                    .sort((a, b) => {
+                        if (!a.lastMessage && !b.lastMessage) {
+                            return 0;
+                        } else if (!a.lastMessage) {
+                            return 1;
+                        } else if (!b.lastMessage) {
+                            return -1;
+                        } else {
+                            return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
+                        }
+                    });
+                    if(sortedChats.length === 0){
+                        const docSnapAlexey = await getDoc(doc(db, "users", idAlexey));
+                        const dataAlexey = docSnapAlexey.data() as UserState;
+                        if(dataAlexey){
+                            await setDoc(doc(db, "chats", chatID), { messages: [{
+                                id: uuid(),
+                                text: 'Hello, I`m a new user of this messenger.',
+                                senderId: id.toString(),
+                                date: Timestamp.now(),
+                                img: null, 
+                              }] });
+                              await updateDoc(doc(db, "UserChat" , id.toString()), {
+                                
+                                  [chatID + ".UserInfo"]: {
+                                    id: dataAlexey.id,
+                                    fullName: dataAlexey.fullName,
+                                    photoURL: dataAlexey.photoURL,
+                                  },
+                                  [chatID + ".date"]: serverTimestamp(),
+                                  [chatID + ".lastMessage"]: {
+                                    text:'Hello, I`m a new user of this messenger.',
+                                    date:Timestamp.now(),
+                                    from:  id.toString(),
+                                  }
+                                
+                              })
+                    
+                              await updateDoc(doc(db,"UserChat", idAlexey), {
+                                [chatID + ".UserInfo"]: {
+                                    id:  id.toString(),
+                                    fullName: fullName,
+                                    photoURL: photoURL,
+                                  },
+                                  [chatID + ".date"]: serverTimestamp(),
+                                  [chatID + ".lastMessage"]: {
+                                    text:'Hello, I`m a new user of this messenger.',
+                                    date:Timestamp.now(),
+                                    from:  id.toString(),
+                                  }
+                                
+                              })
+                              getChats();
+                        }
                     }
-                });
-                if(sortedChats.length === 0){
-                    const docSnapAlexey = await getDoc(doc(db, "users", idAlexey));
-                    const dataAlexey = docSnapAlexey.data() as UserState;
-                    if(dataAlexey){
-                        await setDoc(doc(db, "chats", chatID), { messages: [{
-                            id: uuid(),
-                            text: 'Hello, I`m a new user of this messenger.',
-                            senderId: id.toString(),
-                            date: Timestamp.now(),
-                            img: null, 
-                          }] });
-                          await updateDoc(doc(db, "UserChat" , id.toString()), {
-                            
-                              [chatID + ".UserInfo"]: {
-                                id: dataAlexey.id,
-                                fullName: dataAlexey.fullName,
-                                photoURL: dataAlexey.photoURL,
-                              },
-                              [chatID + ".date"]: serverTimestamp(),
-                              [chatID + ".lastMessage"]: {
-                                text:'Hello, I`m a new user of this messenger.',
-                                date:Timestamp.now(),
-                                from:  id.toString(),
-                              }
-                            
-                          })
+                    setFullChats(sortedChats);
+                    setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
+                    dispatch(FinishMessages());
                 
-                          await updateDoc(doc(db,"UserChat", idAlexey), {
-                            [chatID + ".UserInfo"]: {
-                                id:  id.toString(),
-                                fullName: fullName,
-                                photoURL: photoURL,
-                              },
-                              [chatID + ".date"]: serverTimestamp(),
-                              [chatID + ".lastMessage"]: {
-                                text:'Hello, I`m a new user of this messenger.',
-                                date:Timestamp.now(),
-                                from:  id.toString(),
-                              }
-                            
-                          })
-                          getChats()
-                    }
                 }
-                setFullChats(sortedChats);
-                setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
-                dispatch(FinishMessages());
+
+            })
+
             
-                
-            }
+            return () => {
+                unSub();
+              };
+        
         };
         getChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,7 +209,7 @@ const Messages: FC = () => {
 
     const handleSelect = (chat: ChatObject) => {
             dispatch(setChat({ chatID: generateChatID(id.toString(), chat.UserInfo.id) ,user: chat.UserInfo }));
-            navigate(`/chat/${chat.UserInfo.id}`);
+            navigate(`/message/chat/${chat.UserInfo.id}`);
     };
 
     const SearchUsers = () => {
@@ -257,7 +339,9 @@ const Messages: FC = () => {
                                             ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
                                             : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
                                             }</p>
+                                            
                                         </div>
+                                        
                                     </button>
                                 ))}
                                 </div>

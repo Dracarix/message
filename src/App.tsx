@@ -29,7 +29,7 @@ const App:FC = () => {
   const theme = useAppSelector((state) => state.theme);
 
 useEffect(()=>{
-    if(error !== null){
+    if(error){
         dispatch(openErrModal())
     }
 

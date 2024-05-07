@@ -64,6 +64,10 @@ export interface ProcessDataState {
       from: string;
     } | null,
   }
+  export interface ChatObjectItem {
+    chat?:ChatObject;
+    UserID?: string;
+  }
   export type OtherUserInfo = {
     id: string;
     photoURL: string;

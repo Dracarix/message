@@ -3,7 +3,7 @@ import { useAuth } from "hooks/use-auth";
 import { useAppDispatch, useAppSelector } from "hooks/use-redux";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { closeModal, openConfirmDelMess } from "store/processes/isModal";
+import { closeModal, openConfirmDelChat, openConfirmDelMess } from "store/processes/isModal";
 import { ProcessDataFailure } from "store/processes/process";
 import { removeSelectMess } from "store/users/deleteMess";
 import { MessagesType } from "types/user";
@@ -74,36 +74,36 @@ const handleConfirmAllDell = () => {
                 
             }else{
                 const chatID = generateChatId(overUserID , id.toString())
-                words.forEach(async (i) => {
-                  if(i.deleteFor){
+                for (let i = 0; i < words.length; i++) {
+                  const word = words[i];
+                  if (word.deleteFor) {
                     await updateDoc(doc(db, "chats", chatID), {
                       messages: arrayRemove({
-                        id: i.id ,
-                        text: i.text,
-                        senderId: i.senderId,
-                        date: i.date,
-                        img: i.img, 
-                        deleteFor: i.deleteFor,
+                        id: word.id,
+                        text: word.text,
+                        senderId: word.senderId,
+                        date: word.date,
+                        img: word.img,
+                        deleteFor: word.deleteFor,
                       }),
                     });
-                  }else{
-                    const messages:MessagesType["word"][] = chatDoc.data().messages.map((message: MessagesType["word"]) => {
-                      if (message.id === i.id) {
-                          return {
-                              id: message.id,
-                              text: message.text,
-                              senderId: message.senderId,
-                              date: message.date,
-                              img: message.img,
-                              deleteFor: id.toString(),
-                          };
+                  } else {
+                    const messages:MessagesType["word"][] = chatDoc.data().messages.map((message:MessagesType["word"]) => {
+                      if (message.id === word.id) {
+                        return {
+                          id: message.id,
+                          text: message.text,
+                          senderId: message.senderId,
+                          date: message.date,
+                          img: message.img,
+                          deleteFor: id.toString(),
+                        };
                       }
                       return message;
-                  });
-                  await updateDoc(chatDocRef, { messages });
+                    });
+                    await updateDoc(chatDocRef, { messages });
                   }
-                  
-                })
+                }
                 dispatch(removeSelectMess())
                 setConfirmAllDel(false)
                 closeThisModal()
@@ -111,6 +111,8 @@ const handleConfirmAllDell = () => {
           }
         }
       }
+
+
       const closeThisModal = () => {
         dispatch(closeModal());
         dispatch(ProcessDataFailure(null));

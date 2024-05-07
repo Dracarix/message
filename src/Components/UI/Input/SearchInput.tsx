@@ -82,9 +82,9 @@ const SearchInput = () => {
           
         })
         
-        navigate(`/chat/${user.id}`);
+        navigate(`/message/chat/${user.id}`);
       }else{
-        navigate(`/chat/${user.id}`);
+        navigate(`/message/chat/${user.id}`);
       }
     }catch(err: any){
       dispatch(ProcessDataFailure(err.code));
@@ -132,7 +132,7 @@ const SearchInput = () => {
     handleClose();
     setSearchUserData([]);
     setSearchValue('');
-    navigate(`/search/${navValue}`);
+    navigate(`/message/search/${navValue}`);
   }
   const handleClose = () => {
     setSearchValue('');

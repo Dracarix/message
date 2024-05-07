@@ -45,11 +45,8 @@ const Message:FC<chatIDtype> = ({chatID}) => {
 
                 if (data) {
                   const filteredData = data.reverse().filter(i => {
-                   
-                      return !(i.deleteFor && i.deleteFor === id.toString())
-                  
+                      return !(i.deleteFor && i.deleteFor === id.toString());
                   })
-                  console.log(filteredData);
                     setLoading(false)
                     setFullMessage(filteredData);
                     setMessage(filteredData.slice(startIndex, startIndex + itemsPerPage));

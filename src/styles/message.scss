@@ -47,6 +47,17 @@
         right: 0;
     }
 }
+.ChatsOtherUser .delete__chat{
+    position: absolute;
+    display: none;
+    right: 8px;
+    top: 8px;
+    padding: 2px;
+    opacity: 0.5;
+    background-color: rgba($color: #000000, $alpha: 1);
+    border:2px solid black;
+    transition: opacity 0.1s ease-in-out;
+}
 .LastMessage{
     color: $color-white;
     display: inline-block;
@@ -91,5 +102,14 @@
     .ChatsOtherUser:hover{
         background-color: $messages-color-block-hovered;
         
+    }
+    .delete__chat:hover {
+        background-color: rgba($color: #000000, $alpha: 1);
+        opacity:1;
+    }
+    .ChatsOtherUser:hover .delete__chat{
+        display: block;
+
+       
     }
 }

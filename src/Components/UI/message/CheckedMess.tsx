@@ -1,7 +1,6 @@
 import { useAppDispatch, useAppSelector } from "hooks/use-redux";
 import { ReactComponent as Trash } from "../../../svg/trash.svg";
 import { removeSelectMess } from "store/users/deleteMess";
-import { MessagesType } from "types/user";
 import { openConfirmDelMess } from "store/processes/isModal";
 
 const CheckedMess = () => {

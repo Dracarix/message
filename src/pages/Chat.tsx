@@ -13,6 +13,7 @@ import { ChatObject, SearchUserState,  UserState } from 'types/user';
 import { ProcessDataFailure } from 'store/processes/process';
 import { useMediaQuery } from 'react-responsive';
 import CheckedMess from 'Components/UI/message/CheckedMess';
+import { DeleteChat } from 'Components/deleteChat';
 
 const Chats = () => {
   const {user} = useAppSelector((state) => state.chat);
@@ -35,7 +36,6 @@ const Chats = () => {
   const newChat = async (userNew: SearchUserState) => {
     const chatId = generateChatId(userNew.id.toString(), id.toString())
     try {
-      const db = getFirestore();
       const chatDoc = doc(db, "chats", chatId);
       const userChatDoc = doc(db, "UserChat", id.toString());
 
@@ -61,189 +61,195 @@ const Chats = () => {
           },
           [chatId + ".date"]: serverTimestamp(),
         });
+        fetchChat();
       }else{
+        await updateDoc(userChatDoc, {
+          [chatId + ".UserInfo"]: {
+            id: userNew.id,
+            fullName: userNew.fullName,
+            photoURL: userNew.photoURL,
+          },
+          [chatId + ".date"]: serverTimestamp(),
+        });
+        fetchChat();
       }
     } catch (err: any) {
-      dispatch(ProcessDataFailure(err));
+      dispatch(ProcessDataFailure(err.code));
     }
   };
+  const fetchChat = async () => {
+    setLoading(true)
 
+  if (overUserID) {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    const docSnap = await getDoc(doc(db, "users", id.toString()));
+    const thisUserDocRef = doc (db, "users" , id.toString())
+    if(querySnapshot.empty){
+      setLoading(false);
+      setValideChat(true);
+    }
+    const usersSearch: SearchUserState[] = [];
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data() as SearchUserState;
+        
+        usersSearch.push(userData);
+      })
+      for (var i = usersSearch.length - 1; i >= 0; i--) {
+        if (usersSearch[i].id.toString() !== overUserID) {
+          usersSearch.splice(i, 1);
+        }
+    }     
+    if(usersSearch.length === 0){
+      setLoading(false);
+       setValideChat(true);
+       return;
+    }
+      await getDoc(doc(db, 'UserChat', id.toString()))
+        .then(async (doc) => {
+          if (doc.exists()) {
+
+            const data = doc.data();
+            if(data){
+              const UserArr: ChatObject[] = Object.values(data);
+              const chatId = generateChatId(id.toString(), overUserID);
+              setUserFound(false)
+              UserArr.forEach(e => {
+                if(e.UserInfo.id === overUserID){
+                  setUserFound(true);
+                }
+              });
+              const userNew = usersSearch[0];
+
+              const overUserIDValue = data[chatId] as ChatObject ;
+              const RightChats = docSnap.data() as UserState;
+              if(userFound){
+                if (overUserIDValue) {
+                 
+                  if(RightChats){                        
+                    if(!RightChats.selectedUsers){
+                      await updateDoc(thisUserDocRef, { selectedUsers:[{
+                          id: overUserID,
+                          fullName: overUserIDValue.UserInfo.fullName,
+                          photoURL: overUserIDValue.UserInfo.photoURL,                   
+                      }]})
+                     
+                    }else{
+                      if(RightChats.selectedUsers.length === 0){
+                        await updateDoc(thisUserDocRef,{
+                          selectedUsers:arrayUnion({
+                            
+                              id: overUserID,
+                              fullName: overUserIDValue.UserInfo.fullName,
+                              photoURL: overUserIDValue.UserInfo.photoURL,
+                           
+                          })
+                        })
+                      }
+                      RightChats.selectedUsers.forEach(async element => {
+                        if(element.id !== overUserID){
+                          await updateDoc(thisUserDocRef,{
+                            selectedUsers:arrayUnion({
+                              
+                                id: overUserID,
+                                fullName: overUserIDValue.UserInfo.fullName,
+                                photoURL: overUserIDValue.UserInfo.photoURL,
+                             
+                            })
+                          })
+                         
+                        }
+                      });
+                    }
+                    
+                      
+                    
+
+
+                    dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
+                    
+                    setTimeout(()=>{
+                      setLoading(false)
+                    },250)
+                    
+                  }
+                } else {
+                  setTimeout(()=>{
+                    setLoading(false)
+                  },2500)
+                }
+              }else{
+                await newChat(userNew);
+                if (overUserIDValue) {
+                  if(RightChats){
+                    if(!RightChats.selectedUsers){
+                      await updateDoc(thisUserDocRef, { selectedUsers:[{
+                          id: overUserID,
+                          fullName: overUserIDValue.UserInfo.fullName,
+                          photoURL: overUserIDValue.UserInfo.photoURL,                   
+                      }]})
+                    }else{
+                      if(RightChats.selectedUsers.length === 0){
+                        await updateDoc(thisUserDocRef,{
+                          selectedUsers:arrayUnion({
+                            
+                              id: overUserID,
+                              fullName: overUserIDValue.UserInfo.fullName,
+                              photoURL: overUserIDValue.UserInfo.photoURL,
+                           
+                          })
+                        })
+                      }
+                      RightChats.selectedUsers.forEach(async element => {
+                        if(element.id !== overUserID){
+                          await updateDoc(thisUserDocRef,{
+                            selectedUsers:arrayUnion({
+                              
+                                id: overUserID,
+                                fullName: overUserIDValue.UserInfo.fullName,
+                                photoURL: overUserIDValue.UserInfo.photoURL,
+                             
+                            })
+                          })
+                        }
+                      });
+                    }
+                    dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
+                    
+                    
+                      setLoading(false)
+                   
+                    
+                  }
+                } else {
+                  
+                    setLoading(false)
+                  
+                }
+              }
+              
+            }else{
+              setLoading(false)
+              setValideChat(true)
+            }
+            
+          }else{
+
+            setLoading(false)
+          }
+        })
+        .catch((error: any) => {
+          dispatch(ProcessDataFailure(error.code))
+          setLoading(false)
+        });
+  } else {
+    setLoading(false)
+    setValideChat(true)
+
+  }
+};
   useEffect(() => {
     
-    const fetchChat = async () => {
-        setLoading(true)
-      if (overUserID) {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const docSnap = await getDoc(doc(db, "users", id.toString()));
-        const thisUserDocRef = doc (db, "users" , id.toString())
-        if(querySnapshot.empty){
-          setLoading(false);
-          setValideChat(true);
-        }
-        const usersSearch: SearchUserState[] = [];
-          querySnapshot.forEach((doc) => {
-            const userData = doc.data() as SearchUserState;
-            
-            usersSearch.push(userData);
-          })
-          for (var i = usersSearch.length - 1; i >= 0; i--) {
-            if (usersSearch[i].id.toString() !== overUserID) {
-              usersSearch.splice(i, 1);
-            }
-        }     
-        if(usersSearch.length === 0){
-          setLoading(false);
-           setValideChat(true);
-           return;
-        }
-          await getDoc(doc(db, 'UserChat', id.toString()))
-            .then(async (doc) => {
-              if (doc.exists()) {
 
-
-                const data = doc.data();
-                if(data){
-                  const UserArr: ChatObject[] = Object.values(data);
-                  const chatId = generateChatId(id.toString(), overUserID);
-                  setUserFound(false)
-                  UserArr.forEach(e => {
-                    if(e.UserInfo.id === overUserID){
-                      setUserFound(true);
-                    }
-                  });
-                  const userNew = usersSearch[0];
-
-                  
-                  const overUserIDValue = data[chatId] as ChatObject ;
-                  const RightChats = docSnap.data() as UserState;
-                  if(userFound){
-                    if (overUserIDValue) {
-                     
-                      
-                      if(RightChats){                        
-                        if(!RightChats.selectedUsers){
-                          await updateDoc(thisUserDocRef, { selectedUsers:[{
-                              id: overUserID,
-                              fullName: overUserIDValue.UserInfo.fullName,
-                              photoURL: overUserIDValue.UserInfo.photoURL,                   
-                          }]})
-                         
-                        }else{
-                          if(RightChats.selectedUsers.length === 0){
-                            await updateDoc(thisUserDocRef,{
-                              selectedUsers:arrayUnion({
-                                
-                                  id: overUserID,
-                                  fullName: overUserIDValue.UserInfo.fullName,
-                                  photoURL: overUserIDValue.UserInfo.photoURL,
-                               
-                              })
-                            })
-                          }
-                          RightChats.selectedUsers.forEach(async element => {
-                            if(element.id !== overUserID){
-                              await updateDoc(thisUserDocRef,{
-                                selectedUsers:arrayUnion({
-                                  
-                                    id: overUserID,
-                                    fullName: overUserIDValue.UserInfo.fullName,
-                                    photoURL: overUserIDValue.UserInfo.photoURL,
-                                 
-                                })
-                              })
-                             
-                            }
-                          });
-                        }
-                        
-                          
-                        
-
-
-                        dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
-                        
-                        setTimeout(()=>{
-                          setLoading(false)
-                        },250)
-                        
-                      }
-                    } else {
-                      setTimeout(()=>{
-                        setLoading(false)
-                      },250)
-                    }
-                  }else{
-                    await newChat(userNew);
-                    if (overUserIDValue) {
-                      if(RightChats){
-                        if(!RightChats.selectedUsers){
-                          console.log('1');
-                          await updateDoc(thisUserDocRef, { selectedUsers:[{
-                              id: overUserID,
-                              fullName: overUserIDValue.UserInfo.fullName,
-                              photoURL: overUserIDValue.UserInfo.photoURL,                   
-                          }]})
-                        }else{
-                          console.log('2');
-                          if(RightChats.selectedUsers.length === 0){
-                            await updateDoc(thisUserDocRef,{
-                              selectedUsers:arrayUnion({
-                                
-                                  id: overUserID,
-                                  fullName: overUserIDValue.UserInfo.fullName,
-                                  photoURL: overUserIDValue.UserInfo.photoURL,
-                               
-                              })
-                            })
-                          }
-                          RightChats.selectedUsers.forEach(async element => {
-                            if(element.id !== overUserID){
-                              await updateDoc(thisUserDocRef,{
-                                selectedUsers:arrayUnion({
-                                  
-                                    id: overUserID,
-                                    fullName: overUserIDValue.UserInfo.fullName,
-                                    photoURL: overUserIDValue.UserInfo.photoURL,
-                                 
-                                })
-                              })
-                            }
-                          });
-                        }
-                        dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
-                        
-                        
-                          setLoading(false)
-                       
-                        
-                      }
-                    } else {
-                      
-                        setLoading(false)
-                      
-                    }
-                  }
-                  
-                }else{
-                  setLoading(false)
-                  setValideChat(true)
-                }
-                
-              }else{
-
-                setLoading(false)
-              }
-            })
-            .catch((error: any) => {
-              dispatch(ProcessDataFailure(error.code))
-              setLoading(false)
-            });
-      } else {
-        setLoading(false)
-        setValideChat(true)
-
-      }
-    };
   
     fetchChat();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -274,10 +280,14 @@ if(valideChat){
                   <img src={user.photoURL} alt="" />
                 </div>
                 <span>{user.fullName}</span>
-                
+                <div style={{position:'absolute', right:'12px'}}>
+                  <DeleteChat UserID={user.id} />
+                </div>
             
             </div>
-            ):(<CheckedMess/>)
+            ):(
+            <CheckedMess/>
+            )
         )}
         
         {overUserID && 

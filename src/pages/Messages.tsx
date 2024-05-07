@@ -13,6 +13,8 @@ import { ReactComponent as Lupa } from '../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../svg/close.svg';
 import { setDisabledInput, setWorkedInput } from 'store/searchUsers/mainInputDisabled';
 import { v4 as uuid } from "uuid";
+import {DeleteChat} from 'Components/deleteChat';
+import { ProcessDataFailure } from 'store/processes/process';
 
 const Messages: FC = () => { 
     const { id, fullName, photoURL } = useAuth();
@@ -116,7 +118,6 @@ const Messages: FC = () => {
     useEffect(() => {
         const getChats = async () => {
             dispatch(StartMessages());
-            console.log(id);
             const unSub = onSnapshot(doc(db, "UserChat", id.toString()), async (docum)=>{
                 const chatID = generateChatID(idAlexey, id.toString());
                 if (docum.exists()) {
@@ -210,6 +211,8 @@ const Messages: FC = () => {
     const handleSelect = (chat: ChatObject) => {
             dispatch(setChat({ chatID: generateChatID(id.toString(), chat.UserInfo.id) ,user: chat.UserInfo }));
             navigate(`/message/chat/${chat.UserInfo.id}`);
+            dispatch(ProcessDataFailure(null));
+            
     };
 
     const SearchUsers = () => {
@@ -304,7 +307,10 @@ const Messages: FC = () => {
                             <button
                             className='ChatsOtherUser'
                             key={chatFiltered.UserInfo.id}
-                                        onClick={() => handleSelect(chatFiltered)}
+                                        onClick={(e) => {
+                                            handleSelect(chatFiltered);
+                                            e.stopPropagation()
+                                        }}
                                     >
                                         <img src={chatFiltered.UserInfo?.photoURL} loading='lazy' alt={chatFiltered.UserInfo.fullName}/>
                                         <div className='info__user_mess'>
@@ -312,6 +318,7 @@ const Messages: FC = () => {
                                             <p>{chatFiltered.lastMessage?.from === id.toString() 
                                             ? (<>Вы: <span className='LastMessage'> {chatFiltered.lastMessage?.text} </span></>) 
                                             : (<span className='LastMessage'>{chatFiltered.lastMessage?.text}</span>)}</p>
+                                           <DeleteChat chat={chatFiltered}/>
                                         </div>
                                     </button>
                                 ))}
@@ -330,7 +337,10 @@ const Messages: FC = () => {
                                     <button
                                         className="ChatsOtherUser"
                                         key={index}
-                                        onClick={() => handleSelect(chat)}
+                                        onClick={(e) => {
+                                            handleSelect(chat);
+                                            e.stopPropagation()
+                                        }}
                                     >
                                         <img src={chat.UserInfo.photoURL} loading='lazy' alt={chat.UserInfo.fullName} />
                                         <div className='info__user_mess'>
@@ -339,7 +349,7 @@ const Messages: FC = () => {
                                             ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
                                             : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
                                             }</p>
-                                            
+                                            <DeleteChat chat={chat} />
                                         </div>
                                         
                                     </button>

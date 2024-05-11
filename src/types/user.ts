@@ -72,7 +72,7 @@ export interface ProcessDataState {
     id: string;
     photoURL: string;
     fullName: string;
-  };
+  } | null;
 
   export interface MessagesType {
     word:{

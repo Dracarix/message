@@ -273,6 +273,7 @@ const calculateHash = async (file: File): Promise<string> => {
 
   const handleSend = async () => {
     if (img) {
+      if(user){
       const hash = await calculateHash(img);
       const imageUrl = await getImageUrlFromStorage(hash);
       if (imageUrl) {
@@ -422,50 +423,65 @@ const calculateHash = async (file: File): Promise<string> => {
           }
         );
       }
+            
+    }
     } else {
       // Логика для отправки сообщения без изображения
+      if(user){
+console.log(user);
+
       if(chatID !== ''){
 
         if (text !== '') {
           setText('');
           setImg(null);
-          const newMessage = {
-            id: uuid(),
-            text,
-            senderId: id,
-          date: Timestamp.now(),
-          img: null,
-        };
-        await updateDoc(doc(db, "chats", chatID), {
-          messages: arrayUnion(newMessage),
-        }).catch((err) => {
-          dispatch(ProcessDataFailure(err));
-        });
-        
-        await updateDoc(doc(db, "UserChat", user.id), {
-          [chatID + ".lastMessage"]: {
-            text,
-            date:Timestamp.now(),
-            from: id.toString(),
-          },
-          [chatID + ".date"]: serverTimestamp(),
-        }).catch((err) => {
-          dispatch(ProcessDataFailure(err));
-        });
-        await updateDoc(doc(db, "UserChat", id.toString()), {
-          [chatID + ".lastMessage"]: {
-            text,
-            date:Timestamp.now(),
-            from: id.toString(),
-          },
-          [chatID + ".date"]: serverTimestamp(),
-        }).catch((err) => {
-          dispatch(ProcessDataFailure(err));
-        });
+          console.log(chatID);
+          const dataChat = await getDoc(doc(db,"chats", chatID))
+          const dataChatHave = dataChat.data()
+          if(dataChatHave){
+            const newMessage = {
+              id: uuid(),
+              text,
+              senderId: id,
+              date: Timestamp.now(),
+              img: null,
+          };
+          console.log('1');
+          
+          await updateDoc(doc(db, "chats", chatID), {
+            messages: arrayUnion(newMessage),
+          })
+          console.log('2');
+          await updateDoc(doc(db, "UserChat", user.id), {
+            [chatID + ".lastMessage"]: {
+              text,
+              date:Timestamp.now(),
+              from: id.toString(),
+            },
+            [chatID + ".date"]: serverTimestamp(),
+          }).catch((err) => {
+            dispatch(ProcessDataFailure(err));
+          });
+          await updateDoc(doc(db, "UserChat", id.toString()), {
+            [chatID + ".lastMessage"]: {
+              text,
+              date:Timestamp.now(),
+              from: id.toString(),
+            },
+            [chatID + ".date"]: serverTimestamp(),
+          }).catch((err) => {
+            dispatch(ProcessDataFailure(err));
+          });
+          }else{
+            await setDoc(doc(db, "chats", chatID), { messages:[] });
+          }
+         
 
       }
     }
-    }
+            
+  }
+  }
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {

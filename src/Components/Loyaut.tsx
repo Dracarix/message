@@ -27,7 +27,7 @@ const Layout: FC = () => {
     switch (true) {
       
       case pathname.startsWith('/chat'):
-        if(user.fullName){
+        if(user?.fullName){
 
             document.title = user.fullName;
         }

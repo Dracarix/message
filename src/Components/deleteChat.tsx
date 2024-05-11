@@ -2,9 +2,9 @@ import { useAppDispatch, useAppSelector } from "hooks/use-redux";
 import { ReactComponent as Trash } from "../svg/trash.svg";
 import { closeModal, openConfirmDelChat } from "store/processes/isModal";
 import { FC, useEffect, useState } from "react";
-import {  ChatObject, ChatObjectItem, MessagesType } from "types/user";
+import {  ChatObject, ChatObjectItem, MessagesType, UserState } from "types/user";
 import { ProcessDataFailure } from "store/processes/process";
-import { deleteDoc, deleteField, doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
+import { arrayRemove, deleteDoc, deleteField, doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuth } from "hooks/use-auth";
 import { IsLoadingMini } from "./UI/isLoading/isLoading";
 
@@ -58,9 +58,7 @@ const ModalDelChat:FC<LoadState> = ({load, setLoad}) => {
         return `${firstId}${secondId}`;
       };
 
-      useEffect(()=>{
-        console.log();
-      })
+      
     const handleConfirmAllDell = () => {
         
         if(confirmAllDel){
@@ -80,20 +78,41 @@ const ModalDelChat:FC<LoadState> = ({load, setLoad}) => {
         setLoad(true)
         if(confirmDelChatObj){
             const otherUserID = confirmDelChatObj?.UserInfo.id;
-            console.log(otherUserID);
             const chatID = generateChatId(id.toString(), otherUserID)
-            console.log(chatID);
+            
             if(confirmAllDel){
+                console.log('1');
                 await deleteDoc(doc(db, "chats", chatID));
+                console.log('2');
                 await updateDoc(doc(db, "UserChat", id.toString()),{
                     [chatID]: deleteField(),
-                })
+                });
+                console.log('3');
                 await updateDoc(doc(db, "UserChat", otherUserID),{
                     [chatID]: deleteField(),
-                })
-                setLoad(false)
+                });
+                const dataChat = await getDoc(doc(db,"users", id.toString()))
+                const dataChatHave = dataChat.data()?.selectedUsers as UserState['selectedUsers']
+                console.log(dataChatHave);
+                if(dataChatHave){
+                    
+                    dataChatHave.forEach(async (item)=>{
+                        if(item.id === otherUserID){
+                            await updateDoc(doc(db, 'users',id.toString() ),{
+                                selectedUsers:arrayRemove({
+                                  
+                                    id: item.id,
+                                    fullName: item.fullName,
+                                    photoURL: item.photoURL,
+                                 
+                                })
+                              })
+                        }
+                    })
+                    setLoad(false);
+                }
+                
             }else{
-                console.log('1');
                 const DocSnap = await getDoc(doc(db, "chats", chatID));
                 const chatDocRef = doc(db, "chats", chatID);
                 const data = DocSnap.data()?.messages as MessagesType['word'][];
@@ -117,11 +136,28 @@ const ModalDelChat:FC<LoadState> = ({load, setLoad}) => {
                         await updateDoc(doc(db, "UserChat", id.toString()),{
                             [chatID]: deleteField(),
                         })
-                        
+                        const dataChat = await getDoc(doc(db,"users", id.toString()))
+                        const dataChatHave = dataChat.data()?.selectedUsers as UserState['selectedUsers']
+                        if(dataChatHave){
+                            dataChatHave.forEach(async (item)=>{
+                                if(item.id === otherUserID){
+                                    await updateDoc(doc(db, 'users',id.toString() ),{
+                                        selectedUsers:arrayRemove({
+                                          
+                                            id: item.id,
+                                            fullName: item.fullName,
+                                            photoURL: item.photoURL,
+                                         
+                                        })
+                                      })
+                                }
+                            })
+                            setLoad(false)
+                        }
                   
-                        setLoad(false)
+                       
                 }else{
-                    setLoad(false)
+                setLoad(false)
                 dispatch(ProcessDataFailure('че то не то'));
                 }
             }

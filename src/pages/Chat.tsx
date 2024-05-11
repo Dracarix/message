@@ -23,7 +23,7 @@ const Chats = () => {
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const [valideChat , setValideChat] = useState(false);
-  const [userFound , setUserFound] = useState(false);
+
   const mediaWidth = useMediaQuery({maxWidth: 800});
   const [select , setSelect] = useState(false)
   const {words} = useAppSelector(state => state.selectedMess);
@@ -61,7 +61,7 @@ const Chats = () => {
           },
           [chatId + ".date"]: serverTimestamp(),
         });
-        fetchChat();
+        await fetchChat();
       }else{
         await updateDoc(userChatDoc, {
           [chatId + ".UserInfo"]: {
@@ -71,12 +71,14 @@ const Chats = () => {
           },
           [chatId + ".date"]: serverTimestamp(),
         });
-        fetchChat();
+        await fetchChat();
       }
     } catch (err: any) {
       dispatch(ProcessDataFailure(err.code));
     }
   };
+
+
   const fetchChat = async () => {
     setLoading(true)
 
@@ -112,19 +114,19 @@ const Chats = () => {
             if(data){
               const UserArr: ChatObject[] = Object.values(data);
               const chatId = generateChatId(id.toString(), overUserID);
-              setUserFound(false)
+              let UserFound = false;
               UserArr.forEach(e => {
                 if(e.UserInfo.id === overUserID){
-                  setUserFound(true);
+                  UserFound = true;
+                  return UserFound
                 }
               });
               const userNew = usersSearch[0];
 
               const overUserIDValue = data[chatId] as ChatObject ;
               const RightChats = docSnap.data() as UserState;
-              if(userFound){
+              if(UserFound){
                 if (overUserIDValue) {
-                 
                   if(RightChats){                        
                     if(!RightChats.selectedUsers){
                       await updateDoc(thisUserDocRef, { selectedUsers:[{
@@ -160,22 +162,14 @@ const Chats = () => {
                         }
                       });
                     }
-                    
-                      
-                    
-
-
+                  
                     dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
                     
-                    setTimeout(()=>{
                       setLoading(false)
-                    },250)
-                    
+
                   }
                 } else {
-                  setTimeout(()=>{
                     setLoading(false)
-                  },2500)
                 }
               }else{
                 await newChat(userNew);
@@ -227,10 +221,10 @@ const Chats = () => {
                 }
               }
               
-            }else{
-              setLoading(false)
-              setValideChat(true)
-            }
+              }else{
+                setLoading(false)
+                setValideChat(true)
+              }
             
           }else{
 
@@ -248,7 +242,10 @@ const Chats = () => {
   }
 };
   useEffect(() => {
-    
+    if(overUserID){
+      const chatId = generateChatId(overUserID, id.toString())
+      console.log(chatId);
+    }
 
   
     fetchChat();
@@ -270,18 +267,18 @@ if(valideChat){
 
   return (
     <div className='chat'>
-      {!mediaWidth && <LeftUsers thisID={user.id} />}
+      {!mediaWidth && <LeftUsers thisID={user?.id || ''} />}
       <section className='chat_section'>
         {loading ? <ChatLoader/> 
         : (
           !select
             ?(<div className='chatInfo'>
                 <div className='chatIcons'>
-                  <img src={user.photoURL} alt="" />
+                  <img src={user?.photoURL || ''} alt="" />
                 </div>
-                <span>{user.fullName}</span>
+                <span>{user?.fullName || ''}</span>
                 <div style={{position:'absolute', right:'12px'}}>
-                  <DeleteChat UserID={user.id} />
+                  <DeleteChat UserID={user?.id || ''}  />
                 </div>
             
             </div>

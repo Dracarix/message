@@ -9,7 +9,9 @@ import useMessageProcess from './processes/processedMessages'
 import themeReducer from '../Components/Theme/theme.slice'
 import {needMainInput} from './searchUsers/mainInputDisabled'
 import useMediaMenu from './menu.slice';
-import selectedMessSlice from './users/deleteMess'
+import selectedMessSlice from './users/deleteMess';
+import userChatSlice from './users/thisUserChat.slice';
+import allChatsSlice from './users/allUsers.slice';
 export const store = configureStore({
     reducer:{
         user:userReduser,
@@ -23,6 +25,8 @@ export const store = configureStore({
         needMainInput: needMainInput,
         useMenu: useMediaMenu,
         selectedMess:selectedMessSlice,
+        userChats: userChatSlice,
+        allChats: allChatsSlice,
     }
 })
 export type RootState = ReturnType<typeof store.getState>;

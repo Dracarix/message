@@ -8,6 +8,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { ScrollBottom } from 'Components/scrollTop';
 import {ReactComponent as CheckboxLabel} from '../../../svg/checkbox__message.svg'
 import { removeSelectMess, setSelectMess } from 'store/users/deleteMess';
+import React from 'react';
 
 interface chatIDtype  {chatID: string};
 
@@ -119,9 +120,12 @@ const Message:FC<chatIDtype> = ({chatID}) => {
 
 const Words = ({ message }: { message: MessagesType["word"][] }) => {
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<MessagesType["word"][] >([]);
+  const [checkboxRefs, setCheckboxRefs] = useState<{[key: string]: React.RefObject<HTMLInputElement>}>({});
   const {id} = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const {words} = useAppSelector(state => state.selectedMess);
+
+
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, wordInfo: MessagesType['word']) => {
     
       if (event.target.checked) {
@@ -132,11 +136,21 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
     
   };
 
+  useEffect(() => {
+    // Заполнение объекта рефов при монтировании компонента
+    const refs: {[key: string]: React.RefObject<HTMLInputElement>} = {};
+    message.forEach(word => {
+      refs[word.id] = React.createRef<HTMLInputElement>();
+    });
+    setCheckboxRefs(refs);
+  }, [message]);
 
+  useEffect(()=>{
+    console.log(checkboxRefs);
+  },[checkboxRefs])
   useEffect(()=>{
     if(selectedCheckboxes.length !== 0){
       dispatch(setSelectMess(selectedCheckboxes))
-      console.log(selectedCheckboxes);
     }else(
       dispatch(removeSelectMess())
     )

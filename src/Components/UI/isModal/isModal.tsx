@@ -10,6 +10,7 @@ import { SettingCompletedProfile } from 'pages/ProfileSetting';
 import ErrorModal from './ErrorModal';
 import DeleteMessConfirm from './deleteMessConfirm';
 import { ModalDelChat } from 'Components/deleteChat';
+import { IsLoadingMini } from '../isLoading/isLoading';
 
 const IsModal:FC<NodeChildren> = ({children}) => {
   const dispatch = useAppDispatch();
@@ -26,20 +27,28 @@ const IsModal:FC<NodeChildren> = ({children}) => {
     e.code === "Escape" && closeThisModal()
   } 
   const closeThisModal = () => {
-    dispatch(closeModal());
-    dispatch(ProcessDataFailure(null));
+    if(!load){
+
+      dispatch(closeModal());
+      dispatch(ProcessDataFailure(null));
+    }
+
   };
   
   return (
     <div className="modal-overlay" onClick={handleOverlayClick} onKeyDown={handleESCClick}>
       <div className="modal-content">
         <span className="close-btn" onClick={closeThisModal}>&times;</span>
-        {needReAuth && <ReAuthenticationForm/>}
-        {needQuit && <QuitAccSystem/>}
-        {openCompletSet && <SettingCompletedProfile/>}
-        {errModal && <ErrorModal/>}
-        {ConfirmDelMess && <DeleteMessConfirm/>}
-        {confirmDelChatObj !== null && <ModalDelChat load={load} setLoad={setLoad}/>}
+        
+          {needReAuth && <ReAuthenticationForm/>}
+          {needQuit && <QuitAccSystem/>}
+          {openCompletSet && <SettingCompletedProfile/>}
+          {errModal && <ErrorModal/>}
+          {ConfirmDelMess && <DeleteMessConfirm/>}
+          {confirmDelChatObj !== null && <ModalDelChat load={load} setLoad={setLoad}/>}
+       
+
+
       </div>
     </div>
   );

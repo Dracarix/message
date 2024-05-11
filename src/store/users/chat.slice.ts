@@ -2,17 +2,13 @@ import { createSlice } from "@reduxjs/toolkit";
 import { OtherUserInfo } from "types/user";
 
 interface ChatState {
-    user: OtherUserInfo;
-    chatID: string;
+    user: OtherUserInfo ;
+    chatID: string | null;
 }
 
 const initialState: ChatState = {
-    chatID:'',
-    user: {
-        id: "",
-        photoURL: "",
-        fullName: "",
-    },
+    chatID:null,
+    user: null,
 }; 
 
 const chatSlice = createSlice({
@@ -26,11 +22,7 @@ const chatSlice = createSlice({
         },
         removeChat(state) {
             state.chatID = '';
-            state.user = {
-                id: "",
-                photoURL: "",
-                fullName: "",
-            };
+            state.user = null;
         }
     }
 });

@@ -67,7 +67,7 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
         setVidno(false)
     }
     const deleteSelectedUser = async(chat: UserInfoOnly[][0]) =>{
-        if(chat.id === user.id){
+        if(chat.id === user?.id){
           await updateDoc(doc(db, 'users',id.toString() ),{
             selectedUsers:arrayRemove({
               

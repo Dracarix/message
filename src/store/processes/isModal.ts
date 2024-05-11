@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ChatObject, ChatObjectItem } from "types/user";
+import { ChatObject } from "types/user";
 
 type initialStateTypes ={
   confirmDelChatObj: ChatObject | null,

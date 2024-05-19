@@ -23,7 +23,6 @@ const Chats = () => {
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const [valideChat , setValideChat] = useState(false);
-
   const mediaWidth = useMediaQuery({maxWidth: 800});
   const [select , setSelect] = useState(false)
   const {words} = useAppSelector(state => state.selectedMess);
@@ -83,6 +82,7 @@ const Chats = () => {
     setLoading(true)
 
   if (overUserID) {
+
     const querySnapshot = await getDocs(collection(db, "users"));
     const docSnap = await getDoc(doc(db, "users", id.toString()));
     const thisUserDocRef = doc (db, "users" , id.toString())
@@ -106,27 +106,31 @@ const Chats = () => {
        setValideChat(true);
        return;
     }
-      await getDoc(doc(db, 'UserChat', id.toString()))
-        .then(async (doc) => {
-          if (doc.exists()) {
+          const userChat = await getDoc(doc(db, 'UserChat', id.toString()))
+          const data = userChat.data();
 
-            const data = doc.data();
+            
             if(data){
               const UserArr: ChatObject[] = Object.values(data);
               const chatId = generateChatId(id.toString(), overUserID);
               let UserFound = false;
               UserArr.forEach(e => {
-                if(e.UserInfo.id === overUserID){
-                  UserFound = true;
-                  return UserFound
+                if(e.UserInfo){
+                  if(e.UserInfo.id === overUserID){
+                    UserFound = true;
+                    return UserFound
+                  }
                 }
+                
               });
               const userNew = usersSearch[0];
-
+              
               const overUserIDValue = data[chatId] as ChatObject ;
               const RightChats = docSnap.data() as UserState;
               if(UserFound){
+                // если чел есть в списке UserChat у этого пользователя
                 if (overUserIDValue) {
+                 
                   if(RightChats){                        
                     if(!RightChats.selectedUsers){
                       await updateDoc(thisUserDocRef, { selectedUsers:[{
@@ -162,7 +166,6 @@ const Chats = () => {
                         }
                       });
                     }
-                  
                     dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
                     
                       setLoading(false)
@@ -172,6 +175,7 @@ const Chats = () => {
                     setLoading(false)
                 }
               }else{
+                // если чела нет в списке UserChat у этого пользователя
                 await newChat(userNew);
                 if (overUserIDValue) {
                   if(RightChats){
@@ -225,16 +229,7 @@ const Chats = () => {
                 setLoading(false)
                 setValideChat(true)
               }
-            
-          }else{
 
-            setLoading(false)
-          }
-        })
-        .catch((error: any) => {
-          dispatch(ProcessDataFailure(error.code))
-          setLoading(false)
-        });
   } else {
     setLoading(false)
     setValideChat(true)

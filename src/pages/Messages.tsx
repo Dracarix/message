@@ -123,7 +123,7 @@ const Messages: FC = () => {
                 if (docum.exists()) {
                     const data = docum.data();
                     const sortedChats: ChatObject[] = Object.values(data)
-                    .filter(i => i !== null && i.lastMessage)
+                    .filter((i: ChatObject) => i !== null && i.lastMessage && i.UserInfo)
                     .sort((a, b) => {
                         if (!a.lastMessage && !b.lastMessage) {
                             return 0;

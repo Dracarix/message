@@ -1,7 +1,8 @@
-import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { doc, getDoc, getFirestore, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState , useRef} from 'react';
-import { MessagesType } from 'types/user';
+import { ChatObject, MessagesType } from 'types/user';
 import './messages.scss'
 import { MessageLoader } from '../isLoading/chatLoader';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -9,6 +10,9 @@ import { ScrollBottom } from 'Components/scrollTop';
 import {ReactComponent as CheckboxLabel} from '../../../svg/checkbox__message.svg'
 import { removeSelectMess, setSelectMess } from 'store/users/deleteMess';
 import React from 'react';
+import { useParams } from 'react-router-dom';
+import { generChatID } from 'hooks/generateChatID';
+import CheckIcon from './CheckIcon';
 
 interface chatIDtype  {chatID: string};
 
@@ -19,7 +23,7 @@ const Message:FC<chatIDtype> = ({chatID}) => {
   const {id} = useAppSelector((state) => state.user);
     const [hasMore, setHasMore] = useState(true);
     const [startIndex, setStartIndex] = useState(0); // Состояние для хранения текущего индекса начала загружаемых элементов
-    const itemsPerPage = 100;
+    const itemsPerPage = 30;
     const db = getFirestore();
     // const [ignore, setIgnore] = useState(15);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -117,14 +121,37 @@ const Message:FC<chatIDtype> = ({chatID}) => {
 };
 
 
-
+interface WordWithRef {
+  ref: React.RefObject<HTMLInputElement>;
+  word: MessagesType['word'];
+}
 const Words = ({ message }: { message: MessagesType["word"][] }) => {
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<MessagesType["word"][] >([]);
-  const [checkboxRefs, setCheckboxRefs] = useState<{[key: string]: React.RefObject<HTMLInputElement>}>({});
+  const { overUserID } = useParams();
+  const [thisChatUserInfo , setThisChatUserInfo] = useState<ChatObject>();
   const {id} = useAppSelector((state) => state.user);
+  const db = getFirestore()
   const dispatch = useAppDispatch();
   const {words} = useAppSelector(state => state.selectedMess);
 
+  const usersTakeInfo = async () => {
+    // этот пользователь userChat
+    if(overUserID){
+
+      const thisUser = await getDoc(doc(db, 'UserChat', id.toString()));
+      const data1 = thisUser.data();
+      if(data1){
+        const datathisUser: ChatObject[] = Object.values(data1)
+        
+        datathisUser.forEach((item )=>{
+          if(item.UserInfo && item.UserInfo.id === overUserID){
+            setThisChatUserInfo(item)
+          }
+        })
+        
+      }
+    }
+  }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, wordInfo: MessagesType['word']) => {
     
@@ -137,17 +164,93 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
   };
 
   useEffect(() => {
-    // Заполнение объекта рефов при монтировании компонента
-    const refs: {[key: string]: React.RefObject<HTMLInputElement>} = {};
+    // заполнение массива обьектами каждого сообщения
+    const refs: {[key: string]: {ref: React.RefObject<HTMLInputElement>, word: MessagesType['word']}} = {};
     message.forEach(word => {
-      refs[word.id] = React.createRef<HTMLInputElement>();
+      refs[word.id] = {
+        // ненужный реф
+        ref: React.createRef<HTMLInputElement>(),
+        // сами сообщения
+        word: word
+      };
     });
-    setCheckboxRefs(refs);
-  }, [message]);
+    const refArr = Object.values(refs);
+    usersTakeInfo()
 
-  useEffect(()=>{
-    console.log(checkboxRefs);
-  },[checkboxRefs])
+    async function CheckFunc () {
+      if(overUserID){
+        // если есть айди челика в чате  ???? как потом сделать беседу??? 
+        const chatID = generChatID(id.toString(), overUserID)
+        const DocSnap = await getDoc(doc(db, "chats", chatID));
+        const dataChat = DocSnap.data()?.messages as MessagesType['word'][];
+        if(dataChat){
+
+          for (const item of refArr) {
+            const IChecked = item.word.checkedFor
+            if(IChecked &&  IChecked.length >= 1){
+
+              let messageChecked = false;
+                    // если массив чека имеет что либо
+                for(const thisMess of IChecked){
+                  
+                  if(thisMess.id === id.toString()){
+                    messageChecked = true
+                    break
+                  }
+                }
+                if(!messageChecked){
+                  const deleteChatMe = dataChat.map((i)=>{
+                    const newCheck =  [...IChecked, { id: id.toString() }]
+                    if(i.deleteFor){
+                      return {
+                        id: i.id,
+                        text: i.text,
+                        senderId: i.senderId,
+                        date: i.date,
+                        img: i.img,
+                        checkedFor: newCheck,
+                        
+                        deleteFor: i.deleteFor,
+                    };
+                    }else{
+                      return {
+                        id: i.id,
+                        text: i.text,
+                        senderId: i.senderId,
+                        date: i.date,
+                        img: i.img,
+                        checkedFor: newCheck,
+                    };
+                    }
+                    
+                  })
+
+                  await updateDoc(doc(db, "chats", chatID), { messages: deleteChatMe }) 
+                  // если ластовое сообщение в массиве то меняем ласт месс 
+                  if(item.word.id === thisChatUserInfo?.lastMessage?.messID && item.word.senderId === overUserID){
+
+                    await updateDoc(doc(db, "UserChat", id.toString()), {
+                      [chatID + ".lastMessage"]: {
+                        text: thisChatUserInfo?.lastMessage?.text,
+                        date:thisChatUserInfo?.lastMessage?.date,
+                        from: thisChatUserInfo?.lastMessage?.from,
+                      },
+                    })
+                  }
+                  
+                }
+              }
+            
+          }
+        }
+
+      }
+    }
+    CheckFunc()
+
+  },[message])
+
+
   useEffect(()=>{
     if(selectedCheckboxes.length !== 0){
       dispatch(setSelectMess(selectedCheckboxes))
@@ -156,6 +259,7 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
     )
   },[selectedCheckboxes])
   useEffect(()=>{
+
     if(words.length === 0 && selectedCheckboxes.length !== 0){
       const checkboxes = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
 
@@ -195,6 +299,14 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
         </div>
 
         <p style={{display: word.text === "" ? 'none' : 'block'}}>{word.text}</p>
+        
+        {word.senderId === id.toString() ?(
+          overUserID && word.checkedFor?.some((e)=> e.id === overUserID) 
+          ? ( <CheckIcon cheeeeeck={true} />)
+          : (<CheckIcon cheeeeeck={false}/>)
+        ):(<></>)}
+        
+        
         <div className="messageInfo">
           <span>{`${word.date && word.date.toDate().getHours()}:${(word.date && word.date.toDate().getMinutes() < 10 ? '0' : '') + (word.date && word.date.toDate().getMinutes())}`}</span>
         </div>

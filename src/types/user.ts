@@ -62,6 +62,8 @@ export interface ProcessDataState {
       text: string , 
       date:Timestamp,
       from: string;
+      messID:string;
+      for?: string;
     } | null,
   }
   export interface ChatObjectItem {
@@ -82,9 +84,13 @@ export interface ProcessDataState {
       senderId:string;
       date: Timestamp | null;
       img: string | null;
-      deleteFor?: string
+      deleteFor?: string;
+      checkedFor?: {
+        id:  string
+      }[]
     }
   } 
+
   export interface LinkBtnTypes {
     icon: boolean,
 

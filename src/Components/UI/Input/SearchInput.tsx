@@ -278,15 +278,17 @@ const calculateHash = async (file: File): Promise<string> => {
       const imageUrl = await getImageUrlFromStorage(hash);
       if (imageUrl) {
         if(chatID !== ''){
+          const newIdMess = uuid();
           setText('');
           setImg(null);
           await updateDoc(doc(db, "chats", chatID), {
             messages: arrayUnion({
-              id: uuid(),
+              id: newIdMess,
               text,
               senderId: id,
               date: Timestamp.now(),
               img: imageUrl, 
+              checkedFor: [{id: id.toString()}],
             }),
           });
           if(text !== ''){
@@ -296,6 +298,8 @@ const calculateHash = async (file: File): Promise<string> => {
                 text,
                 date:Timestamp.now(),
                 from: id.toString(),
+                messID: newIdMess,
+                for: overUserID,
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
@@ -306,7 +310,9 @@ const calculateHash = async (file: File): Promise<string> => {
               [chatID + ".lastMessage"]: {
                 text,
                 date:Timestamp.now(),
+                messID: newIdMess,
                 from: id.toString(),
+                for: overUserID,
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
@@ -317,7 +323,10 @@ const calculateHash = async (file: File): Promise<string> => {
               [chatID + ".lastMessage"]: {
                 text: 'Изображение',
                 date:Timestamp.now(),
+                messID: newIdMess,
                 from: id.toString(),
+                for: overUserID,
+                
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
@@ -329,6 +338,8 @@ const calculateHash = async (file: File): Promise<string> => {
                 text: 'Изображение',
                 date:Timestamp.now(),
                 from: id.toString(),
+                messID: newIdMess,
+                for: overUserID,
               },
               [chatID + ".date"]: serverTimestamp(),
             }).catch((err) => {
@@ -357,15 +368,17 @@ const calculateHash = async (file: File): Promise<string> => {
             try {
               const downloadURL = await getDownloadURL(storageRef);
               if(chatID !== ''){
+                const newIdMess = uuid()
                 setText('');
                 setImg(null);
                 await updateDoc(doc(db, "chats", chatID), {
                   messages: arrayUnion({
-                    id: uuid(),
+                    id: newIdMess,
                     text,
                     senderId: id,
                     date: Timestamp.now(),
                     img: downloadURL,
+                    checkedFor: [{id: id.toString()}],
                   }),
                 });
                 if(text !== ''){
@@ -375,6 +388,8 @@ const calculateHash = async (file: File): Promise<string> => {
                       text,
                       date:Timestamp.now(),
                       from: id.toString(),
+                      messID: newIdMess,
+                      for: overUserID,
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
@@ -386,6 +401,8 @@ const calculateHash = async (file: File): Promise<string> => {
                       text,
                       date:Timestamp.now(),
                       from: id.toString(),
+                      messID: newIdMess,
+                      for: overUserID,
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
@@ -396,7 +413,9 @@ const calculateHash = async (file: File): Promise<string> => {
                     [chatID + ".lastMessage"]: {
                       text: 'Изображение',
                       date:Timestamp.now(),
+                      messID: newIdMess,
                       from: id.toString(),
+                      for: overUserID,
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
@@ -407,7 +426,9 @@ const calculateHash = async (file: File): Promise<string> => {
                     [chatID + ".lastMessage"]: {
                       text: 'Изображение',
                       date:Timestamp.now(),
+                      messID: newIdMess,
                       from: id.toString(),
+                      for: overUserID,
                     },
                     [chatID + ".date"]: serverTimestamp(),
                   }).catch((err) => {
@@ -428,14 +449,12 @@ const calculateHash = async (file: File): Promise<string> => {
     } else {
       // Логика для отправки сообщения без изображения
       if(user){
-console.log(user);
 
       if(chatID !== ''){
 
         if (text !== '') {
           setText('');
           setImg(null);
-          console.log(chatID);
           const dataChat = await getDoc(doc(db,"chats", chatID))
           const dataChatHave = dataChat.data()
           if(dataChatHave){
@@ -445,13 +464,12 @@ console.log(user);
               senderId: id,
               date: Timestamp.now(),
               img: null,
+              checkedFor: [{id: id.toString()}],
           };
-          console.log('1');
           
           await updateDoc(doc(db, "chats", chatID), {
             messages: arrayUnion(newMessage),
           })
-          console.log('2');
           await updateDoc(doc(db, "UserChat", user.id), {
             [chatID + ".lastMessage"]: {
               text,

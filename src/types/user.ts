@@ -59,11 +59,12 @@ export interface ProcessDataState {
     };
     date: Timestamp;
     lastMessage:{
-      text: string , 
-      date:Timestamp,
+      text: string;
+      date:Timestamp;
       from: string;
       messID:string;
       for?: string;
+      checked?: boolean;
     } | null,
   }
   export interface ChatObjectItem {

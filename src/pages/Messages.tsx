@@ -13,8 +13,8 @@ import { ReactComponent as Lupa } from '../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../svg/close.svg';
 import { setDisabledInput, setWorkedInput } from 'store/searchUsers/mainInputDisabled';
 import { v4 as uuid } from "uuid";
-import {DeleteChat} from 'Components/deleteChat';
 import { ProcessDataFailure } from 'store/processes/process';
+import {DefaultLastMess, NotificationsMess} from 'Components/notificationsMess';
 
 const Messages: FC = () => { 
     const { id, fullName, photoURL } = useAuth();
@@ -25,7 +25,6 @@ const Messages: FC = () => {
     const [boolSearchValueSplide, setBoolSearchValueSplide ] = useState(false);
     const [chatsFilter, setChatsFilter] = useState<ChatObject[]>([]);
     const [startIndex, setStartIndex] = useState(0);
-    
     const dispatch = useAppDispatch();
     const { loadingMess } = useAppSelector((state) => state.processMessages);
     const [ignore, setIgnore] = useState(15);
@@ -39,82 +38,7 @@ const Messages: FC = () => {
         return (`${firstId}${secondId}`);
     };
     
-    // useEffect(() => {
-    //     const getChats = async () => {
-    //         dispatch(StartMessages());
-            
-    //         const chatID = generateChatID(idAlexey, id.toString());
-    //         const docSnap = await getDoc(doc(db, "UserChat", id.toString()));
-
-    //         const data = docSnap.data();
-    //         if (data) {
-    //             const sortedChats: ChatObject[] = Object.values(data)
-    //             .filter(i => i !== null && i.lastMessage)
-    //             .sort((a, b) => {
-    //                 if (!a.lastMessage && !b.lastMessage) {
-    //                     return 0;
-    //                 } else if (!a.lastMessage) {
-    //                     return 1;
-    //                 } else if (!b.lastMessage) {
-    //                     return -1;
-    //                 } else {
-    //                     return b.lastMessage.date.seconds - a.lastMessage.date.seconds;
-    //                 }
-    //             });
-    //             if(sortedChats.length === 0){
-    //                 const docSnapAlexey = await getDoc(doc(db, "users", idAlexey));
-    //                 const dataAlexey = docSnapAlexey.data() as UserState;
-    //                 if(dataAlexey){
-    //                     await setDoc(doc(db, "chats", chatID), { messages: [{
-    //                         id: uuid(),
-    //                         text: 'Hello, I`m a new user of this messenger.',
-    //                         senderId: id.toString(),
-    //                         date: Timestamp.now(),
-    //                         img: null, 
-    //                       }] });
-    //                       await updateDoc(doc(db, "UserChat" , id.toString()), {
-                            
-    //                           [chatID + ".UserInfo"]: {
-    //                             id: dataAlexey.id,
-    //                             fullName: dataAlexey.fullName,
-    //                             photoURL: dataAlexey.photoURL,
-    //                           },
-    //                           [chatID + ".date"]: serverTimestamp(),
-    //                           [chatID + ".lastMessage"]: {
-    //                             text:'Hello, I`m a new user of this messenger.',
-    //                             date:Timestamp.now(),
-    //                             from:  id.toString(),
-    //                           }
-                            
-    //                       })
-                
-    //                       await updateDoc(doc(db,"UserChat", idAlexey), {
-    //                         [chatID + ".UserInfo"]: {
-    //                             id:  id.toString(),
-    //                             fullName: fullName,
-    //                             photoURL: photoURL,
-    //                           },
-    //                           [chatID + ".date"]: serverTimestamp(),
-    //                           [chatID + ".lastMessage"]: {
-    //                             text:'Hello, I`m a new user of this messenger.',
-    //                             date:Timestamp.now(),
-    //                             from:  id.toString(),
-    //                           }
-                            
-    //                       })
-    //                       getChats()
-    //                 }
-    //             }
-    //             setFullChats(sortedChats);
-    //             setChats(sortedChats.slice(startIndex, startIndex + itemsPerPage));
-    //             dispatch(FinishMessages());
-            
-                
-    //         }
-    //     };
-    //     getChats();
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // },[]);
+    
     useEffect(() => {
         const getChats = async () => {
             dispatch(StartMessages());
@@ -257,7 +181,6 @@ const Messages: FC = () => {
         
     }
 
-
     return (
         <div className='rootBlock'>
             <div className='overUsersList'>
@@ -313,13 +236,20 @@ const Messages: FC = () => {
                                         }}
                                     >
                                         <img src={chatFiltered.UserInfo?.photoURL} loading='lazy' alt={chatFiltered.UserInfo.fullName}/>
-                                        <div className='info__user_mess'>
-                                            <h3>{chatFiltered.UserInfo.fullName}</h3>
-                                            <p>{chatFiltered.lastMessage?.from === id.toString() 
-                                            ? (<>Вы: <span className='LastMessage'> {chatFiltered.lastMessage?.text} </span></>) 
-                                            : (<span className='LastMessage'>{chatFiltered.lastMessage?.text}</span>)}</p>
-                                           <DeleteChat chat={chatFiltered}/>
-                                        </div>
+                                        {chatFiltered.lastMessage?.messID
+                                            ? (chatFiltered.lastMessage?.for === id.toString() 
+                                                ?(chatFiltered.lastMessage?.checked || chatFiltered.lastMessage?.checked === false
+                                                    ? <DefaultLastMess  userLastMess={chatFiltered}/>
+                                                    :(<NotificationsMess numNotif={1} userLastMess={chatFiltered}/>)
+                                                ):(
+                                                    <DefaultLastMess userLastMess={chatFiltered}/>
+                                                )
+                                            )
+                                            : (
+                                                <DefaultLastMess userLastMess={chatFiltered}/>
+                                            )
+                                        }
+                                       
                                     </button>
                                 ))}
                                 </div>
@@ -343,14 +273,22 @@ const Messages: FC = () => {
                                         }}
                                     >
                                         <img src={chat.UserInfo.photoURL} loading='lazy' alt={chat.UserInfo.fullName} />
-                                        <div className='info__user_mess'>
-                                            <h3>{chat.UserInfo.fullName}</h3>
-                                            <p>{chat.lastMessage?.from === id.toString() 
-                                            ? (<>Вы: <span className='LastMessage'> {chat.lastMessage?.text} </span></>) 
-                                            : (<span className='LastMessage'>{chat.lastMessage?.text}</span>)
-                                            }</p>
-                                            <DeleteChat chat={chat} />
-                                        </div>
+                                        {chat.lastMessage?.messID
+                                            ? (chat.lastMessage?.for === id.toString() 
+                                                ?(chat.lastMessage?.checked || chat.lastMessage?.checked === false
+                                                    ?   <DefaultLastMess userLastMess={chat}/>
+                                                    :(
+                                                        <NotificationsMess numNotif={1} userLastMess={chat} key={chat.lastMessage?.messID}/>
+                                                    )
+                                                ):(
+                                                    <DefaultLastMess userLastMess={chat}/>
+                                                )
+                                            )
+                                            : (
+                                                <DefaultLastMess userLastMess={chat}/>
+                                            )
+                                        }
+                                       
                                         
                                     </button>
                                 ))}

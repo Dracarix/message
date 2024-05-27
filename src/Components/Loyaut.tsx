@@ -26,13 +26,13 @@ const Layout: FC = () => {
     const pathname = location.pathname;
     switch (true) {
       
-      case pathname.startsWith('/chat'):
+      case pathname.startsWith('/message/chat'):
         if(user?.fullName){
 
             document.title = user.fullName;
         }
         break;
-        case pathname.startsWith('/search'):
+        case pathname.startsWith('/message/search'):
         document.title = 'Поиск';
         break;
       default:

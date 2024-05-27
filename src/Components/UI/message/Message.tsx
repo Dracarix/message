@@ -121,37 +121,15 @@ const Message:FC<chatIDtype> = ({chatID}) => {
 };
 
 
-interface WordWithRef {
-  ref: React.RefObject<HTMLInputElement>;
-  word: MessagesType['word'];
-}
 const Words = ({ message }: { message: MessagesType["word"][] }) => {
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<MessagesType["word"][] >([]);
   const { overUserID } = useParams();
-  const [thisChatUserInfo , setThisChatUserInfo] = useState<ChatObject>();
   const {id} = useAppSelector((state) => state.user);
   const db = getFirestore()
   const dispatch = useAppDispatch();
   const {words} = useAppSelector(state => state.selectedMess);
 
-  const usersTakeInfo = async () => {
-    // этот пользователь userChat
-    if(overUserID){
 
-      const thisUser = await getDoc(doc(db, 'UserChat', id.toString()));
-      const data1 = thisUser.data();
-      if(data1){
-        const datathisUser: ChatObject[] = Object.values(data1)
-        
-        datathisUser.forEach((item )=>{
-          if(item.UserInfo && item.UserInfo.id === overUserID){
-            setThisChatUserInfo(item)
-          }
-        })
-        
-      }
-    }
-  }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, wordInfo: MessagesType['word']) => {
     
@@ -162,93 +140,118 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
       }
     
   };
-
   useEffect(() => {
     // заполнение массива обьектами каждого сообщения
-    const refs: {[key: string]: {ref: React.RefObject<HTMLInputElement>, word: MessagesType['word']}} = {};
-    message.forEach(word => {
-      refs[word.id] = {
-        // ненужный реф
-        ref: React.createRef<HTMLInputElement>(),
-        // сами сообщения
-        word: word
-      };
-    });
-    const refArr = Object.values(refs);
-    usersTakeInfo()
 
-    async function CheckFunc () {
-      if(overUserID){
-        // если есть айди челика в чате  ???? как потом сделать беседу??? 
-        const chatID = generChatID(id.toString(), overUserID)
-        const DocSnap = await getDoc(doc(db, "chats", chatID));
-        const dataChat = DocSnap.data()?.messages as MessagesType['word'][];
-        if(dataChat){
-
-          for (const item of refArr) {
-            const IChecked = item.word.checkedFor
-            if(IChecked &&  IChecked.length >= 1){
-
-              let messageChecked = false;
-                    // если массив чека имеет что либо
-                for(const thisMess of IChecked){
-                  
-                  if(thisMess.id === id.toString()){
-                    messageChecked = true
-                    break
-                  }
-                }
-                if(!messageChecked){
-                  const deleteChatMe = dataChat.map((i)=>{
-                    const newCheck =  [...IChecked, { id: id.toString() }]
-                    if(i.deleteFor){
-                      return {
-                        id: i.id,
-                        text: i.text,
-                        senderId: i.senderId,
-                        date: i.date,
-                        img: i.img,
-                        checkedFor: newCheck,
-                        
-                        deleteFor: i.deleteFor,
-                    };
-                    }else{
-                      return {
-                        id: i.id,
-                        text: i.text,
-                        senderId: i.senderId,
-                        date: i.date,
-                        img: i.img,
-                        checkedFor: newCheck,
-                    };
-                    }
-                    
-                  })
-
-                  await updateDoc(doc(db, "chats", chatID), { messages: deleteChatMe }) 
-                  // если ластовое сообщение в массиве то меняем ласт месс 
-                  if(item.word.id === thisChatUserInfo?.lastMessage?.messID && item.word.senderId === overUserID){
-
-                    await updateDoc(doc(db, "UserChat", id.toString()), {
-                      [chatID + ".lastMessage"]: {
-                        text: thisChatUserInfo?.lastMessage?.text,
-                        date:thisChatUserInfo?.lastMessage?.date,
-                        from: thisChatUserInfo?.lastMessage?.from,
-                      },
-                    })
-                  }
-                  
-                }
+      
+      const refs: {[key: string]: {ref: React.RefObject<HTMLInputElement>, word: MessagesType['word']}} = {};
+      message.forEach(word => {
+        refs[word.id] = {
+          // ненужный реф
+          ref: React.createRef<HTMLInputElement>(),
+          // сами сообщения
+          word: word
+        };
+      });
+      const refArr = Object.values(refs);
+      const editLastMess = async (item: MessagesType['word']) =>{
+        if(overUserID){
+          const chatID = generChatID(id.toString(), overUserID);
+          const thisUser = await getDoc(doc(db, 'UserChat', id.toString()));
+          const data1 = thisUser.data();
+          if (data1) {
+            const datathisUser: ChatObject[] = Object.values(data1);
+            let thisUserInfo = {} as ChatObject;
+            datathisUser.forEach((item) => {
+              if (item.UserInfo && item.UserInfo.id === overUserID) {
+                thisUserInfo = item;
               }
-            
+            });
+
+            if (item.id === thisUserInfo?.lastMessage?.messID && item.senderId === overUserID) {
+              console.log('1');
+              await updateDoc(doc(db, "UserChat", id.toString()), {
+                [chatID + ".lastMessage"]: {
+                  text: thisUserInfo?.lastMessage?.text,
+                  date: thisUserInfo?.lastMessage?.date,
+                  from: thisUserInfo?.lastMessage?.from,
+                  for: thisUserInfo?.lastMessage?.for,
+                  messID: thisUserInfo?.lastMessage?.messID,
+                  checked: true,
+                },
+              });
+            }
           }
         }
 
       }
-    }
-    CheckFunc()
+      
+      async function CheckFunc() {
+        if(overUserID){
+          const chatID = generChatID(id.toString(), overUserID);
+          const DocSnap = await getDoc(doc(db, "chats", chatID));
+          
+          
+          const dataChat = DocSnap.data()?.messages as MessagesType['word'][];
+          if (dataChat) {
+            for (const item of refArr) {
+              const IChecked = item.word.checkedFor;
+              if (IChecked && IChecked.length >= 1) {
+                let messageChecked = false;
+                // если массив чека имеет что либо
+                for (const thisMess of IChecked) {
+                  if (thisMess.id === id.toString()) {
+                    messageChecked = true;
+                    break;
+                  }
+                }
+                if (!messageChecked) {
+                  const deleteChatMe = dataChat.map((i) => {
+                    const newCheck = [...IChecked, { id: id.toString() }];
+                    if (i.deleteFor) {
+                      return {
+                        id: i.id,
+                        text: i.text,
+                        senderId: i.senderId,
+                        date: i.date,
+                        img: i.img,
+                        checkedFor: newCheck,
+                        deleteFor: i.deleteFor,
+                      };
+                    } else {
+                      return {
+                        id: i.id,
+                        text: i.text,
+                        senderId: i.senderId,
+                        date: i.date,
+                        img: i.img,
+                        checkedFor: newCheck,
+                      };
+                    }
+                  });
+    
+                  await updateDoc(doc(db, "chats", chatID), { messages: deleteChatMe });
+    
+                  // если ластовое сообщение в массиве то меняем ласт месс
+  
+                  editLastMess(item.word)
+               
+                }
+              }
+            }
+          }
+        }
+          // если есть айди челика в чате ???? как потом сделать беседу???
 
-  },[message])
+        
+      }
+    
+      CheckFunc();
+
+ 
+  
+  }, [message]);
+  
 
 
   useEffect(()=>{

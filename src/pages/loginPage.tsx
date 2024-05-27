@@ -19,7 +19,6 @@ const LoginPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { loading} = useAppSelector((state) => state.process)|| {};
-
   const location = useLocation();
   const mediaWidth = useMediaQuery({maxWidth: 800});
   const auth = getAuth();
@@ -30,7 +29,7 @@ const LoginPage = () => {
   useEffect(()=> {
     const Redirect =  () => {
       dispatch(ProcessDataStart())
-      if(location.pathname === '/login'){
+      if(location.pathname === '/message/login'){
         document.title = 'Аутентификация'
       }
         if(isAuth){

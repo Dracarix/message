@@ -20,22 +20,40 @@ import {UserSearch} from 'pages/searchUsers';
 import { openErrModal } from 'store/processes/isModal';
 import {ProfileSetting} from 'pages/ProfileSetting';
 import { UserState } from 'types/user';
+import { setActive } from 'store/users/activeUser';
 
 const App:FC = () => {  
   const dispatch = useAppDispatch();
   const db = getFirestore();
   const auth = getAuth();
-  const {error} = useAppSelector((state) => state.process);
+  const {activeUser} = useAppSelector((state) => state.activeUser);
   const theme = useAppSelector((state) => state.theme);
 
+
 useEffect(()=>{
-    if(error){
-        dispatch(openErrModal())
-    }
+    const isActiveUser = () => {
+        dispatch(setActive(true));
+      };
+      const isPassiveUser = () => {
+        dispatch(setActive(false));
+      }
+
+      
+      window.addEventListener('click', isActiveUser);
+      window.addEventListener('touchstart', isActiveUser);
+      
+      return () => {
+        window.removeEventListener('click', isPassiveUser);
+        window.removeEventListener('touchstart', isPassiveUser);
+      };
 
 // eslint-disable-next-line react-hooks/exhaustive-deps
-},[error])
-
+},[])
+useEffect(()=>{
+    setTimeout(()=>{
+        dispatch(setActive(false));
+    },1000 * 60 * 10)
+},[activeUser])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

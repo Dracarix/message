@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setChat } from 'store/users/chat.slice';
-import { UserInfoOnly } from 'types/user';
+import { ChatObject, UserInfoOnly } from 'types/user';
 import { useAuth } from 'hooks/use-auth';
 import { ReactComponent as Close } from '../svg/close.svg';
 import { ProcessDataFailure } from 'store/processes/process';
@@ -14,31 +14,29 @@ export interface LeftUsersProps {
 
 const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     const [loading, setLoading] = useState(false);
-    const [chats, setChats] = useState<UserInfoOnly[]>([]);
+    const [chats, setChats] = useState<ChatObject[]>([]);
     const {user} = useAppSelector(state => state.chat)
+    const [userChat, setUserChat] = useState<ChatObject[]>([])
+    const [userSelect, setUserSelect] = useState<UserInfoOnly[]>([])
     const { id} = useAuth();
-    const [vidno, setVidno] = useState(false);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const db = getFirestore();
+    
 
-    useEffect(() => {
-      
-      const getChats = () => {
+    // ЮзерСелект инфа подписка иначе нет обновления компонента в рил лайф
+    useEffect(()=>{
+      const getUserChats = () => {
 
-          setLoading(true)
-        const unsub = onSnapshot(doc(db, "users", id.toString()), (doc) => {
-          const data = doc.data()?.selectedUsers as UserInfoOnly[];
-
+        const unsubChats = onSnapshot(doc(db, "UserChat", id.toString()), (doc) => {
+          const data = doc.data() as ChatObject[];
+  
           if(data){
-            
-
-              
-              setChats(data.slice(0, 10));
-              
-              
-                setLoading(false)
-             
+            const chat: ChatObject[] = Object.values(data)
+            .filter((i)=> i !== null && i.UserInfo)
+  
+            setUserChat(chat)
+  
             
           }else{
             
@@ -49,31 +47,73 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
           }
         });
         return () => {
-          unsub();
+          unsubChats();
+          
         };
+      }
+      getUserChats()
+    },[id])
+     // ЮзерЧатс инфа подписка иначе нет обновления компонента в рил лайф
+    useEffect(()=>{
+      const getUserSelects = () => {
+
+        const unsubUsers = onSnapshot(doc(db, "users", id.toString()), (doc) => {
+          const data = doc.data()?.selectedUsers as UserInfoOnly[];
+  
+          if(data){
+  
+            setUserSelect(data)   
+  
+          }else{
+            
+            
+              setLoading(false)
+            
+            dispatch(ProcessDataFailure('Похоже что произошка ошибка'))
+          }
+        });
+        return  ()=> {
+          unsubUsers();
+        }
+      }
+      getUserSelects()
+    },[id])
+    useEffect(() => {
+      
+      const getChats = () => {
+
+          setLoading(true)
+        
+        const mainChats: ChatObject[] = []
+        for(const item of userChat){
+          for(const elem of userSelect){
+            if(item.UserInfo.id === elem.id){
+              mainChats.push(item)
+            }
+          }
+        }
+        
+        setChats(mainChats.slice(0, 10))
+        setLoading(false)
         
       };
       getChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
-    const handleSelect = (chat: UserInfoOnly[][0]) => {
-        dispatch(setChat({user:chat}));
-        navigate(`/message/chat/${chat.id}`);
+    }, [userSelect, userChat]);
+
+    const handleSelect = (chat: ChatObject[][0]) => {
+        dispatch(setChat({user:chat.UserInfo}));
+        navigate(`/message/chat/${chat.UserInfo.id}`);
     }
-    const handleMouseEnter = () => {
-        setVidno(true)
-    }
-    const handleMouseLeave = () => {
-        setVidno(false)
-    }
-    const deleteSelectedUser = async(chat: UserInfoOnly[][0]) =>{
-        if(chat.id === user?.id){
+
+    const deleteSelectedUser = async(chat: ChatObject[][0]) =>{
+        if(chat.UserInfo.id === user?.id){
           await updateDoc(doc(db, 'users',id.toString() ),{
             selectedUsers:arrayRemove({
               
-                id: chat.id,
-                fullName: chat.fullName,
-                photoURL: chat.photoURL,
+                id: chat.UserInfo.id,
+                fullName: chat.UserInfo.fullName,
+                photoURL: chat.UserInfo.photoURL,
              
             })
           })
@@ -82,9 +122,9 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
         await updateDoc(doc(db, 'users',id.toString() ),{
           selectedUsers:arrayRemove({
             
-              id: chat.id,
-              fullName: chat.fullName,
-              photoURL: chat.photoURL,
+              id: chat.UserInfo.id,
+              fullName: chat.UserInfo.fullName,
+              photoURL: chat.UserInfo.photoURL,
            
           })
         })
@@ -109,8 +149,6 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
         </div>
           <ul
             className='ChatsOtherUserColumn'
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
           >   
             {loading ? (
                 <>
@@ -144,12 +182,27 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
             ): chats.length >= 1 &&  (
               chats.map((chat, index)=> (
                       <li 
-                          className={chat.id !== thisID ? 'ChatsIcon' : 'ChatsIcon active'} 
+                          className={chat.UserInfo.id !== thisID ? 'ChatsIcon' : 'ChatsIcon active'} 
                           key={index} 
                           onClick={() => handleSelect(chat)}
-                      >
-                          <img src={chat.photoURL} alt={chat.fullName}/>
-                          <span>{chat.fullName}</span>
+                      > 
+                          <div className='Images__block'>
+                            <img src={chat.UserInfo.photoURL} alt={chat.UserInfo.fullName}/>
+
+                            {chat.lastMessage?.for === id.toString() 
+                            ? chat.lastMessage?.checked  
+                                ? ('') 
+                                :(
+                                  <div className='new__message'>
+                                      ?
+                                    </div>
+                                )
+                            : ''
+                             
+                            }
+                          </div>
+                          
+                          <span>{chat.UserInfo.fullName}</span>
                           <Close onClick={(event: React.MouseEvent)=>{ 
                             event.stopPropagation();
                             deleteSelectedUser(chat);

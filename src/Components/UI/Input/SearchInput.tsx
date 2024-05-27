@@ -449,7 +449,7 @@ const calculateHash = async (file: File): Promise<string> => {
     } else {
       // Логика для отправки сообщения без изображения
       if(user){
-
+        
       if(chatID !== ''){
 
         if (text !== '') {
@@ -458,33 +458,41 @@ const calculateHash = async (file: File): Promise<string> => {
           const dataChat = await getDoc(doc(db,"chats", chatID))
           const dataChatHave = dataChat.data()
           if(dataChatHave){
+            const newIdMess = uuid();
             const newMessage = {
-              id: uuid(),
+              id: newIdMess,
               text,
               senderId: id,
               date: Timestamp.now(),
               img: null,
               checkedFor: [{id: id.toString()}],
-          };
-          
+            };
+          console.log(newIdMess);
           await updateDoc(doc(db, "chats", chatID), {
             messages: arrayUnion(newMessage),
           })
+          
+          console.log(newIdMess);
           await updateDoc(doc(db, "UserChat", user.id), {
             [chatID + ".lastMessage"]: {
               text,
               date:Timestamp.now(),
+              messID: newIdMess,
               from: id.toString(),
+              for: overUserID,
             },
             [chatID + ".date"]: serverTimestamp(),
           }).catch((err) => {
             dispatch(ProcessDataFailure(err));
           });
+          console.log(newIdMess);
           await updateDoc(doc(db, "UserChat", id.toString()), {
             [chatID + ".lastMessage"]: {
               text,
               date:Timestamp.now(),
               from: id.toString(),
+              messID: newIdMess,
+              for: overUserID,
             },
             [chatID + ".date"]: serverTimestamp(),
           }).catch((err) => {

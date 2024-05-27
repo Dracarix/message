@@ -12,6 +12,9 @@ import useMediaMenu from './menu.slice';
 import selectedMessSlice from './users/deleteMess';
 import userChatSlice from './users/thisUserChat.slice';
 import allChatsSlice from './users/allUsers.slice';
+import activeUserSlice from './users/activeUser'
+
+
 export const store = configureStore({
     reducer:{
         user:userReduser,
@@ -27,6 +30,7 @@ export const store = configureStore({
         selectedMess:selectedMessSlice,
         userChats: userChatSlice,
         allChats: allChatsSlice,
+        activeUser:activeUserSlice
     }
 })
 export type RootState = ReturnType<typeof store.getState>;

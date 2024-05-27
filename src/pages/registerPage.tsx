@@ -37,7 +37,7 @@ const RegisterPage = () => {
   useEffect(()=> {
     const Redirect =  () => {
       dispatch(ProcessDataStart())
-      if(location.pathname === '/register'){
+      if(location.pathname === '/message/register'){
         document.title = 'Регистрация'
       }
         if(isAuth){

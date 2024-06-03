@@ -2,20 +2,21 @@ import { Timestamp, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, 
 import { getDownloadURL, getMetadata, getStorage,  ref,  uploadBytesResumable } from "firebase/storage";
 import { useAuth } from 'hooks/use-auth';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './input.scss'
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from "uuid";
 import { ProcessDataFailure, ProcessDataStart, ProcessDataSuccess } from 'store/processes/process';
 import CryptoJS from 'crypto-js';
 import { setSearchUserData } from 'store/searchUsers/searchUsers';
-import { SearchUserState } from 'types/user';
+import { MessagesType, SearchUserState } from 'types/user';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ReactComponent as Lupa } from '../../../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
 import ImgFile from '../../../Images/img.png';
 import SendBtn from '../../../Images/send-btn.png';
 import { ReactComponent as Close } from '../../../svg/close.svg';
+import { removeEditMess } from 'store/users/editMess.slice';
 
 
 const SearchInput = () => {
@@ -232,12 +233,16 @@ const InputSend = ({disabled}: Disabled) => {
   const db = getFirestore();
   const [text, setText] = useState('');
   const [img, setImg] = useState<File | null>(null);
+  const [saveEditText, setSaveEditText] = useState('')
   const { overUserID } = useParams();
   const {user} = useAppSelector((state) => state.chat);
   const [chatID, setChatID] = useState('');
   const { id } = useAuth();
   const dispatch = useAppDispatch();
   const {error} = useAppSelector((state) => state.process);
+  const {editMess} = useAppSelector((state)=> state.editMess);
+  const inputRef = useRef<HTMLInputElement>(null);
+  
   const generateChatID = (id1: string, id2: string) => {
     const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
     const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
@@ -249,6 +254,13 @@ useEffect(()=>{
   }
 // eslint-disable-next-line react-hooks/exhaustive-deps
 },[overUserID])
+useEffect(()=>{
+  if(editMess && inputRef.current){
+    setText(editMess.text);
+    inputRef.current.focus()
+    setSaveEditText(editMess.text)
+  }
+},[editMess])
 const calculateHash = async (file: File): Promise<string> => {
   const arrayBuffer = await file.arrayBuffer();
   const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
@@ -272,242 +284,298 @@ const calculateHash = async (file: File): Promise<string> => {
   };
 
   const handleSend = async () => {
-    if (img) {
-      if(user){
-      const hash = await calculateHash(img);
-      const imageUrl = await getImageUrlFromStorage(hash);
-      if (imageUrl) {
-        if(chatID !== ''){
-          const newIdMess = uuid();
-          setText('');
-          setImg(null);
-          await updateDoc(doc(db, "chats", chatID), {
-            messages: arrayUnion({
-              id: newIdMess,
-              text,
-              senderId: id,
-              date: Timestamp.now(),
-              img: imageUrl, 
-              checkedFor: [{id: id.toString()}],
-            }),
-          });
-          if(text !== ''){
-
-            await updateDoc(doc(db, "UserChat", user.id), {
-              [chatID + ".lastMessage"]: {
-                text,
-                date:Timestamp.now(),
-                from: id.toString(),
-                messID: newIdMess,
-                for: overUserID,
-              },
-              [chatID + ".date"]: serverTimestamp(),
-            }).catch((err) => {
-              dispatch(ProcessDataFailure(err.code));
-            });
-    
-            await updateDoc(doc(db, "UserChat", id.toString()), {
-              [chatID + ".lastMessage"]: {
-                text,
-                date:Timestamp.now(),
-                messID: newIdMess,
-                from: id.toString(),
-                for: overUserID,
-              },
-              [chatID + ".date"]: serverTimestamp(),
-            }).catch((err) => {
-              dispatch(ProcessDataFailure(err.code));
-            });
-          }else{
-            await updateDoc(doc(db, "UserChat", user.id), {
-              [chatID + ".lastMessage"]: {
-                text: 'Изображение',
-                date:Timestamp.now(),
-                messID: newIdMess,
-                from: id.toString(),
-                for: overUserID,
-                
-              },
-              [chatID + ".date"]: serverTimestamp(),
-            }).catch((err) => {
-              dispatch(ProcessDataFailure(err.code));
-            });
-    
-            await updateDoc(doc(db, "UserChat", id.toString()), {
-              [chatID + ".lastMessage"]: {
-                text: 'Изображение',
-                date:Timestamp.now(),
-                from: id.toString(),
-                messID: newIdMess,
-                for: overUserID,
-              },
-              [chatID + ".date"]: serverTimestamp(),
-            }).catch((err) => {
-              dispatch(ProcessDataFailure(err.code));
-            });
-          }
-
-        }
-        
-
-      } else {
-        const storageRef = ref(storage, hash);
-        const uploadTask = uploadBytesResumable(storageRef, img);
-
-        uploadTask.on(
-          'state_changed',
-          // Обработчик прогресса загрузки, если нужно
-          (snapshot) => {
-             
-          },
-          (error: any) => {
-            
-            dispatch(ProcessDataFailure(error.code))
-          },
-          async () => {
-            try {
-              const downloadURL = await getDownloadURL(storageRef);
-              if(chatID !== ''){
-                const newIdMess = uuid()
-                setText('');
-                setImg(null);
-                await updateDoc(doc(db, "chats", chatID), {
-                  messages: arrayUnion({
-                    id: newIdMess,
-                    text,
-                    senderId: id,
-                    date: Timestamp.now(),
-                    img: downloadURL,
-                    checkedFor: [{id: id.toString()}],
-                  }),
-                });
-                if(text !== ''){
-
-                  await updateDoc(doc(db, "UserChat", user.id), {
-                    [chatID + ".lastMessage"]: {
-                      text,
-                      date:Timestamp.now(),
-                      from: id.toString(),
-                      messID: newIdMess,
-                      for: overUserID,
-                    },
-                    [chatID + ".date"]: serverTimestamp(),
-                  }).catch((err) => {
-                    dispatch(ProcessDataFailure(err.code));
-                  });
-          
-                  await updateDoc(doc(db, "UserChat", id.toString()), {
-                    [chatID + ".lastMessage"]: {
-                      text,
-                      date:Timestamp.now(),
-                      from: id.toString(),
-                      messID: newIdMess,
-                      for: overUserID,
-                    },
-                    [chatID + ".date"]: serverTimestamp(),
-                  }).catch((err) => {
-                    dispatch(ProcessDataFailure(err.code));
-                  });
-                }else{
-                  await updateDoc(doc(db, "UserChat", user.id), {
-                    [chatID + ".lastMessage"]: {
-                      text: 'Изображение',
-                      date:Timestamp.now(),
-                      messID: newIdMess,
-                      from: id.toString(),
-                      for: overUserID,
-                    },
-                    [chatID + ".date"]: serverTimestamp(),
-                  }).catch((err) => {
-                    dispatch(ProcessDataFailure(err.code));
-                  });
-          
-                  await updateDoc(doc(db, "UserChat", id.toString()), {
-                    [chatID + ".lastMessage"]: {
-                      text: 'Изображение',
-                      date:Timestamp.now(),
-                      messID: newIdMess,
-                      from: id.toString(),
-                      for: overUserID,
-                    },
-                    [chatID + ".date"]: serverTimestamp(),
-                  }).catch((err) => {
-                    dispatch(ProcessDataFailure(err.code));
-                  });
-                }
-              }
-              
-              
-            } catch (error: any) {
-             dispatch(ProcessDataFailure(error.code))
-            }
-          }
-        );
-      }
-            
-    }
-    } else {
-      // Логика для отправки сообщения без изображения
-      if(user){
-        
-      if(chatID !== ''){
-
-        if (text !== '') {
-          setText('');
-          setImg(null);
-          const dataChat = await getDoc(doc(db,"chats", chatID))
-          const dataChatHave = dataChat.data()
-          if(dataChatHave){
+    if(!editMess){
+      // Если нет редактирования сообщения
+      if (img) {
+        if(user){
+        const hash = await calculateHash(img);
+        const imageUrl = await getImageUrlFromStorage(hash);
+        if (imageUrl) {
+          if(chatID !== ''){
             const newIdMess = uuid();
-            const newMessage = {
-              id: newIdMess,
-              text,
-              senderId: id,
-              date: Timestamp.now(),
-              img: null,
-              checkedFor: [{id: id.toString()}],
-            };
-          console.log(newIdMess);
-          await updateDoc(doc(db, "chats", chatID), {
-            messages: arrayUnion(newMessage),
-          })
-          
-          console.log(newIdMess);
-          await updateDoc(doc(db, "UserChat", user.id), {
-            [chatID + ".lastMessage"]: {
-              text,
-              date:Timestamp.now(),
-              messID: newIdMess,
-              from: id.toString(),
-              for: overUserID,
-            },
-            [chatID + ".date"]: serverTimestamp(),
-          }).catch((err) => {
-            dispatch(ProcessDataFailure(err));
-          });
-          console.log(newIdMess);
-          await updateDoc(doc(db, "UserChat", id.toString()), {
-            [chatID + ".lastMessage"]: {
-              text,
-              date:Timestamp.now(),
-              from: id.toString(),
-              messID: newIdMess,
-              for: overUserID,
-            },
-            [chatID + ".date"]: serverTimestamp(),
-          }).catch((err) => {
-            dispatch(ProcessDataFailure(err));
-          });
-          }else{
-            await setDoc(doc(db, "chats", chatID), { messages:[] });
+            setText('');
+            setImg(null);
+            await updateDoc(doc(db, "chats", chatID), {
+              messages: arrayUnion({
+                id: newIdMess,
+                text,
+                senderId: id,
+                date: Timestamp.now(),
+                img: imageUrl, 
+                checkedFor: [{id: id.toString()}],
+              }),
+            });
+            if(text !== ''){
+  
+              await updateDoc(doc(db, "UserChat", user.id), {
+                [chatID + ".lastMessage"]: {
+                  text,
+                  date:Timestamp.now(),
+                  from: id.toString(),
+                  messID: newIdMess,
+                  for: overUserID,
+                },
+                [chatID + ".date"]: serverTimestamp(),
+              }).catch((err) => {
+                dispatch(ProcessDataFailure(err.code));
+              });
+      
+              await updateDoc(doc(db, "UserChat", id.toString()), {
+                [chatID + ".lastMessage"]: {
+                  text,
+                  date:Timestamp.now(),
+                  messID: newIdMess,
+                  from: id.toString(),
+                  for: overUserID,
+                },
+                [chatID + ".date"]: serverTimestamp(),
+              }).catch((err) => {
+                dispatch(ProcessDataFailure(err.code));
+              });
+            }else{
+              await updateDoc(doc(db, "UserChat", user.id), {
+                [chatID + ".lastMessage"]: {
+                  text: 'Изображение',
+                  date:Timestamp.now(),
+                  messID: newIdMess,
+                  from: id.toString(),
+                  for: overUserID,
+                  
+                },
+                [chatID + ".date"]: serverTimestamp(),
+              }).catch((err) => {
+                dispatch(ProcessDataFailure(err.code));
+              });
+      
+              await updateDoc(doc(db, "UserChat", id.toString()), {
+                [chatID + ".lastMessage"]: {
+                  text: 'Изображение',
+                  date:Timestamp.now(),
+                  from: id.toString(),
+                  messID: newIdMess,
+                  for: overUserID,
+                },
+                [chatID + ".date"]: serverTimestamp(),
+              }).catch((err) => {
+                dispatch(ProcessDataFailure(err.code));
+              });
+            }
+  
           }
-         
-
-      }
-    }
+          
+  
+        } else {
+          const storageRef = ref(storage, hash);
+          const uploadTask = uploadBytesResumable(storageRef, img);
+  
+          uploadTask.on(
+            'state_changed',
+            // Обработчик прогресса загрузки, если нужно
+            (snapshot) => {
+               
+            },
+            (error: any) => {
+              
+              dispatch(ProcessDataFailure(error.code))
+            },
+            async () => {
+              try {
+                const downloadURL = await getDownloadURL(storageRef);
+                if(chatID !== ''){
+                  const newIdMess = uuid()
+                  setText('');
+                  setImg(null);
+                  await updateDoc(doc(db, "chats", chatID), {
+                    messages: arrayUnion({
+                      id: newIdMess,
+                      text,
+                      senderId: id,
+                      date: Timestamp.now(),
+                      img: downloadURL,
+                      checkedFor: [{id: id.toString()}],
+                    }),
+                  });
+                  if(text !== ''){
+  
+                    await updateDoc(doc(db, "UserChat", user.id), {
+                      [chatID + ".lastMessage"]: {
+                        text,
+                        date:Timestamp.now(),
+                        from: id.toString(),
+                        messID: newIdMess,
+                        for: overUserID,
+                      },
+                      [chatID + ".date"]: serverTimestamp(),
+                    }).catch((err) => {
+                      dispatch(ProcessDataFailure(err.code));
+                    });
             
-  }
-  }
+                    await updateDoc(doc(db, "UserChat", id.toString()), {
+                      [chatID + ".lastMessage"]: {
+                        text,
+                        date:Timestamp.now(),
+                        from: id.toString(),
+                        messID: newIdMess,
+                        for: overUserID,
+                      },
+                      [chatID + ".date"]: serverTimestamp(),
+                    }).catch((err) => {
+                      dispatch(ProcessDataFailure(err.code));
+                    });
+                  }else{
+                    await updateDoc(doc(db, "UserChat", user.id), {
+                      [chatID + ".lastMessage"]: {
+                        text: 'Изображение',
+                        date:Timestamp.now(),
+                        messID: newIdMess,
+                        from: id.toString(),
+                        for: overUserID,
+                      },
+                      [chatID + ".date"]: serverTimestamp(),
+                    }).catch((err) => {
+                      dispatch(ProcessDataFailure(err.code));
+                    });
+            
+                    await updateDoc(doc(db, "UserChat", id.toString()), {
+                      [chatID + ".lastMessage"]: {
+                        text: 'Изображение',
+                        date:Timestamp.now(),
+                        messID: newIdMess,
+                        from: id.toString(),
+                        for: overUserID,
+                      },
+                      [chatID + ".date"]: serverTimestamp(),
+                    }).catch((err) => {
+                      dispatch(ProcessDataFailure(err.code));
+                    });
+                  }
+                }
+                
+                
+              } catch (error: any) {
+               dispatch(ProcessDataFailure(error.code))
+              }
+            }
+          );
+        }
+              
+      }
+      } else {
+        // Логика для отправки сообщения без изображения
+        if(user){
+          
+        if(chatID !== ''){
+  
+          if (text !== '') {
+            setText('');
+            setImg(null);
+            const dataChat = await getDoc(doc(db,"chats", chatID))
+            const dataChatHave = dataChat.data()
+            if(dataChatHave){
+              const newIdMess = uuid();
+              const newMessage = {
+                id: newIdMess,
+                text,
+                senderId: id,
+                date: Timestamp.now(),
+                img: null,
+                checkedFor: [{id: id.toString()}],
+              };
+            console.log(newIdMess);
+            await updateDoc(doc(db, "chats", chatID), {
+              messages: arrayUnion(newMessage),
+            })
+            
+            console.log(newIdMess);
+            await updateDoc(doc(db, "UserChat", user.id), {
+              [chatID + ".lastMessage"]: {
+                text,
+                date:Timestamp.now(),
+                messID: newIdMess,
+                from: id.toString(),
+                for: overUserID,
+              },
+              [chatID + ".date"]: serverTimestamp(),
+            }).catch((err) => {
+              dispatch(ProcessDataFailure(err));
+            });
+            console.log(newIdMess);
+            await updateDoc(doc(db, "UserChat", id.toString()), {
+              [chatID + ".lastMessage"]: {
+                text,
+                date:Timestamp.now(),
+                from: id.toString(),
+                messID: newIdMess,
+                for: overUserID,
+              },
+              [chatID + ".date"]: serverTimestamp(),
+            }).catch((err) => {
+              dispatch(ProcessDataFailure(err));
+            });
+            }else{
+              await setDoc(doc(db, "chats", chatID), { messages:[] });
+            }
+           
+  
+        }
+      }
+              
+    }
+      }
+    }else{
+       // Если есть редактирование сообщения
+      if(text !== ''){
+        if(text !== saveEditText){
+          // Если текст не редачили 
+          setText('');
+          setImg(null);
+          setSaveEditText('')
+          const DocSnap = await getDoc(doc(db, "chats", chatID));
+          const chatDocRef = doc(db, "chats", chatID);
+          const data = DocSnap.data()?.messages as MessagesType['word'][];
+          if(data){
+            const editThisMess = data.map((i) => {
+              if(editMess.id === i.id){
+                if(i.deleteFor){
+                  return {
+                    id: i.id,
+                    text: text,
+                    senderId: i.senderId,
+                    date: i.date,
+                    img: i.img,
+                    checkedFor:i.checkedFor,
+                    edited: true,
+                    deleteFor:i.deleteFor
+                  }
+                }else{
+                  return {
+                    id: i.id,
+                    text: text,
+                    senderId: i.senderId,
+                    date: i.date,
+                    img: i.img,
+                    checkedFor:i.checkedFor,
+                    edited: true
+                  };
+                }
+  
+              }else{
+                return i
+              }
+                       
+            })
+            await updateDoc(chatDocRef, { messages: editThisMess });
+            dispatch(removeEditMess())
+          }
+        }else{
+          setText('');
+          setImg(null);
+          setSaveEditText('')
+          dispatch(removeEditMess())
+        }
+      }
+
+    }
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -543,6 +611,7 @@ const calculateHash = async (file: File): Promise<string> => {
         value={text}
         onKeyDown={handleEnter}
         disabled={disabled}
+        ref={inputRef}
         enterKeyHint='send'
       />
       <div className="send">

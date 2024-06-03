@@ -2,11 +2,14 @@ import { useAppDispatch, useAppSelector } from "hooks/use-redux";
 import { ReactComponent as Trash } from "../../../svg/trash.svg";
 import { removeSelectMess } from "store/users/deleteMess";
 import { openConfirmDelMess } from "store/processes/isModal";
+import { EditMess } from "Components/EditMess";
+import { useAuth } from "hooks/use-auth";
 
 const CheckedMess = () => {
 
   const {words} = useAppSelector(state => state.selectedMess);
-  const dispatch = useAppDispatch()  
+  const dispatch = useAppDispatch();
+  const {id} = useAuth()
 
   const handleCloseSelect = () => {
     dispatch(removeSelectMess())
@@ -37,12 +40,29 @@ return (
         <button className="default__btn close__select__btn"
           onClick={handleCloseSelect}
         >{words.length >= 1 && words.length} {''} <span className="Close__select"> Отменить</span></button>
-        <button
-          className="default__btn delete__select__btn"
-          onClick={handleDeleteSelect}
+        <div
+          style={{
+            width: '150px', 
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems:'center'
+
+          }}
         >
-          <Trash width="35" height="35" className='trash__svg'/>Удалить
-        </button>
+          {words.length === 1 && 
+            words[0].senderId === id.toString() &&
+            <button className="default__btn">
+              <EditMess/>
+            </button>
+          }
+          <button
+            className="default__btn delete__select__btn"
+            onClick={handleDeleteSelect}
+          >
+            <Trash width="35" height="35" className='trash__svg'/>Удалить
+          </button>  
+        </div>
+        
     </div>
 );
 };

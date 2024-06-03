@@ -266,19 +266,18 @@ if(valideChat){
       <section className='chat_section'>
         {loading ? <ChatLoader/> 
         : (
-          !select
-            ?(<div className='chatInfo'>
-                <div className='chatIcons'>
-                  <img src={user?.photoURL || ''} alt="" />
-                </div>
-                <span>{user?.fullName || ''}</span>
-                <div style={{position:'absolute', right:'12px'}}>
-                  <DeleteChat UserID={user?.id || ''}  />
-                </div>
-            
-            </div>
+          select
+            ?(<CheckedMess/>
             ):(
-            <CheckedMess/>
+              <div className='chatInfo'>
+                  <div className='chatIcons'>
+                    <img src={user?.photoURL} alt="" />
+                  </div>
+                  <span>{user?.fullName}</span>
+                  <div style={{position:'absolute', right:'12px'}}>
+                    <DeleteChat UserID={user?.id}  />
+                  </div>
+              </div>
             )
         )}
         

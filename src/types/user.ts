@@ -86,6 +86,7 @@ export interface ProcessDataState {
       date: Timestamp | null;
       img: string | null;
       deleteFor?: string;
+      edited:boolean;
       checkedFor?: {
         id:  string
       }[]

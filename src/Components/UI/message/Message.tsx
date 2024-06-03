@@ -13,6 +13,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { generChatID } from 'hooks/generateChatID';
 import CheckIcon from './CheckIcon';
+import { removeEditMess } from 'store/users/editMess.slice';
 
 interface chatIDtype  {chatID: string};
 
@@ -154,6 +155,7 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
         };
       });
       const refArr = Object.values(refs);
+      console.log(refArr)
       const editLastMess = async (item: MessagesType['word']) =>{
         if(overUserID){
           const chatID = generChatID(id.toString(), overUserID);
@@ -269,6 +271,7 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
       checkboxes.forEach(function(checkbox) {
           checkbox.checked = false;
       });
+      dispatch(removeEditMess())
       setSelectedCheckboxes([])
       
     }

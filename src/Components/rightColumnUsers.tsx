@@ -7,6 +7,7 @@ import { ChatObject, UserInfoOnly } from 'types/user';
 import { useAuth } from 'hooks/use-auth';
 import { ReactComponent as Close } from '../svg/close.svg';
 import { ProcessDataFailure } from 'store/processes/process';
+import { removeEditMess } from 'store/users/editMess.slice';
 
 export interface LeftUsersProps {
     thisID: string;
@@ -103,6 +104,7 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
 
     const handleSelect = (chat: ChatObject[][0]) => {
         dispatch(setChat({user:chat.UserInfo}));
+        dispatch(removeEditMess())
         navigate(`/message/chat/${chat.UserInfo.id}`);
     }
 
@@ -136,7 +138,10 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
     >
       <div className='main__right__column'>
         <ul style={{padding: 0, margin: 0}}>
-          <li className='ChatsIcon' onClick={() => navigate('/message/')}>
+          <li className='ChatsIcon' onClick={() => {
+            dispatch(removeEditMess())
+            navigate('/message/');
+          }}>
             <span>Все чаты</span>
           </li>
         </ul>

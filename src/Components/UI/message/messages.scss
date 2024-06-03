@@ -97,10 +97,14 @@
     position: absolute;
     right:  5px;
     bottom: 5px;
+    display: flex;
+    gap: 10px;
     user-select: none;
 }
 .messageContent-left .messageInfo{
     position: absolute;
+    display: flex;
+    gap: 10px;
     right: 5px;
     bottom: 5px;
     user-select: none;
@@ -182,4 +186,11 @@
 /* Полоса прокрутки */
 .soobsheniya::-webkit-scrollbar-track {
     background-color: transparent; /* Цвет */
+}
+
+
+.edit__message__pen{
+    path{
+        fill:$color-white;
+    }
 }

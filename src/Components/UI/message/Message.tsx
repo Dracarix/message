@@ -155,7 +155,7 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
         };
       });
       const refArr = Object.values(refs);
-      console.log(refArr)
+      
       const editLastMess = async (item: MessagesType['word']) =>{
         if(overUserID){
           const chatID = generChatID(id.toString(), overUserID);
@@ -305,7 +305,9 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
         </div>
 
         <p style={{display: word.text === "" ? 'none' : 'block'}}>{word.text}</p>
-        
+        {word.edited && <p>
+        Изменено
+        </p>}
         {word.senderId === id.toString() ?(
           overUserID && word.checkedFor?.some((e)=> e.id === overUserID) 
           ? ( <CheckIcon cheeeeeck={true} />)
@@ -314,7 +316,7 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
         
         
         <div className="messageInfo">
-          <span>{`${word.date && word.date.toDate().getHours()}:${(word.date && word.date.toDate().getMinutes() < 10 ? '0' : '') + (word.date && word.date.toDate().getMinutes())}`}</span>
+           <span>{`${word.date && word.date.toDate().getHours()}:${(word.date && word.date.toDate().getMinutes() < 10 ? '0' : '') + (word.date && word.date.toDate().getMinutes())}`}</span>
         </div>
       </div>
       

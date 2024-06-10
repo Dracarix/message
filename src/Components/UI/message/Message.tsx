@@ -12,7 +12,7 @@ import { removeSelectMess, setSelectMess } from 'store/users/deleteMess';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { generChatID } from 'hooks/generateChatID';
-import CheckIcon from './CheckIcon';
+import {ChechOtherUser, CheckIcon} from './CheckIcon';
 import { removeEditMess } from 'store/users/editMess.slice';
 
 interface chatIDtype  {chatID: string};
@@ -259,9 +259,11 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
   useEffect(()=>{
     if(selectedCheckboxes.length !== 0){
       dispatch(setSelectMess(selectedCheckboxes))
-    }else(
+    }else{
       dispatch(removeSelectMess())
-    )
+      dispatch(removeEditMess())
+    }
+    
   },[selectedCheckboxes])
   useEffect(()=>{
 
@@ -305,14 +307,11 @@ const Words = ({ message }: { message: MessagesType["word"][] }) => {
         </div>
 
         <p style={{display: word.text === "" ? 'none' : 'block'}}>{word.text}</p>
-        {word.edited && <p>
-        Изменено
-        </p>}
-        {word.senderId === id.toString() ?(
-          overUserID && word.checkedFor?.some((e)=> e.id === overUserID) 
-          ? ( <CheckIcon cheeeeeck={true} />)
-          : (<CheckIcon cheeeeeck={false}/>)
-        ):(<></>)}
+        
+        {overUserID && word.checkedFor?.some((e)=> e.id === overUserID) 
+          ? ( <CheckIcon cheeeeeck={true}  thisWord={word} /> )
+          : (<CheckIcon cheeeeeck={false}  thisWord={word} />)
+        }
         
         
         <div className="messageInfo">

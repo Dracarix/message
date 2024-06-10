@@ -93,8 +93,8 @@ const LeftUsers:FC<LeftUsersProps> = ({thisID}) => {
             }
           }
         }
-        
-        setChats(mainChats.slice(0, 10))
+        const rightChats = mainChats.sort((a, b)=> a.UserInfo.fullName.localeCompare(b.UserInfo.fullName))
+        setChats(rightChats.slice(0, 10))
         setLoading(false)
         
       };

@@ -28,13 +28,13 @@ const UserSearch = () => {
     const [hasMore, setHasMore] = useState(true);
     const navigate = useNavigate();
     const itemsPerPage = 15;
-    const {error} = useAppSelector(state => state.process);
     const {loadingMess} = useAppSelector(state => state.processMessages);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
       if (searchValue) {
         setValue(searchValue);
         const FirstSearchUsers = async () => {
+          
           dispatch(StartMessages())
           try{
             const querySnapshot = await getDocs(collection(db, "users"));
@@ -49,9 +49,16 @@ const UserSearch = () => {
                 .filter(user => user.fullName && user.fullName.toLowerCase()
                 .includes(searchValue.toLowerCase()));
                 setFullUsersData(res)
-                const newItems = res.slice(startIndex + itemsPerPage);
-                setOtherUsersData(newItems);
-                dispatch(FinishMessages())
+                if(res.length >= itemsPerPage){
+                  const newItems = res.slice(startIndex + itemsPerPage);
+                  setOtherUsersData(newItems);
+                  dispatch(FinishMessages())
+                  }else{
+                  setOtherUsersData(res);
+                  dispatch(FinishMessages())
+                }
+                
+                
             }else{
               dispatch(ProcessDataFailure('Что то пошло не так'));
       
@@ -62,10 +69,9 @@ const UserSearch = () => {
             console.error(err.code)
           };
       
-      }
-      FirstSearchUsers()
+        }
+        FirstSearchUsers()
       }else{
-
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchValue]);
@@ -76,8 +82,8 @@ const UserSearch = () => {
       return (`${firstId}${secondId}`);
   };
   useEffect(()=>{
-
-  })
+console.log(otherUsersData);
+  },[otherUsersData])
     useEffect(()=> {
       if(value !== ''){
         setBoolSearchValue(true)
@@ -199,41 +205,41 @@ const UserSearch = () => {
         transform:'translate(-50%)'
       }}
     >
-      <div
-        style={{
-          width: '90%', 
-          position: 'relative', 
-          left: '50%', 
-          transform: 'translate(-50%)',
-          margin:'16px 0px 8px 0px'
-        }}
-      >
-   <Lupa className='lupa' onClick={SearchUsers} />
-      <input 
-        type="text"
-        value={value} 
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKey}
-        placeholder='Поиск'
-        style={{padding: '8px 0px 8px 32px'}}
-        className='inputSearch'
-        enterKeyHint='search'
-        />
+            <div
+            style={{
+              width: '90%', 
+              position: 'relative', 
+              left: '50%', 
+              transform: 'translate(-50%)',
+              margin:'16px 0px 8px 0px'
+            }}
+          >
+      <Lupa className='lupa' onClick={SearchUsers} />
+          <input 
+            type="text"
+            value={value} 
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder='Поиск'
+            style={{padding: '8px 0px 8px 32px'}}
+            className='inputSearch'
+            enterKeyHint='search'
+            />
                 <TransitionGroup>
-          {boolSearchValue &&( 
-              <CSSTransition 
-              timeout={500} 
-              classNames="close" unmountOnExit 
-              in={boolSearchValue}
-              >
-                <CloseBtn 
-                  onClick={handleClose}
-                  className='closebtn'
-                />
-              </CSSTransition>
-            )}
-          </TransitionGroup>
-          </div>
+                  {boolSearchValue &&( 
+                      <CSSTransition 
+                      timeout={500} 
+                      classNames="close" unmountOnExit 
+                      in={boolSearchValue}
+                      >
+                        <CloseBtn 
+                          onClick={handleClose}
+                          className='closebtn'
+                        />
+                      </CSSTransition>
+                  )}
+              </TransitionGroup>
+            </div>
           {loadingMess ? (
             <div>
               <IsLoaderUsers/>
@@ -245,10 +251,6 @@ const UserSearch = () => {
               <IsLoaderUsers/>
             </div>
           ): (
-
-          error 
-            ? <ErrBlock/>
-            : (
               fullUsersData.length === 0 
               ? <h3
                   style={{
@@ -257,18 +259,18 @@ const UserSearch = () => {
                   }}
                 >Таких пользователей нет</h3>
               :
+                  
+
+                  
                     <InfiniteScroll 
                       next={nextScroll} 
                       hasMore={hasMore} 
                       loader={''} 
                       dataLength={otherUsersData.length}
-                      scrollableTarget="chatUsersMain"
-                      scrollThreshold={0.7}
+                      scrollThreshold={0.5}
 
                     >
-                      <div
-                      style={{padding: 0}}
-                      >
+                     
                         {otherUsersData.map((userData, index)=>(
                           <button
                               className="ChatsOtherUser"
@@ -279,9 +281,10 @@ const UserSearch = () => {
                               <h3>{userData.fullName}</h3>
                           </button>
                         ))}
-                      </div>
+                      
                     </InfiniteScroll>
-            )
+               
+            
           
           )}
           

@@ -17,6 +17,7 @@ import ImgFile from '../../../Images/img.png';
 import SendBtn from '../../../Images/send-btn.png';
 import { ReactComponent as Close } from '../../../svg/close.svg';
 import { removeEditMess } from 'store/users/editMess.slice';
+import { removeSelectMess } from 'store/users/deleteMess';
 
 
 const SearchInput = () => {
@@ -566,6 +567,7 @@ const calculateHash = async (file: File): Promise<string> => {
             })
             await updateDoc(chatDocRef, { messages: editThisMess });
             dispatch(removeEditMess())
+            dispatch(removeSelectMess())
           }
         }else{
           setText('');

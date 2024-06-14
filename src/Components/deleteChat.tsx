@@ -179,7 +179,7 @@ const ModalDelChat:FC<LoadState> = ({load, setLoad}) => {
 return(
     <div  style={{display:'flex',flexDirection: 'column', alignItems:'center',justifyContent:'center'}}>
         <h3>Удалить чат для {confirmDelChatObj?.UserInfo.fullName}? </h3>
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width:'100%', gap: '10px'}}>
+        <div className="default__confirm__modal">
         <label className="checkbox-container">
             <input className="custom-checkbox" checked={confirmAllDel}  type="checkbox" onChange={handleConfirmAllDell}/>
             <span className="checkmark">

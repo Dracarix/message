@@ -95,15 +95,18 @@ const FormRegister:FC<FormProps> = ({title, handleForm, error} ) => {
             title='hide or not hide password'
             style={!showPassword ? {margin: '0 4px 0 0'} : {}}
           >
-            {showPassword 
-            ? <NoEyeIcon
-                width='32.5px'
-                height='32.5px'
-              /> 
-            : <EyeIcon
-                width='25px'
-                height='25px'
-              />}
+
+            {pass !== '' ?
+              showPassword 
+                ? <NoEyeIcon
+                    width='32.5px'
+                    height='32.5px'
+                  /> 
+                : <EyeIcon
+                    width='25px'
+                    height='25px'
+                  />
+              : ''}
           </button>
       </label>
 

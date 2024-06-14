@@ -31,7 +31,7 @@ const Messages: FC = () => {
     const itemsPerPage = 15;
     const navigate = useNavigate();
     const db = getFirestore();  
-    const idAlexey = 'R17HULm5ASdb2XUQesjLuEYvnk12';
+    const idAlexey = '28aMQNrRbWZZ5JjhGRiPJzERYWf2';
     const generateChatID = (id1: string, id2: string) => {
         const firstId = id1.localeCompare(id2) < 0 ? id1 : id2;
         const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
@@ -158,6 +158,11 @@ const Messages: FC = () => {
             handleClose();
           }
       };
+      const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.nativeEvent.key === "Enter"){ 
+            SearchUsers();
+        }
+      };
 
       const handleClose = () => {
         setSearchValueSplide('');
@@ -191,6 +196,7 @@ const Messages: FC = () => {
                     value={searchValueSplide} 
                     onChange={(e) => setSearchValueSplide(e.target.value)}
                     onKeyDown={handleKey}
+                    onKeyUp={handleKeyUp}
                     placeholder='Поиск'
                     style={{zIndex:1}}
                     className='inputSearch'

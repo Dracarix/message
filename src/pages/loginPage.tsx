@@ -107,8 +107,7 @@ const LoginPage = () => {
             handleForm={(email, pass) => handleLogin(email, pass)}
             error={errorAuth || ''}
            />
-          <p className="signin">Еще нет аккаунта?  <Link style={{textShadow: 'none'}} to='/register'>Регистрация</Link> </p>
-          {errorAuth && errorAuth}
+          <p className="signin">Еще нет аккаунта?  <Link style={{textShadow: 'none'}} to='/message/register'>Регистрация</Link> </p>
       </div>
     </div>
   );

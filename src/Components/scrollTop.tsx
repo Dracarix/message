@@ -2,10 +2,11 @@ import React, { FC, useEffect, useState } from 'react';
 import NewButton from './UI/button/NewButton';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ReactComponent as ArrowBottom } from '../svg/arrow__bottom.svg';
+import { useMatch } from 'react-router-dom';
 
 const ScrollTop = () => {
     const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-
+    const match = useMatch("message/chat/:overUserID");
     useEffect(() => {
       const handleScroll = () => {
         const header = document.getElementById('header');
@@ -22,7 +23,7 @@ const ScrollTop = () => {
     }, []);
   return (
 <TransitionGroup>
-      {!isHeaderVisible && (
+      {!isHeaderVisible && !match && (
         <CSSTransition 
         timeout={500} 
         classNames="close_arrow" 

@@ -100,7 +100,10 @@
     bottom: calc(4px + 5%);
 
 }
-
+.search__media:focus + .header__lupa{
+    pointer-events:all;
+    z-index: 10;
+}
 .header__lupa{
     cursor: pointer;
     position: absolute;

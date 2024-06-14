@@ -123,7 +123,7 @@ return (
         <h3>
             Вы действительно хотите удалить сообщение?
         </h3>
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width:'100%'}}>
+        <div className="default__confirm__modal">
         <label className="checkbox-container">
             <input className="custom-checkbox" checked={confirmAllDel} type="checkbox" onChange={handleConfirmAllDell}/>
             <span className="checkmark">

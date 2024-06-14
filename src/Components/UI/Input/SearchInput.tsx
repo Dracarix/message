@@ -129,7 +129,11 @@ const SearchInput = () => {
       handleClose();
     }
   };
-
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.key === "Enter"){ 
+      SearchUsers();
+    }
+  };
   const fullSearch = () => {
     handleClose();
     setSearchUserData([]);
@@ -153,6 +157,7 @@ const SearchInput = () => {
         value={searchValue} 
         onChange={(e) => setSearchValue(e.target.value)}
         onKeyDown={handleKey}
+        onKeyUp={handleKeyUp}
         placeholder='Поиск'
         disabled = {need ? false : true}
         className='inputSearch'

@@ -30,6 +30,7 @@ const UserSearch = () => {
     const itemsPerPage = 15;
     const {loadingMess} = useAppSelector(state => state.processMessages);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+
     useEffect(() => {
       if (searchValue) {
         setValue(searchValue);
@@ -39,7 +40,6 @@ const UserSearch = () => {
           try{
             const querySnapshot = await getDocs(collection(db, "users"));
             if(!querySnapshot.empty){
-                dispatch(StartMessages())
                 const usersSearch: SearchUserState[] = [];
                 querySnapshot.forEach((doc) => {
                   const userData = doc.data() as SearchUserState;
@@ -57,8 +57,6 @@ const UserSearch = () => {
                   setOtherUsersData(res);
                   dispatch(FinishMessages())
                 }
-                
-                
             }else{
               dispatch(ProcessDataFailure('Что то пошло не так'));
       
@@ -81,9 +79,7 @@ const UserSearch = () => {
       const secondId = id1.localeCompare(id2) < 0 ? id2 : id1;
       return (`${firstId}${secondId}`);
   };
-  useEffect(()=>{
-console.log(otherUsersData);
-  },[otherUsersData])
+
     useEffect(()=> {
       if(value !== ''){
         setBoolSearchValue(true)
@@ -98,40 +94,33 @@ console.log(otherUsersData);
         SearchUsers();
       }
     };
-    
-    const SearchUsers = async () => {
-      setStartIndex(0);
-      dispatch(ProcessDataFailure(null));
-     
-      try{
-        dispatch(ProcessDataStart());
-        const querySnapshot = await getDocs(collection(db, "users"));
-        if(!querySnapshot.empty){
-            dispatch(StartMessages())
-            const usersSearch: SearchUserState[] = [];
-          querySnapshot.forEach((doc) => {
-            const userData = doc.data() as SearchUserState;
-            usersSearch.push(userData);
-          })
-          const res = usersSearch
-          .filter(user => user.fullName && user.fullName.toLowerCase()
-          .includes(value.toLowerCase()));
-            setFullUsersData(res)
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.nativeEvent.key === "Enter"){ 
+        SearchUsers();
+      }
+    };
+
+    const SearchUsers = () => {
+        setStartIndex(0);
+        dispatch(ProcessDataFailure(null));
+        dispatch(StartMessages())
+        const res = fullUsersData
+        .filter(user => user.fullName && user.fullName.toLowerCase()
+        .includes(value.toLowerCase()));
+        if(res.length !== 0 ){
+          if(res.length >= itemsPerPage){
             const newItems = res.slice(startIndex + itemsPerPage);
             setOtherUsersData(newItems);
             dispatch(FinishMessages())
+          }else{
+            setOtherUsersData(res);
+            dispatch(FinishMessages())
+          }
         }else{
-          dispatch(ProcessDataFailure('нет таких пользователей'));
           dispatch(FinishMessages())
-        
-          setOtherUsersData([]);
+          setOtherUsersData(res);
         }
-        
-      }catch(err: any){
-        dispatch(ProcessDataFailure(err.code));
-        console.error(err.code)
-      };
-  
+          dispatch(FinishMessages())
   }
 
   const nextScroll = () => {
@@ -220,6 +209,7 @@ console.log(otherUsersData);
             value={value} 
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKey}
+            onKeyUp={handleKeyUp}
             placeholder='Поиск'
             style={{padding: '8px 0px 8px 32px'}}
             className='inputSearch'
@@ -251,41 +241,35 @@ console.log(otherUsersData);
               <IsLoaderUsers/>
             </div>
           ): (
-              fullUsersData.length === 0 
+            otherUsersData.length === 0 
               ? <h3
                   style={{
                     width: '100%',
                     textAlign: 'center'
                   }}
                 >Таких пользователей нет</h3>
-              :
-                  
+              :         
+              <InfiniteScroll 
+                next={nextScroll} 
+                hasMore={hasMore} 
+                loader={''} 
+                dataLength={otherUsersData.length}
+                scrollThreshold={0.8}
 
-                  
-                    <InfiniteScroll 
-                      next={nextScroll} 
-                      hasMore={hasMore} 
-                      loader={''} 
-                      dataLength={otherUsersData.length}
-                      scrollThreshold={0.5}
-
-                    >
-                     
-                        {otherUsersData.map((userData, index)=>(
-                          <button
-                              className="ChatsOtherUser"
-                              key={index}
-                              onClick={() => handleSelect(userData)}
-                          >
-                              <img src={userData.photoURL} alt={userData.fullName} />
-                              <h3>{userData.fullName}</h3>
-                          </button>
-                        ))}
-                      
-                    </InfiniteScroll>
+              >
                
-            
-          
+                  {otherUsersData.map((userData, index)=>(
+                    <button
+                        className="ChatsOtherUser"
+                        key={index}
+                        onClick={() => handleSelect(userData)}
+                    >
+                        <img src={userData.photoURL} alt={userData.fullName} />
+                        <h3>{userData.fullName}</h3>
+                    </button>
+                  ))}
+                
+              </InfiniteScroll>
           )}
           
     </div>

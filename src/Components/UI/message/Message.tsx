@@ -12,10 +12,10 @@ import { removeSelectMess, setSelectMess } from 'store/users/deleteMess';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { generChatID } from 'hooks/generateChatID';
-import {ChechOtherUser, CheckIcon} from './CheckIcon';
+import {CheckIcon} from './CheckIcon';
 import { removeEditMess } from 'store/users/editMess.slice';
 
-interface chatIDtype  {chatID: string};
+interface chatIDtype {chatID: string};
 
 const Message:FC<chatIDtype> = ({chatID}) => {
     const [message, setMessage] = useState<MessagesType["word"][]>([]);

@@ -115,7 +115,7 @@ const RegisterPage = () => {
       )}
       <div className='block__form_login'>
         <FormRegister title="Signup" handleForm={handleReg} error={errorAuth || ''}/>
-        <p className="signin"> Уже есть аккаунт?  <Link style={{textShadow: 'none'}} to='/login'>Вход</Link> </p>  
+        <p className="signin"> Уже есть аккаунт?  <Link style={{textShadow: 'none'}} to='/message/login'>Вход</Link> </p>  
 
       </div>
 

@@ -10,7 +10,6 @@ import { SettingCompletedProfile } from 'pages/ProfileSetting';
 import ErrorModal from './ErrorModal';
 import DeleteMessConfirm from './deleteMessConfirm';
 import { ModalDelChat } from 'Components/deleteChat';
-import { IsLoadingMini } from '../isLoading/isLoading';
 
 const IsModal:FC<NodeChildren> = ({children}) => {
   const dispatch = useAppDispatch();

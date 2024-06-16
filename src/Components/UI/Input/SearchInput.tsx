@@ -14,7 +14,6 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ReactComponent as Lupa } from '../../../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
 import ImgFile from '../../../Images/img.png';
-import SendBtn from '../../../Images/send-btn.png';
 import { ReactComponent as SendArrow } from '../../../svg/arrow-send.svg';
 import { ReactComponent as Close } from '../../../svg/close.svg';
 import { removeEditMess } from 'store/users/editMess.slice';

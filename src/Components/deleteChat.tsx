@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "hooks/use-redux";
 import { ReactComponent as Trash } from "../svg/trash.svg";
 import { closeModal, openConfirmDelChat } from "store/processes/isModal";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import {  ChatObject, ChatObjectItem, MessagesType, UserState } from "types/user";
 import { ProcessDataFailure } from "store/processes/process";
 import { arrayRemove, deleteDoc, deleteField, doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";

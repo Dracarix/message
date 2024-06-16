@@ -31,6 +31,7 @@ const NotificationsMess = ({userLastMess, numNotif}:messNotification) => {
           audioNotification.play()
         }
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[isVisible])
     return (
       <div className='info__user_mess'>

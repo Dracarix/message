@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import NewButton from './UI/button/NewButton';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ReactComponent as ArrowBottom } from '../svg/arrow__bottom.svg';

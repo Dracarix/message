@@ -7,7 +7,7 @@ import ProfileSettingLink from "Components/profileLink";
 
 const MediaMenu:FC = () => {
   const { needMenu } = useAppSelector((state) => state.useMenu);
-  const { photoURL, fullName , id} = useAppSelector((state) => state.user);
+  const { photoURL, fullName } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   useEffect(() => {
     document.body.style.overflow = !needMenu ? "auto" : "hidden";

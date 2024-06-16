@@ -26,7 +26,6 @@ const ProfileSetting = () => {
     const [oneName, setOneName] = useState('');
     const [twoName, setTwoName] = useState('');
     const [img, setImg] = useState<File | null>(null);
-    const [completeUpdate, setCompletedUpdate] = useState(false);
     const storage = getStorage();
     const dispatch = useAppDispatch();
     const db = getFirestore();

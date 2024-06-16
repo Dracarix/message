@@ -17,7 +17,6 @@ import { NotPages } from 'pages/NotPages';
 import { Chats } from 'pages/Chat';
 import { doc, getFirestore, onSnapshot,  } from 'firebase/firestore';
 import {UserSearch} from 'pages/searchUsers';
-import { openErrModal } from 'store/processes/isModal';
 import {ProfileSetting} from 'pages/ProfileSetting';
 import { UserState } from 'types/user';
 import { setActive } from 'store/users/activeUser';

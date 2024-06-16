@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import { deleteUser, getAuth, signOut } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, updateDoc } from 'firebase/firestore';
+import {doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore';
 import { useAppDispatch, useAppSelector } from 'hooks/use-redux';
 import { FC } from 'react';
 import { removeUser } from 'store/users/user.slice';

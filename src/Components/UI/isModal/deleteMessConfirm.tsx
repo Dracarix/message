@@ -1,9 +1,9 @@
-import { arrayRemove, arrayUnion, doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
+import { arrayRemove, doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { useAuth } from "hooks/use-auth";
 import { useAppDispatch, useAppSelector } from "hooks/use-redux";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useParams } from "react-router-dom";
-import { closeModal, openConfirmDelChat, openConfirmDelMess } from "store/processes/isModal";
+import { closeModal } from "store/processes/isModal";
 import { ProcessDataFailure } from "store/processes/process";
 import { removeSelectMess } from "store/users/deleteMess";
 import { MessagesType } from "types/user";

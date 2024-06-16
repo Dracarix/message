@@ -6,6 +6,7 @@ import { EditMess } from "Components/EditMess";
 import { useAuth } from "hooks/use-auth";
 import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
 import { removeEditMess } from "store/users/editMess.slice";
+import { useEffect, useState } from "react";
 
 const CheckedMess = () => {
 
@@ -13,31 +14,22 @@ const CheckedMess = () => {
   const dispatch = useAppDispatch();
   const {id} = useAuth();
   const {editMess} = useAppSelector((state)=> state.editMess);
+  const [hasEditMess, setHasEditMess] = useState(false)
 
+useEffect(()=>{
+if(words.length === 1 && words[0].senderId === id.toString()){
+  setHasEditMess(true)
+}else{
+  setHasEditMess(false)
+}
+},[id, words])
 
   const handleCloseSelect = () => {
     dispatch(removeSelectMess())
     dispatch(removeEditMess())
   }
   const handleDeleteSelect = () => {
-    // if(overUserID){
-    //   const chatID = generateChatId(overUserID , id.toString())
-    //   words.forEach(async (i) => {
-        
-    //     await updateDoc(doc(db, "chats", chatID), {
-    //       messages: arrayRemove({
-    //         id: i.id ,
-    //         text: i.text,
-    //         senderId: i.senderId,
-    //         date: i.date,
-    //         img: i.img, 
-    //       }),
-    //     });
-    //   })
-    //   dispatch(removeSelectMess())
-    // }
     dispatch(openConfirmDelMess())
-    
   }
 
 return (
@@ -55,7 +47,7 @@ return (
       :<>
         <button className="default__btn close__select__btn"
           onClick={handleCloseSelect}
-        >{words.length >= 1 && words.length} {''} <span className="Close__select"> Отменить</span></button>
+        >{words.length} {''} <span className="Close__select"> Отменить</span></button>
         <div
           style={{
             width: '150px', 
@@ -65,8 +57,7 @@ return (
 
           }}
         >
-          {words.length === 1 && 
-            words[0].senderId === id.toString() &&
+          {hasEditMess &&
             <button className="default__btn">
               <EditMess/>
             </button>

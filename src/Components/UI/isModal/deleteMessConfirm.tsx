@@ -44,7 +44,8 @@ const handleConfirmAllDell = () => {
             
                    
                     words.forEach(async (i) => {
-                      if(i.deleteFor){
+                     
+                      if(i.deleteFor){ // если с галочкой и есть удалено кем то
                         await updateDoc(doc(db, "chats", chatID), {
                           messages: arrayRemove({
                           id: i.id ,
@@ -53,9 +54,26 @@ const handleConfirmAllDell = () => {
                           date: i.date,
                           img: i.img, 
                           deleteFor: i.deleteFor,
+                          checkedFor:i.checkedFor,
+                          
                           }),
                       });
-                      }else{
+                        
+                        if(i.edited){// если с галочкой , удалено кем то так еще и изменялось
+                          await updateDoc(doc(db, "chats", chatID), {
+                            messages: arrayRemove({
+                              id: i.id,
+                              text: i.text,
+                              senderId: i.senderId,
+                              date: i.date,
+                              img: i.img,
+                              deleteFor: i.deleteFor,
+                              checkedFor:i.checkedFor,
+                              edited:i.edited,
+                            }),
+                          });
+                        }
+                      }else{ // если с галочкой и нет удалено кем то
                         await updateDoc(doc(db, "chats", chatID), {
                           messages: arrayRemove({
                           id: i.id ,
@@ -63,8 +81,22 @@ const handleConfirmAllDell = () => {
                           senderId: i.senderId,
                           date: i.date,
                           img: i.img, 
+                          checkedFor:i.checkedFor,
                           }),
                       });
+                        if(i.edited){// если с галочкой , не удалено кем то  и изменялось
+                          await updateDoc(doc(db, "chats", chatID), {
+                            messages: arrayRemove({
+                              id: i.id,
+                              text: i.text,
+                              senderId: i.senderId,
+                              date: i.date,
+                              img: i.img,
+                              checkedFor:i.checkedFor,
+                              edited:i.edited,
+                            }),
+                          });
+                        }
                       }
                     
                     })
@@ -72,11 +104,13 @@ const handleConfirmAllDell = () => {
                     setConfirmAllDel(false)
                     closeThisModal()
                 
-            }else{
+            }else{ // если без галочки
+              
                 const chatID = generateChatId(overUserID , id.toString())
                 for (let i = 0; i < words.length; i++) {
                   const word = words[i];
-                  if (word.deleteFor) {
+                  if (word.deleteFor) {// если без галочки , удалялось кем то  
+                    
                     await updateDoc(doc(db, "chats", chatID), {
                       messages: arrayRemove({
                         id: word.id,
@@ -85,9 +119,24 @@ const handleConfirmAllDell = () => {
                         date: word.date,
                         img: word.img,
                         deleteFor: word.deleteFor,
+                        checkedFor:word.checkedFor,
                       }),
                     });
-                  } else {
+                    if(word.edited){// если без галочки , удалялось кем то  и изменялось
+                      await updateDoc(doc(db, "chats", chatID), {
+                        messages: arrayRemove({
+                          id: word.id,
+                          text: word.text,
+                          senderId: word.senderId,
+                          date: word.date,
+                          img: word.img,
+                          deleteFor: word.deleteFor,
+                          checkedFor:word.checkedFor,
+                          edited:word.edited,
+                        }),
+                      });
+                    }
+                  } else {// если без галочки и не удаляось никем
                     const messages:MessagesType["word"][] = chatDoc.data().messages.map((message:MessagesType["word"]) => {
                       if (message.id === word.id) {
                         return {

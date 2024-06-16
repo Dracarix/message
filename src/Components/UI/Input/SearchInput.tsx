@@ -15,9 +15,11 @@ import { ReactComponent as Lupa } from '../../../svg/search-lupa.svg';
 import { ReactComponent as CloseBtn } from '../../../svg/close.svg';
 import ImgFile from '../../../Images/img.png';
 import SendBtn from '../../../Images/send-btn.png';
+import { ReactComponent as SendArrow } from '../../../svg/arrow-send.svg';
 import { ReactComponent as Close } from '../../../svg/close.svg';
 import { removeEditMess } from 'store/users/editMess.slice';
 import { removeSelectMess } from 'store/users/deleteMess';
+import { IsLoadingMini } from '../isLoading/isLoading';
 
 
 const SearchInput = () => {
@@ -237,7 +239,8 @@ type Disabled = {disabled: boolean};
 const InputSend = ({disabled}: Disabled) => {
   const storage = getStorage();
   const db = getFirestore();
-  const [text, setText] = useState('');
+  const [unprocessedText, setUnprocessedText] = useState('');
+  const [loadingSend, setLoadingSend] = useState(false)
   const [img, setImg] = useState<File | null>(null);
   const [saveEditText, setSaveEditText] = useState('')
   const { overUserID } = useParams();
@@ -245,7 +248,6 @@ const InputSend = ({disabled}: Disabled) => {
   const [chatID, setChatID] = useState('');
   const { id } = useAuth();
   const dispatch = useAppDispatch();
-  const {error} = useAppSelector((state) => state.process);
   const {editMess} = useAppSelector((state)=> state.editMess);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -262,7 +264,7 @@ useEffect(()=>{
 },[overUserID])
 useEffect(()=>{
   if(editMess && inputRef.current){
-    setText(editMess.text);
+    setUnprocessedText(editMess.text);
     inputRef.current.focus()
     setSaveEditText(editMess.text)
   }
@@ -290,16 +292,23 @@ const calculateHash = async (file: File): Promise<string> => {
   };
 
   const handleSend = async () => {
+    setLoadingSend(true);
+    const text = unprocessedText.trim().replace(/\n+/g, ' ');
+    if(text === '' && img === null){
+      setLoadingSend(false);
+      setUnprocessedText('');
+    }
     if(!editMess){
       // Если нет редактирования сообщения
       if (img) {
+        //Если есть Картинка 
         if(user){
         const hash = await calculateHash(img);
         const imageUrl = await getImageUrlFromStorage(hash);
         if (imageUrl) {
           if(chatID !== ''){
             const newIdMess = uuid();
-            setText('');
+            setUnprocessedText('');
             setImg(null);
             await updateDoc(doc(db, "chats", chatID), {
               messages: arrayUnion({
@@ -338,6 +347,7 @@ const calculateHash = async (file: File): Promise<string> => {
               }).catch((err) => {
                 dispatch(ProcessDataFailure(err.code));
               });
+              setLoadingSend(false)
             }else{
               await updateDoc(doc(db, "UserChat", user.id), {
                 [chatID + ".lastMessage"]: {
@@ -365,6 +375,7 @@ const calculateHash = async (file: File): Promise<string> => {
               }).catch((err) => {
                 dispatch(ProcessDataFailure(err.code));
               });
+              setLoadingSend(false)
             }
   
           }
@@ -389,7 +400,7 @@ const calculateHash = async (file: File): Promise<string> => {
                 const downloadURL = await getDownloadURL(storageRef);
                 if(chatID !== ''){
                   const newIdMess = uuid()
-                  setText('');
+                  setUnprocessedText('');
                   setImg(null);
                   await updateDoc(doc(db, "chats", chatID), {
                     messages: arrayUnion({
@@ -428,6 +439,7 @@ const calculateHash = async (file: File): Promise<string> => {
                     }).catch((err) => {
                       dispatch(ProcessDataFailure(err.code));
                     });
+                    setLoadingSend(false)
                   }else{
                     await updateDoc(doc(db, "UserChat", user.id), {
                       [chatID + ".lastMessage"]: {
@@ -454,6 +466,7 @@ const calculateHash = async (file: File): Promise<string> => {
                     }).catch((err) => {
                       dispatch(ProcessDataFailure(err.code));
                     });
+                    setLoadingSend(false)
                   }
                 }
                 
@@ -473,7 +486,7 @@ const calculateHash = async (file: File): Promise<string> => {
         if(chatID !== ''){
   
           if (text !== '') {
-            setText('');
+            setUnprocessedText('');
             setImg(null);
             const dataChat = await getDoc(doc(db,"chats", chatID))
             const dataChatHave = dataChat.data()
@@ -487,7 +500,6 @@ const calculateHash = async (file: File): Promise<string> => {
                 img: null,
                 checkedFor: [{id: id.toString()}],
               };
-            console.log(newIdMess);
             await updateDoc(doc(db, "chats", chatID), {
               messages: arrayUnion(newMessage),
             })
@@ -518,8 +530,10 @@ const calculateHash = async (file: File): Promise<string> => {
             }).catch((err) => {
               dispatch(ProcessDataFailure(err));
             });
+            setLoadingSend(false)
             }else{
               await setDoc(doc(db, "chats", chatID), { messages:[] });
+              setLoadingSend(false)
             }
            
   
@@ -533,7 +547,7 @@ const calculateHash = async (file: File): Promise<string> => {
       if(text !== ''){
         if(text !== saveEditText){
           // Если текст не редачили 
-          setText('');
+          setUnprocessedText('');
           setImg(null);
           setSaveEditText('')
           const DocSnap = await getDoc(doc(db, "chats", chatID));
@@ -573,12 +587,14 @@ const calculateHash = async (file: File): Promise<string> => {
             await updateDoc(chatDocRef, { messages: editThisMess });
             dispatch(removeEditMess())
             dispatch(removeSelectMess())
+            setLoadingSend(false)
           }
         }else{
-          setText('');
+          setUnprocessedText('');
           setImg(null);
           setSaveEditText('')
           dispatch(removeEditMess())
+          setLoadingSend(false)
         }
       }
 
@@ -589,6 +605,7 @@ const calculateHash = async (file: File): Promise<string> => {
     if (e.key === "Enter" && e.currentTarget === e.target) {
         handleSend();
     }
+     
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -612,14 +629,13 @@ const calculateHash = async (file: File): Promise<string> => {
 
       ) }
       <input
-        type="text"
+        type='text'
         placeholder="Введите что нибудь..."
-        onChange={(e) => setText(e.target.value)}
-        value={text}
+        onChange={(e) => setUnprocessedText(e.target.value)}
+        value={unprocessedText}
         onKeyDown={handleEnter}
         disabled={disabled}
         ref={inputRef}
-        enterKeyHint='send'
       />
       <div className="send">
         <input
@@ -635,20 +651,18 @@ const calculateHash = async (file: File): Promise<string> => {
         </label>
         <button 
           onClick={handleSend}
+          disabled={loadingSend}
           style={{
             border: 'none', 
             background: 'transparent'
           }}
-        >
-          <img 
-          src={SendBtn} 
-          alt=''
-          className='img_send'
-          />
+        >{loadingSend 
+          ?<IsLoadingMini/>
+          :<SendArrow/>
+        }
         </button>
       </div>
      
-      {error && error}
     </div>
   );
 };

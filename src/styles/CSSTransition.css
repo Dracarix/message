@@ -42,6 +42,63 @@
     transform: translateY(400px);
     transition: all 500ms ease-in-out;
   }
+
+/*  */
+.leaves__left{
+  width:100%;
+}
+.leaves__Y-enter {
+  opacity: 0;
+  width: 800px;
+  transform: translateY(100px) ;
+
+}
+
+.leaves__Y-enter-active {
+  opacity: 1;
+  width: 800px;
+  transform: translateY(0px);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
+.leaves__Y-exit {
+  opacity: 1;
+  width: 800px;
+  transform: translateY(0px);
+}
+
+.leaves__Y-exit-active {
+  opacity: 0;
+  width: 800px;
+  transform: translateY(-100px);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+/*  */
+.leaves__loading-enter {
+  opacity: 0;
+  transform: translateY(400px) ;
+
+}
+
+.leaves__loading-enter-active {
+  opacity: 1;
+  transform: translateY(0px);
+  transition: all 300ms ease-in-out;
+}
+
+.leaves__loading-exit {
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+.leaves__loading-exit-active {
+  opacity: 0;
+  transform: translateY(-400px);
+  transition: all 300ms ease-in-out;
+}
+/*  */
+
+/*  */
   @media (max-width:800px ) {
     .close_arrow-enter {
       opacity: 0;

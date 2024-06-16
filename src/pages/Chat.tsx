@@ -14,6 +14,7 @@ import { ProcessDataFailure } from 'store/processes/process';
 import { useMediaQuery } from 'react-responsive';
 import CheckedMess from 'Components/UI/message/CheckedMess';
 import { DeleteChat } from 'Components/deleteChat';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 const Chats = () => {
   const {user} = useAppSelector((state) => state.chat);
@@ -25,6 +26,7 @@ const Chats = () => {
   const [valideChat , setValideChat] = useState(false);
   const mediaWidth = useMediaQuery({maxWidth: 800});
   const [select , setSelect] = useState(false)
+  const [NotSelect , setNotSelect] = useState(false)
   const {words} = useAppSelector(state => state.selectedMess);
 
   const generateChatId = (id1: string , id2: string) => {
@@ -82,7 +84,9 @@ const Chats = () => {
     setLoading(true)
 
   if (overUserID) {
-
+    if(user?.id === overUserID){
+      setLoading(false)
+    }
     const querySnapshot = await getDocs(collection(db, "users"));
     const docSnap = await getDoc(doc(db, "users", id.toString()));
     const thisUserDocRef = doc (db, "users" , id.toString())
@@ -105,7 +109,7 @@ const Chats = () => {
       setLoading(false);
        setValideChat(true);
        return;
-    }
+    } 
           const userChat = await getDoc(doc(db, 'UserChat', id.toString()))
           const data = userChat.data();
 
@@ -166,9 +170,9 @@ const Chats = () => {
                         }
                       });
                     }
+                    setLoading(false)
                     dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
                     
-                      setLoading(false)
 
                   }
                 } else {
@@ -211,10 +215,10 @@ const Chats = () => {
                         }
                       });
                     }
+                    setLoading(false)
                     dispatch(setChat({ chatID: chatId, user: overUserIDValue.UserInfo }));
                     
                     
-                      setLoading(false)
                    
                     
                   }
@@ -237,12 +241,7 @@ const Chats = () => {
   }
 };
   useEffect(() => {
-    if(overUserID){
-      const chatId = generateChatId(overUserID, id.toString())
-      console.log(chatId);
-    }
 
-  
     fetchChat();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overUserID, id]);
@@ -250,8 +249,16 @@ const Chats = () => {
   useEffect(()=>{
     if(words.length === 0){
       setSelect(false)
+        setTimeout(() => {
+          
+          setNotSelect(true)
+        }, 400);
+
     }else{
-      setSelect(true)
+      setNotSelect(false)
+      setTimeout(() => {
+        setSelect(true)
+      }, 400);
     }
   },[words])
 
@@ -264,22 +271,50 @@ if(valideChat){
     <div className='chat'>
       {!mediaWidth && <LeftUsers thisID={user?.id || ''} />}
       <section className='chat_section'>
-        {loading ? <ChatLoader/> 
-        : (
-          select
-            ?(<CheckedMess/>
-            ):(
-              <div className='chatInfo'>
-                  <div className='chatIcons'>
-                    <img src={user?.photoURL} alt="" />
+        <TransitionGroup
+        style={{ overflow:'hidden'}}
+        className='chatInfo'>   
+          {loading && (
+           
+                <CSSTransition
+                  timeout={300} 
+                  classNames="leaves__loading" unmountOnExit 
+                  in={select}
+                >
+                <ChatLoader/>
+                </CSSTransition>
+          )}
+        
+          {select &&(
+                <CSSTransition
+                  timeout={400} 
+                  classNames="leaves__Y" unmountOnExit 
+                  in={select}
+                  style={{width:'100%'}}
+                >
+
+                      <CheckedMess/>
+                </CSSTransition>
+            )}
+            {NotSelect && (
+              <CSSTransition
+                  timeout={400} 
+                  classNames="leaves__Y" unmountOnExit 
+                  in={NotSelect}
+                >    
+                  <div className='chatInfo' style={{display:'flex', alignItems:'center',width:'100%'}}>
+                      <div className='chatIcons'>
+                        <img src={user?.photoURL} alt="" />
+                      </div>
+                      <span>{user?.fullName}</span>
+                      <div style={{position:'absolute', right:'12px'}}>
+                        <DeleteChat UserID={user?.id}  />
+                      </div>
                   </div>
-                  <span>{user?.fullName}</span>
-                  <div style={{position:'absolute', right:'12px'}}>
-                    <DeleteChat UserID={user?.id}  />
-                  </div>
-              </div>
-            )
-        )}
+                </CSSTransition>
+            )}
+          
+          </TransitionGroup> 
         
         {overUserID && 
           <Message chatID={generateChatId(id.toString(), overUserID)} />
